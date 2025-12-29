@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Header } from "./Header"
+
 import { BottomNav } from "@/components/dashboard/BottomNav"
 
 interface DashboardShellProps {
@@ -43,8 +43,7 @@ export function DashboardShell({ children, userEmail }: DashboardShellProps) {
                 isSidebarCollapsed ? "lg:pl-24" : "lg:pl-80" // Desktop padding
             )}
         >
-            <Header userEmail={userEmail} />
-            <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden pb-24 lg:pb-10"> {/* Mobile: pb-24 for Nav */}
+            <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden pb-24 lg:pb-10 pt-8 lg:pt-10"> {/* Added top padding since header is gone */}
                 {children}
             </main>
             <BottomNav />

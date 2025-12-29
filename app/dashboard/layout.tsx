@@ -18,7 +18,7 @@ export default async function DashboardLayout({
 
     return (
         <div className="flex h-screen bg-slate-50">
-            <Sidebar />
+            <Sidebar userEmail={user.email} />
             <div className="flex-1 flex flex-col pl-20 transition-all duration-300 lg:pl-0">
                 {/* pl-20 is for when sidebar is collapsed (mobile default or collapsed) 
             We will rely on Sidebar's internal padding/margin logic or a context 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Save, Upload, User, Camera } from "lucide-react"
+import { Loader2, Save, Upload, User, Camera, LogOut } from "lucide-react"
 import { ProfileSettingsSchema, profileSettingsSchema } from "@/lib/schemas-settings"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -175,6 +175,21 @@ export function ProfileSettingsForm({ initialData }: { initialData?: any }) {
                         </div>
                     </form>
                 </Form>
+
+                <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="text-center md:text-left">
+                        <h4 className="font-bold text-slate-800">Sair da Conta</h4>
+                        <p className="text-sm text-slate-500">Encerre sua sessão atual com segurança.</p>
+                    </div>
+                    <Button type="button" variant="outline" onClick={async () => {
+                        const supabase = createClient()
+                        await supabase.auth.signOut()
+                        router.push("/login")
+                    }} className="w-full md:w-auto h-12 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sair do Sistema
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     )

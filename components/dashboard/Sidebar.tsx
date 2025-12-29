@@ -12,11 +12,25 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
-    Zap
+    Zap,
+    LogOut,
+    User
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
 import { DrillIcon } from "@/components/icons/DrillIcon"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { InstallPWA } from "@/components/pwa/InstallPWA"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const menuItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -28,14 +42,28 @@ const menuItems = [
     { label: "Configurações", icon: Settings, href: "/dashboard/settings" },
 ]
 
-export function Sidebar() {
+export function Sidebar({ userEmail }: { userEmail?: string }) {
     const [isCollapsed, setIsCollapsed] = useState(false)
     const pathname = usePathname()
+    const router = useRouter()
+    const supabase = createClient()
+    const [profile, setProfile] = useState<any>(null)
 
     // Persist collapsed state
     useEffect(() => {
         const saved = localStorage.getItem("sidebarCollapsed")
         if (saved) setIsCollapsed(JSON.parse(saved))
+    }, [])
+
+    useEffect(() => {
+        async function fetchProfile() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+                if (data) setProfile(data)
+            }
+        }
+        fetchProfile()
     }, [])
 
     const toggleCollapse = () => {
@@ -44,15 +72,23 @@ export function Sidebar() {
         localStorage.setItem("sidebarCollapsed", JSON.stringify(newState))
     }
 
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        router.push("/login")
+    }
+
+    const displayName = profile?.full_name || "Engenheiro"
+    const displayAvatar = profile?.avatar_url
+
     return (
         <aside
             className={cn(
-                "bg-white border-r border-slate-200 h-screen fixed left-0 top-0 transition-all duration-300 z-50 flex-col shadow-sm hidden lg:flex",
-                isCollapsed ? "w-24" : "w-80" // Increased width
+                "bg-white border-r border-slate-200 h-screen fixed left-0 top-0 transition-all duration-300 z-50 flex flex-col shadow-sm hidden lg:flex", // Ensure flex-col
+                isCollapsed ? "w-24" : "w-80"
             )}
         >
             {/* Header / Logo */}
-            <div className="h-28 flex items-center justify-between px-8 border-b border-slate-100">
+            <div className="h-24 flex items-center justify-between px-8 border-b border-slate-100 flex-shrink-0">
                 <div className={cn("flex items-center gap-4 overflow-hidden transition-all", isCollapsed && "justify-center w-full px-0")}>
                     <div className="bg-blue-600 p-3.5 rounded-2xl flex-shrink-0 shadow-lg shadow-blue-600/20">
                         <Zap className="h-8 w-8 text-white fill-white" />
@@ -97,16 +133,63 @@ export function Sidebar() {
                 })}
             </nav>
 
-            {/* Footer / Toggle */}
-            <div className="p-6 border-t border-slate-100 hidden lg:block">
+            {/* Footer: User & System Actions */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/30 flex flex-col gap-4 flex-shrink-0">
+
+                {/* 1. Install PWA Button (Only if not collapsed) */}
+                {!isCollapsed && (
+                    <div className="w-full">
+                        <InstallPWA />
+                    </div>
+                )}
+
+                {/* 2. User Profile Dropdown */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className={cn(
+                            "flex items-center gap-3 p-3 rounded-2xl hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all text-left w-full",
+                            isCollapsed && "justify-center p-2"
+                        )}>
+                            <Avatar className="h-10 w-10 border-2 border-white shadow-sm flex-shrink-0">
+                                <AvatarImage src={displayAvatar || "/avatars/01.png"} alt={displayName} />
+                                <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">
+                                    {displayName[0]?.toUpperCase() || <User className="h-4 w-4" />}
+                                </AvatarFallback>
+                            </Avatar>
+
+                            {!isCollapsed && (
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="font-bold text-slate-800 text-sm truncate">{displayName}</p>
+                                    <p className="text-xs text-slate-500 truncate">{userEmail || "Usuário"}</p>
+                                </div>
+                            )}
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align={isCollapsed ? "center" : "end"} side={isCollapsed ? "right" : "top"} className="w-64 mb-2">
+                        <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => router.push("/dashboard/settings?tab=profile")} className="cursor-pointer">
+                            <User className="mr-2 h-4 w-4" /> Perfil
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push("/dashboard/settings")} className="cursor-pointer">
+                            <Settings className="mr-2 h-4 w-4" /> Configurações
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 cursor-pointer">
+                            <LogOut className="mr-2 h-4 w-4" /> Sair
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* 3. Collapse Toggle */}
                 <button
                     onClick={toggleCollapse}
-                    className="w-full flex items-center justify-center p-3 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors"
+                    className="w-full flex items-center justify-center p-2 rounded-xl hover:bg-slate-200/50 text-slate-400 transition-colors mt-1"
                 >
-                    {isCollapsed ? <ChevronRight className="h-6 w-6" /> : (
-                        <div className="flex items-center gap-3 text-base font-semibold">
-                            <ChevronLeft className="h-6 w-6" />
-                            <span>Recolher Menu</span>
+                    {isCollapsed ? <ChevronRight className="h-5 w-5" /> : (
+                        <div className="flex items-center gap-2 text-sm font-semibold">
+                            <ChevronLeft className="h-4 w-4" />
+                            <span>Recolher</span>
                         </div>
                     )}
                 </button>
