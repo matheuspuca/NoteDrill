@@ -1,0 +1,38 @@
+import { createClient } from "@/lib/supabase/server"
+import { BDPForm } from "@/components/bdp/BDPForm"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
+
+export default async function NewBDPPage() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        return <div>Acesso negado.</div>
+    }
+
+    // Fetch necessary data for dropdowns
+    const { data: projects } = await supabase.from("projects").select("id, name").order("name")
+    const { data: teamMembers } = await supabase.from("team_members").select("id, name, role").eq("status", "Ativo").order("name")
+    const { data: equipments } = await supabase.from("equipment").select("id, name, type").eq("status", "Operacional").order("name")
+
+    return (
+        <div className="max-w-[1200px] mx-auto pb-20 pt-6">
+            <Link href="/dashboard/bdp" className="inline-flex items-center text-slate-500 hover:text-blue-600 font-bold mb-8 transition-colors">
+                <ChevronLeft className="h-5 w-5 mr-1" />
+                Voltar para Lista
+            </Link>
+
+            <div className="mb-10">
+                <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Novo Boletim Diário (BDP)</h1>
+                <p className="text-lg text-slate-500 mt-2 font-medium">Preencha os dados abaixo para gerar o relatório diário.</p>
+            </div>
+
+            <BDPForm
+                projects={projects || []}
+                teamMembers={teamMembers || []}
+                equipments={equipments || []}
+            />
+        </div>
+    )
+}
