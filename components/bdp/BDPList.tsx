@@ -149,89 +149,134 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <Table>
-                        <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
-                            <TableRow className="border-slate-100 hover:bg-transparent">
-                                <TableHead className="pl-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Data/Turno</TableHead>
-                                <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Obra</TableHead>
-                                <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Equipamento</TableHead>
-                                <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Operador</TableHead>
-                                <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Produção</TableHead>
-                                <TableHead className="pr-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em] text-right">Ações</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {reports.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-64 text-center text-slate-400 font-medium text-xl">
-                                        <div className="flex flex-col items-center gap-4">
-                                            <div className="bg-slate-50 p-6 rounded-full">
-                                                <FileText className="h-12 w-12 text-slate-300" />
-                                            </div>
-                                            <p>Nenhum apontamento encontrado.</p>
-                                        </div>
-                                    </TableCell>
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                        <Table className="min-w-[1000px]">
+                            <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
+                                <TableRow className="border-slate-100 hover:bg-transparent">
+                                    <TableHead className="pl-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Data/Turno</TableHead>
+                                    <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Obra</TableHead>
+                                    <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Equipamento</TableHead>
+                                    <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Operador</TableHead>
+                                    <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Produção</TableHead>
+                                    <TableHead className="pr-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em] text-right">Ações</TableHead>
                                 </TableRow>
-                            ) : (
-                                reports.map((report) => (
-                                    <TableRow key={report.id} className="border-slate-50 hover:bg-blue-50/40 transition-all duration-200 group cursor-pointer">
-                                        <TableCell className="pl-10 py-8">
-                                            <div className="flex bg-slate-100 w-fit px-3 py-1 rounded-lg border border-slate-200 items-center gap-2 mb-1">
-                                                <Calendar className="h-4 w-4 text-slate-500" />
-                                                <span className="font-bold text-slate-700">{format(new Date(report.date || new Date()), "dd/MM/yy")}</span>
-                                            </div>
-                                            <div className="text-sm font-bold text-blue-600 mt-1 uppercase tracking-wide flex items-center gap-1">
-                                                <Clock className="h-3 w-3" /> {report.shift}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-8">
-                                            <div className="font-black text-slate-800 text-lg">{report.projects?.name || "Obra N/D"}</div>
-                                        </TableCell>
-                                        <TableCell className="py-8">
-                                            <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200 font-bold text-sm px-3 py-1">
-                                                {report.drill?.name || report.drillId || "N/D"}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="py-8">
-                                            <div className="font-bold text-slate-700 text-lg">{report.operator?.name || "Operador N/D"}</div>
-                                        </TableCell>
-                                        <TableCell className="py-8">
-                                            <div className="flex flex-col">
-                                                <span className="text-2xl font-black text-slate-900">{report.totalMeters || 0}m</span>
-                                                <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">Perfurados</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="pr-10 py-8 text-right">
-                                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-12 w-12 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all hover:scale-110"
-                                                    onClick={(e) => handleExport(report, e)}
-                                                    title="Exportar PDF"
-                                                    disabled={generatingPdfId === report.id}
-                                                >
-                                                    {generatingPdfId === report.id ? (
-                                                        <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-                                                    ) : (
-                                                        <FileText className="h-6 w-6" />
-                                                    )}
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-12 w-12 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-xl transition-all hover:scale-110"
-                                                    onClick={(e) => handleDelete(report.id, e)}
-                                                >
-                                                    <Trash2 className="h-6 w-6" />
-                                                </Button>
+                            </TableHeader>
+                            <TableBody>
+                                {reports.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="h-64 text-center text-slate-400 font-medium text-xl">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="bg-slate-50 p-6 rounded-full">
+                                                    <FileText className="h-12 w-12 text-slate-300" />
+                                                </div>
+                                                <p>Nenhum apontamento encontrado.</p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                ) : (
+                                    reports.map((report) => (
+                                        <TableRow key={report.id} className="border-slate-50 hover:bg-blue-50/40 transition-all duration-200 group cursor-pointer">
+                                            <TableCell className="pl-10 py-8">
+                                                <div className="flex bg-slate-100 w-fit px-3 py-1 rounded-lg border border-slate-200 items-center gap-2 mb-1">
+                                                    <Calendar className="h-4 w-4 text-slate-500" />
+                                                    <span className="font-bold text-slate-700">{format(new Date(report.date || new Date()), "dd/MM/yy")}</span>
+                                                </div>
+                                                <div className="text-sm font-bold text-blue-600 mt-1 uppercase tracking-wide flex items-center gap-1">
+                                                    <Clock className="h-3 w-3" /> {report.shift}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-8">
+                                                <div className="font-black text-slate-800 text-lg">{report.projects?.name || "Obra N/D"}</div>
+                                            </TableCell>
+                                            <TableCell className="py-8">
+                                                <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200 font-bold text-sm px-3 py-1">
+                                                    {report.drill?.name || report.drillId || "N/D"}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="py-8">
+                                                <div className="font-bold text-slate-700 text-lg">{report.operator?.name || "Operador N/D"}</div>
+                                            </TableCell>
+                                            <TableCell className="py-8">
+                                                <div className="flex flex-col">
+                                                    <span className="text-2xl font-black text-slate-900">{report.totalMeters || 0}m</span>
+                                                    <span className="text-xs text-slate-400 uppercase font-bold tracking-wider">Perfurados</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="pr-10 py-8 text-right">
+                                                <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                                                    <Button variant="ghost" size="icon" className="h-12 w-12 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl" onClick={(e) => handleExport(report, e)} disabled={generatingPdfId === report.id}>
+                                                        {generatingPdfId === report.id ? <Loader2 className="h-6 w-6 animate-spin text-blue-600" /> : <FileText className="h-6 w-6" />}
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-12 w-12 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-xl" onClick={(e) => handleDelete(report.id, e)}>
+                                                        <Trash2 className="h-6 w-6" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden flex flex-col gap-4 p-4">
+                        {reports.length === 0 ? (
+                            <div className="text-center py-10 text-slate-400">
+                                <FileText className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                                <p>Nenhum apontamento.</p>
+                            </div>
+                        ) : (
+                            reports.map(report => (
+                                <div key={report.id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm active:scale-[0.98] transition-all" onClick={() => { /* Navigate to details/edit if needed, currently no route */ }}>
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Calendar className="h-4 w-4 text-slate-400" />
+                                                <span className="font-bold text-slate-800 text-lg">{format(new Date(report.date || new Date()), "dd/MM/yy")}</span>
+                                            </div>
+                                            <div className="text-xs font-bold text-blue-600 uppercase bg-blue-50 px-2 py-1 rounded-md inline-block">
+                                                {report.shift} • {report.drill?.name || report.drillId || "N/D"}
+                                            </div>
+                                        </div>
+                                        <Button variant="ghost" size="icon" className="h-10 w-10 -mt-2 -mr-2 text-slate-300">
+                                            <Edit className="h-5 w-5" />
+                                        </Button>
+                                    </div>
+
+                                    <div className="flex items-center justify-between border-t border-slate-50 pt-4">
+                                        <div>
+                                            <p className="text-xs text-slate-400 font-bold uppercase mb-0.5">Obra</p>
+                                            <p className="text-sm font-bold text-slate-700 truncate max-w-[150px]">{report.projects?.name || "N/D"}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs text-slate-400 font-bold uppercase mb-0.5">Produção</p>
+                                            <p className="text-2xl font-black text-slate-900">{report.totalMeters || 0}<span className="text-sm text-slate-400 font-bold ml-0.5">m</span></p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2 mt-4 pt-4 border-t border-slate-50">
+                                        <Button
+                                            className="flex-1 bg-slate-50 text-slate-600 hover:bg-slate-100 border-none font-bold h-12 rounded-xl"
+                                            onClick={(e) => handleExport(report, e)}
+                                            disabled={generatingPdfId === report.id}
+                                        >
+                                            {generatingPdfId === report.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
+                                            PDF
+                                        </Button>
+                                        <Button
+                                            className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 border-none font-bold h-12 rounded-xl"
+                                            onClick={(e) => handleDelete(report.id, e)}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Excluir
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         </>

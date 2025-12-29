@@ -116,7 +116,7 @@ export function InventoryAnalytics({ items }: InventoryAnalyticsProps) {
                         <CardTitle className="text-xl font-bold text-slate-800">Distribuição Financeira por Obra</CardTitle>
                         <CardDescription>Top 5 obras com maior valor investido em materiais</CardDescription>
                     </CardHeader>
-                    <CardContent className="h-[300px]">
+                    <CardContent className="h-[300px] min-w-0">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={metrics.projectData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
@@ -137,7 +137,7 @@ export function InventoryAnalytics({ items }: InventoryAnalyticsProps) {
                         <CardTitle className="text-xl font-bold text-slate-800">Composição por Categoria</CardTitle>
                         <CardDescription>Valor proporcional entre Materiais, EPIs e Ferramentas</CardDescription>
                     </CardHeader>
-                    <CardContent className="h-[300px] flex items-center justify-center">
+                    <CardContent className="h-[300px] flex items-center justify-center min-w-0">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie

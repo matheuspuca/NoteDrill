@@ -452,7 +452,7 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                                 <FormField control={form.control} name={`supplies.${index}.quantity`} render={({ field }) => (
                                     <FormItem className="w-32">
                                         <FormLabel className="font-bold text-xs uppercase">Quantidade</FormLabel>
-                                        <FormControl><Input type="number" step="0.1" className="bg-white" {...field} /></FormControl>
+                                        <FormControl><Input type="number" inputMode="decimal" step="0.1" className="bg-white h-12" {...field} /></FormControl>
                                     </FormItem>
                                 )} />
                                 <Button type="button" variant="ghost" size="icon" onClick={() => removeSupply(index)} className="text-red-400 hover:text-red-500">
@@ -474,13 +474,13 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                         <FormField control={form.control} name="hourmeterStart" render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="font-bold text-slate-700">Horímetro Inicial</FormLabel>
-                                <FormControl><Input type="number" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="hourmeterEnd" render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="font-bold text-slate-700">Horímetro Final</FormLabel>
-                                <FormControl><Input type="number" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="startTime" render={({ field }) => (

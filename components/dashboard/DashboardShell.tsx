@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Header } from "./Header"
+import { BottomNav } from "@/components/dashboard/BottomNav"
 
 interface DashboardShellProps {
     children: React.ReactNode
@@ -33,17 +34,20 @@ export function DashboardShell({ children, userEmail }: DashboardShellProps) {
         return () => clearInterval(interval)
     }, [isSidebarCollapsed])
 
+
+
     return (
         <div
             className={cn(
                 "flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
-                isSidebarCollapsed ? "lg:pl-24" : "lg:pl-80" // Updated padding: 0 on mobile, controlled on desktop
+                isSidebarCollapsed ? "lg:pl-24" : "lg:pl-80" // Desktop padding
             )}
         >
             <Header userEmail={userEmail} />
-            <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden"> {/* Responsive padding */}
+            <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden pb-24 lg:pb-10"> {/* Mobile: pb-24 for Nav */}
                 {children}
             </main>
+            <BottomNav />
         </div>
     )
 }

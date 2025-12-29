@@ -59,7 +59,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                         <FormItem>
                             <FormLabel className="text-xs text-slate-500">Afast. (m)</FormLabel>
                             <FormControl>
-                                <Input type="number" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
+                                <Input type="number" inputMode="decimal" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
                             </FormControl>
                         </FormItem>
                     )} />
@@ -67,7 +67,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                         <FormItem>
                             <FormLabel className="text-xs text-slate-500">Espaç. (m)</FormLabel>
                             <FormControl>
-                                <Input type="number" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
+                                <Input type="number" inputMode="decimal" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
                             </FormControl>
                         </FormItem>
                     )} />
@@ -77,7 +77,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                     <FormItem>
                         <FormLabel className="text-xs text-slate-500">Diâmetro (mm)</FormLabel>
                         <FormControl>
-                            <Input type="number" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
+                            <Input type="number" inputMode="decimal" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
                         </FormControl>
                     </FormItem>
                 )} />
@@ -86,7 +86,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                     <FormItem>
                         <FormLabel className="text-xs text-slate-500">Ângulo (°)</FormLabel>
                         <FormControl>
-                            <Input type="number" step="0.1" placeholder="0" className="bg-white h-8 text-sm" {...field} />
+                            <Input type="number" inputMode="decimal" step="0.1" placeholder="0" className="bg-white h-8 text-sm" {...field} />
                         </FormControl>
                     </FormItem>
                 )} />
@@ -95,7 +95,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                     <FormItem>
                         <FormLabel className="text-xs text-slate-500">Azimute (°)</FormLabel>
                         <FormControl>
-                            <Input type="number" step="0.1" placeholder="0" className="bg-white h-8 text-sm" {...field} />
+                            <Input type="number" inputMode="decimal" step="0.1" placeholder="0" className="bg-white h-8 text-sm" {...field} />
                         </FormControl>
                     </FormItem>
                 )} />
@@ -106,7 +106,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                         <FormItem className="flex-1">
                             <FormLabel className="text-xs text-slate-500 font-bold">Qtd. Furos</FormLabel>
                             <FormControl>
-                                <Input type="number" min={0} className="bg-white h-8 font-bold" {...field} />
+                                <Input type="number" inputMode="numeric" min={0} className="bg-white h-8 font-bold" {...field} />
                             </FormControl>
                         </FormItem>
                     )} />
@@ -136,19 +136,19 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
                                 <TableRow key={field.id} className="hover:bg-slate-50">
                                     <TableCell className="text-center font-bold text-slate-400">{k + 1}</TableCell>
                                     <TableCell>
-                                        <Input {...register(`services.${index}.holes.${k}.holeNumber`)} type="number" className="w-20 font-bold" />
+                                        <Input {...register(`services.${index}.holes.${k}.holeNumber`)} type="number" inputMode="numeric" className="w-20 font-bold" />
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex gap-1 w-48">
-                                            <Input {...register(`services.${index}.holes.${k}.latitude`)} placeholder="Lat" className="text-xs w-1/2" />
-                                            <Input {...register(`services.${index}.holes.${k}.longitude`)} placeholder="Long" className="text-xs w-1/2" />
+                                            <Input {...register(`services.${index}.holes.${k}.latitude`)} inputMode="decimal" placeholder="Lat" className="text-xs w-1/2" />
+                                            <Input {...register(`services.${index}.holes.${k}.longitude`)} inputMode="decimal" placeholder="Long" className="text-xs w-1/2" />
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <Input {...register(`services.${index}.holes.${k}.depth`)} type="number" step="0.1" className="w-24 font-bold text-blue-600" />
+                                        <Input {...register(`services.${index}.holes.${k}.depth`)} type="number" inputMode="decimal" step="0.1" className="w-24 font-bold text-blue-600" />
                                     </TableCell>
                                     <TableCell>
-                                        <Input {...register(`services.${index}.holes.${k}.subDrilling`)} type="number" step="0.1" placeholder="0.0" className="w-20 text-slate-500" />
+                                        <Input {...register(`services.${index}.holes.${k}.subDrilling`)} type="number" inputMode="decimal" step="0.1" placeholder="0.0" className="w-20 text-slate-500" />
                                     </TableCell>
                                     <TableCell>
                                         <Button type="button" variant="ghost" size="icon" onClick={() => remove(k)} className="text-red-400 hover:text-red-500">

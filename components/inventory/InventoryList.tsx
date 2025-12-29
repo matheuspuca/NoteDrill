@@ -115,8 +115,8 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                         </div>
                                     </div>
                                 </CardHeader>
-                                <CardContent className="p-0">
-                                    <Table>
+                                <CardContent className="p-0 overflow-x-auto">
+                                    <Table className="min-w-[800px]">
                                         <TableHeader className="bg-slate-50">
                                             <TableRow>
                                                 <TableHead className="pl-8 font-bold text-base uppercase text-slate-500 py-4">Item</TableHead>

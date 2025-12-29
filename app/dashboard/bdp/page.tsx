@@ -50,7 +50,7 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
     }))
 
     return (
-        <div className="space-y-8 max-w-[1800px] mx-auto pb-10 pt-6">
+        <div className="space-y-8 max-w-[1800px] mx-auto pb-10 pt-6 px-4 lg:px-8">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>

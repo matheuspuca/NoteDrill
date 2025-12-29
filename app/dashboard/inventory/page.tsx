@@ -51,7 +51,7 @@ export default async function InventoryPage() {
     )
 
     return (
-        <div className="max-w-[1600px] mx-auto py-10 space-y-8">
+        <div className="max-w-[1600px] mx-auto py-6 px-4 lg:px-8 space-y-8">
             <div>
                 <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Almoxarifado</h1>
                 <p className="text-lg text-slate-500 font-medium mt-2">

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { LogOut, User, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
+import { InstallPWA } from "@/components/pwa/InstallPWA"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -56,6 +57,7 @@ export function Header({ userEmail }: HeaderProps) {
         <header className="h-28 bg-white border-b border-slate-200 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-40 shadow-sm">
             {/* Left side (Breadcrumbs or Page Title could go here) */}
             <div className="flex items-center gap-4">
+                <InstallPWA />
                 <MobileSidebar />
                 {/* Placeholder for future page title integration */}
             </div>

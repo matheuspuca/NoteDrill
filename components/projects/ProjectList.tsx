@@ -112,8 +112,8 @@ export function ProjectList({ projects }: ProjectListProps) {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                    <Table>
+                <CardContent className="p-0 overflow-x-auto">
+                    <Table className="min-w-[1000px]">
                         <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
                             <TableRow className="border-slate-100 hover:bg-transparent">
                                 <TableHead className="pl-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Projeto / Obra</TableHead>
