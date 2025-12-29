@@ -73,7 +73,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 })
             } else {
                 toast({
-                    className: "bg-green-600 text-white border-none",
+
                     title: "Sucesso!",
                     description: project ? "Projeto atualizado com sucesso." : "Novo projeto criado com sucesso.",
                 })

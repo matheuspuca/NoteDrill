@@ -210,7 +210,7 @@ export function TeamForm({ member, onSuccess, epis = [], epiHistory = [], compan
                                                 disabled={(date) =>
                                                     date > new Date() || date < new Date("1900-01-01")
                                                 }
-                                                captionLayout="dropdown-buttons"
+                                                captionLayout="dropdown"
                                                 fromYear={1950}
                                                 toYear={new Date().getFullYear()}
                                                 initialFocus
@@ -253,7 +253,7 @@ export function TeamForm({ member, onSuccess, epis = [], epiHistory = [], compan
                                                         field.onChange(format(date, "yyyy-MM-dd"))
                                                     }
                                                 }}
-                                                captionLayout="dropdown-buttons"
+                                                captionLayout="dropdown"
                                                 fromYear={2000}
                                                 toYear={new Date().getFullYear() + 1}
                                                 initialFocus
@@ -321,7 +321,7 @@ export function TeamForm({ member, onSuccess, epis = [], epiHistory = [], compan
                                                         field.onChange(format(date, "yyyy-MM-dd"))
                                                     }
                                                 }}
-                                                captionLayout="dropdown-buttons"
+                                                captionLayout="dropdown"
                                                 fromYear={2020}
                                                 toYear={new Date().getFullYear() + 5}
                                                 initialFocus

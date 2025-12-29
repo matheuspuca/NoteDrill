@@ -123,7 +123,7 @@ export function InventoryAnalytics({ items }: InventoryAnalyticsProps) {
                                 <XAxis type="number" hide />
                                 <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: '#64748B' }} interval={0} />
                                 <Tooltip
-                                    formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'Valor']}
+                                    formatter={(value: number | undefined) => [`R$ ${(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'Valor']}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
                                 />
                                 <Bar dataKey="value" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={24} />
@@ -154,7 +154,7 @@ export function InventoryAnalytics({ items }: InventoryAnalyticsProps) {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'Valor']}
+                                    formatter={(value: number | undefined) => [`R$ ${(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'Valor']}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
                                 />
                                 <Legend verticalAlign="bottom" height={36} iconType="circle" />

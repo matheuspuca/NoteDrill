@@ -132,6 +132,10 @@ export const bdpSchema = z.object({
     totalMeters: z.coerce.number().optional(),
     averageHeight: z.coerce.number().optional(),
     totalHours: z.coerce.number().optional(),
+
+    // Occurrences & Supplies
+    occurrences: z.array(occurrenceEntrySchema).optional(),
+    supplies: z.array(supplyEntrySchema).optional(),
 })
 
 export type BDPSchema = z.infer<typeof bdpSchema>

@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/button"
 
 interface DashboardClientProps {
     kpis: DashboardKPIs
-    kpis: DashboardKPIs
     productionTrend: ChartData[]
     projectRanking: ChartData[]
     bottlenecks: ChartData[]

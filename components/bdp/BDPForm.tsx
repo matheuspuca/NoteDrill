@@ -23,7 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
@@ -116,7 +116,7 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
         // Prevent dupes? User requirement allows mulitple services, maybe multiple of same type? Assume unique type for now.
         const exists = serviceFields.find(s => s.serviceType === type)
         if (exists) {
-            toast({ title: "Serviço já adicionado", description: "Edite a seção existente.", variant: "secondary" })
+            toast({ title: "Serviço já adicionado", description: "Edite a seção existente." })
             return
         }
         appendService({
@@ -146,8 +146,6 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                     ...h,
                     serviceType: s.serviceType,
                     diameter: s.diameter,
-                    angle: s.angle,
-                    angle: s.angle,
                     azimuth: s.azimuth,
                     // Store mesh info for reconstruction
                     meshLength: s.meshLength,
@@ -170,7 +168,7 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                 })
             } else {
                 toast({
-                    className: "bg-green-600 text-white border-none",
+
                     title: "Sucesso!",
                     description: "BDP criado com sucesso.",
                 })

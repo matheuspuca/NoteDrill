@@ -12,7 +12,11 @@ interface EPIUsage {
         name: string
         ca: string
         unit: string
-    }
+    } | {
+        name: string
+        ca: string
+        unit: string
+    }[]
 }
 
 import { getBase64ImageFromURL } from "@/utils/image-utils"
@@ -90,8 +94,8 @@ export const generateEPISheet = async (memberName: string, role: string, history
     currentY += 15
 
     // Employee Info Box
-    doc.setDrawColor(200)
-    doc.setFillColor(250)
+    doc.setDrawColor(200, 200, 200)
+    doc.setFillColor(250, 250, 250)
     doc.rect(14, currentY, 182, 25, "FD")
 
     doc.setFontSize(10)
@@ -124,13 +128,16 @@ export const generateEPISheet = async (memberName: string, role: string, history
     currentY += 15
 
     // Table
-    const tableData = history.map(item => [
-        format(new Date(item.date), "dd/MM/yyyy"),
-        item.inventory_epis?.name || "N/A",
-        item.inventory_epis?.ca || "-",
-        `${item.quantity} ${item.inventory_epis?.unit || "un"}`,
-        "", // Signature placeholder
-    ])
+    const tableData = history.map(item => {
+        const epi = Array.isArray(item.inventory_epis) ? item.inventory_epis[0] : item.inventory_epis
+        return [
+            format(new Date(item.date), "dd/MM/yyyy"),
+            epi?.name || "N/A",
+            epi?.ca || "-",
+            `${item.quantity} ${epi?.unit || "un"}`,
+            "", // Signature placeholder
+        ]
+    })
 
     autoTable(doc, {
         startY: currentY,

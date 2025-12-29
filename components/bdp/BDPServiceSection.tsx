@@ -36,7 +36,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
 
         const newHoles = Array.from({ length: count }).map((_, i) => ({
             holeNumber: fields.length + i + 1,
-            targetDepth: 0,
+            depth: 0,
             subDrilling: 0,
         }))
         append(newHoles)

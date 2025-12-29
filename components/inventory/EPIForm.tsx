@@ -215,7 +215,7 @@ export function EPIForm({ item, projects }: EPIFormProps) {
                     <FormField control={form.control} name="expirationDate" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Validade (CA)</FormLabel>
-                            <FormControl><Input type="date" {...field} /></FormControl>
+                            <FormControl><Input type="date" {...field} value={field.value || ''} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />

@@ -87,7 +87,7 @@ export function Header({ userEmail }: HeaderProps) {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="flex items-center gap-5 pl-3 pr-6 py-8 hover:bg-slate-50 rounded-2xl border border-transparent hover:border-slate-100 h-auto transition-all">
                             <Avatar className="h-14 w-14 border-[3px] border-white shadow-md">
-                                <AvatarImage src={displayAvatar} objectFit="cover" />
+                                <AvatarImage src={displayAvatar || "/avatars/01.png"} alt={displayName} />
                                 <AvatarFallback className="bg-blue-100 text-blue-700 font-extrabold text-xl">
                                     {displayName[0]?.toUpperCase() || <User className="h-7 w-7" />}
                                 </AvatarFallback>

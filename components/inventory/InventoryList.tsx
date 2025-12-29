@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 
-import { Project } from "@/lib/schemas-project"
+
 import { CompanySettingsSchema } from "@/lib/schemas-settings"
 
 interface InventoryListProps {
