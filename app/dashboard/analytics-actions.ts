@@ -48,11 +48,9 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
     // 1. Fetch BDPs for Current Month (Production, Efficiency, Diesel)
     const { data: monthlyBdps } = await supabase
         .from("bdp_reports")
-        .select("totalMeters, totalHours, supplies")
+        .select("totalMeters, totalHours, supplies, occurrences")
         .eq("user_id", user.id)
         .gte("date", startMonth)
-        .lte("date", endMonth)
-
         .lte("date", endMonth)
 
     const totalProduction = monthlyBdps?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
@@ -152,7 +150,6 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
             percentage: utilPercentage
         },
         inventoryValuation,
-        activeProjects: projectCount || 0,
         activeProjects: projectCount || 0,
         dieselConsumption: Math.round(dieselConsumption),
         downtime: totalDowntime,

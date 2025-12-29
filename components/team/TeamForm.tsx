@@ -47,7 +47,7 @@ import {
 
 interface TeamFormProps {
     member?: TeamMember
-    onSuccess: () => void
+
     epis?: any[]
     epiHistory?: any[]
     companySettings?: CompanySettingsSchema & { logo_url?: string | null } | null
@@ -55,7 +55,7 @@ interface TeamFormProps {
 
 const ROLES = ["Operador", "Ajudante", "Supervisor", "Encarregado", "Mecânico", "Eletricista", "Motorista", "Auxiliar"]
 
-export function TeamForm({ member, onSuccess, epis = [], epiHistory = [], companySettings }: TeamFormProps) {
+export function TeamForm({ member, epis = [], epiHistory = [], companySettings }: TeamFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const [isPending, setIsPending] = useState(false)
