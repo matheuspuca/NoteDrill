@@ -47,7 +47,7 @@ export function Sidebar() {
     return (
         <aside
             className={cn(
-                "bg-white border-r border-slate-200 h-screen fixed left-0 top-0 transition-all duration-300 z-50 flex flex-col shadow-sm",
+                "bg-white border-r border-slate-200 h-screen fixed left-0 top-0 transition-all duration-300 z-50 flex-col shadow-sm hidden lg:flex",
                 isCollapsed ? "w-24" : "w-80" // Increased width
             )}
         >
@@ -98,7 +98,7 @@ export function Sidebar() {
             </nav>
 
             {/* Footer / Toggle */}
-            <div className="p-6 border-t border-slate-100">
+            <div className="p-6 border-t border-slate-100 hidden lg:block">
                 <button
                     onClick={toggleCollapse}
                     className="w-full flex items-center justify-center p-3 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors"

@@ -16,8 +16,11 @@ export async function createProject(data: ProjectSchema) {
     const result = projectSchema.safeParse(data)
 
     if (!result.success) {
-        return { error: "Dados inválidos" }
+        console.error("Validation Error:", result.error)
+        return { error: "Dados inválidos: " + JSON.stringify(result.error.flatten()) }
     }
+
+    console.log("Creating project with data:", result.data)
 
     const { error } = await supabase.from("projects").insert({
         ...result.data,
@@ -25,8 +28,8 @@ export async function createProject(data: ProjectSchema) {
     })
 
     if (error) {
-        console.error("Error creating project:", error)
-        return { error: "Erro ao criar obra" }
+        console.error("Supabase Error creating project:", error)
+        return { error: `Erro ao criar obra: ${error.message} (Code: ${error.code})` }
     }
 
     revalidatePath("/dashboard/projects")
@@ -44,19 +47,21 @@ export async function updateProject(id: string, data: ProjectSchema) {
     const result = projectSchema.safeParse(data)
 
     if (!result.success) {
-        return { error: "Dados inválidos" }
+        console.error("Validation Error:", result.error)
+        return { error: "Dados inválidos: " + JSON.stringify(result.error.flatten()) }
     }
+
+    console.log("Updating project", id, "with data:", result.data)
 
     const { error } = await supabase
         .from("projects")
         .update(result.data)
         .eq("id", id)
-        // Ensure user owns the project or has permission (assuming user_id check is enough for now)
         .eq("user_id", user.id)
 
     if (error) {
-        console.error("Error updating project:", error)
-        return { error: "Erro ao atualizar obra" }
+        console.error("Supabase Error updating project:", error)
+        return { error: "Erro ao atualizar obra: " + error.message }
     }
 
     revalidatePath("/dashboard/projects")

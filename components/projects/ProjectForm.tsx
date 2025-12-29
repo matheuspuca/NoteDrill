@@ -95,9 +95,18 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         }
     }
 
+    function onInvalid(errors: any) {
+        console.error("Form Validation Errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios faltando",
+            description: "Por favor, verifique os campos em vermelho e tente novamente.",
+        })
+    }
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+            <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-10">
 
                 {/* Section: Basic Info */}
                 <div className="space-y-6">

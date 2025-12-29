@@ -216,7 +216,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                         <p className="text-slate-400 font-medium">Ranking por produção total</p>
                     </CardHeader>
                     <CardContent className="p-8 pt-4">
-                        <div className="h-[200px] w-full mb-8 border-b border-slate-700 pb-8">
+                        <div className="h-[200px] w-full mb-8 border-b border-slate-700 pb-8 min-w-0">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart layout="vertical" data={projectRanking} margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
                                     <XAxis type="number" hide />
@@ -235,7 +235,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                             </ResponsiveContainer>
                         </div>
 
-                        <div className="h-[200px] w-full">
+                        <div className="h-[200px] w-full min-w-0">
                             <div className="mb-4">
                                 <h4 className="text-lg font-bold text-white flex items-center gap-2">
                                     <AlertOctagon className="w-5 h-5 text-red-400" />

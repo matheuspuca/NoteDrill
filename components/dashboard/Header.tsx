@@ -4,6 +4,7 @@ import React from "react"
 import { createClient } from "@/lib/supabase/client"
 import { LogOut, User, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -49,10 +50,13 @@ export function Header({ userEmail }: HeaderProps) {
     const displayName = profile?.full_name || "Engenheiro Sênior"
     const displayAvatar = profile?.avatar_url
 
+
+
     return (
-        <header className="h-28 bg-white border-b border-slate-200 px-10 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+        <header className="h-28 bg-white border-b border-slate-200 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-40 shadow-sm">
             {/* Left side (Breadcrumbs or Page Title could go here) */}
             <div className="flex items-center gap-4">
+                <MobileSidebar />
                 {/* Placeholder for future page title integration */}
             </div>
 

@@ -44,15 +44,10 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 
 export function ProjectList({ projects }: ProjectListProps) {
     const { toast } = useToast()
-    const [editingProject, setEditingProject] = useState<Project | null>(null)
-    const [isSheetOpen, setIsSheetOpen] = useState(false)
     const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
-    const handleEdit = (project: Project) => {
-        setEditingProject(project)
-        setIsSheetOpen(true)
-    }
+    // Removida a lógica de Sheet/Popup para edição
 
     const handleDeleteClick = (project: Project) => {
         setProjectToDelete(project)
@@ -87,16 +82,6 @@ export function ProjectList({ projects }: ProjectListProps) {
         } finally {
             setIsDeleting(false)
         }
-    }
-
-    const handleSheetOpenChange = (open: boolean) => {
-        setIsSheetOpen(open)
-        if (!open) setEditingProject(null)
-    }
-
-    const handleSuccess = () => {
-        setIsSheetOpen(false)
-        setEditingProject(null)
     }
 
     return (
@@ -205,14 +190,15 @@ export function ProjectList({ projects }: ProjectListProps) {
                                             </TableCell>
                                             <TableCell className="pr-10 py-8 text-right">
                                                 <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-12 w-12 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-xl transition-all hover:scale-110"
-                                                        onClick={(e) => { e.stopPropagation(); handleEdit(project) }}
-                                                    >
-                                                        <Edit className="h-6 w-6" />
-                                                    </Button>
+                                                    <Link href={`/dashboard/projects/${project.id}`}>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-12 w-12 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-xl transition-all hover:scale-110"
+                                                        >
+                                                            <Edit className="h-6 w-6" />
+                                                        </Button>
+                                                    </Link>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -231,22 +217,6 @@ export function ProjectList({ projects }: ProjectListProps) {
                     </Table>
                 </CardContent>
             </Card>
-
-            <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-                <SheetContent className="sm:max-w-[800px] w-full p-0 gap-0 bg-white border-l border-slate-100 shadow-2xl transition-all duration-500 ease-in-out">
-                    <SheetHeader className="px-12 py-10 border-b border-slate-100 bg-slate-50/80 backdrop-blur-md">
-                        <SheetTitle className="text-4xl font-black text-slate-900 tracking-tight">
-                            Editar Projeto
-                        </SheetTitle>
-                        <SheetDescription className="text-slate-500 text-xl mt-3 font-medium">
-                            Atualize as informações críticas da obra abaixo.
-                        </SheetDescription>
-                    </SheetHeader>
-                    <div className="px-12 py-10 overflow-y-auto h-[calc(100vh-180px)] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-                        <ProjectForm project={editingProject || undefined} onSuccess={handleSuccess} />
-                    </div>
-                </SheetContent>
-            </Sheet>
 
             <DeleteProjectDialog
                 open={!!projectToDelete}

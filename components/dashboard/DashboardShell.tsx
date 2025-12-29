@@ -37,11 +37,11 @@ export function DashboardShell({ children, userEmail }: DashboardShellProps) {
         <div
             className={cn(
                 "flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
-                isSidebarCollapsed ? "pl-24" : "pl-80" // Updated padding to match new sidebar widths (w-24 and w-80)
+                isSidebarCollapsed ? "lg:pl-24" : "lg:pl-80" // Updated padding: 0 on mobile, controlled on desktop
             )}
         >
             <Header userEmail={userEmail} />
-            <main className="flex-1 p-10 bg-slate-50 overflow-x-hidden"> {/* Increased padding */}
+            <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden"> {/* Responsive padding */}
                 {children}
             </main>
         </div>
