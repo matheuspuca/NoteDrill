@@ -60,6 +60,7 @@ export async function authAction(
                 options: {
                     data: {
                         full_name: validatedFields.data.full_name,
+                        company_name: validatedFields.data.company_name,
                     }
                 }
             })
