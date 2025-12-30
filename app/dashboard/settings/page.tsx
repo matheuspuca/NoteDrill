@@ -2,10 +2,12 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, User, Bell } from "lucide-react"
+import { Building2, User, Bell, Shield, Database } from "lucide-react"
 import { CompanySettingsForm } from "@/components/settings/CompanySettingsForm"
 import { ProfileSettingsForm } from "@/components/settings/ProfileSettingsForm"
 import { NotificationSettings } from "@/components/settings/NotificationSettings"
+import { SecuritySettingsForm } from "@/components/settings/SecuritySettingsForm"
+import { BackupSettings } from "@/components/settings/BackupSettings"
 
 import { createClient } from "@/lib/supabase/server"
 
@@ -44,22 +46,34 @@ export default async function SettingsPage() {
             </div>
 
             <Tabs defaultValue="company" className="w-full space-y-6">
-                <TabsList className="bg-slate-100 p-1 rounded-xl h-16 w-full md:w-auto inline-flex">
+                <TabsList className="bg-slate-100 p-1 rounded-xl h-auto flex-wrap gap-2 w-full md:w-auto inline-flex">
                     <TabsTrigger
                         value="company"
-                        className="rounded-lg h-14 px-8 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
                     >
                         <Building2 className="w-4 h-4" /> Empresa
                     </TabsTrigger>
                     <TabsTrigger
                         value="profile"
-                        className="rounded-lg h-14 px-8 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
                     >
                         <User className="w-4 h-4" /> Meu Perfil
                     </TabsTrigger>
                     <TabsTrigger
+                        value="security"
+                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                    >
+                        <Shield className="w-4 h-4" /> Segurança
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="backups"
+                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                    >
+                        <Database className="w-4 h-4" /> Backups
+                    </TabsTrigger>
+                    <TabsTrigger
                         value="notifications"
-                        className="rounded-lg h-14 px-8 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
                     >
                         <Bell className="w-4 h-4" /> Notificações
                     </TabsTrigger>
@@ -71,6 +85,14 @@ export default async function SettingsPage() {
 
                 <TabsContent value="profile" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <ProfileSettingsForm initialData={{ ...profile, user_email: userEmail }} />
+                </TabsContent>
+
+                <TabsContent value="security" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <SecuritySettingsForm />
+                </TabsContent>
+
+                <TabsContent value="backups" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <BackupSettings />
                 </TabsContent>
 
                 <TabsContent value="notifications" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

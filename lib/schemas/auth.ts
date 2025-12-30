@@ -30,10 +30,10 @@ export const signupSchema = z.object({
         .regex(/[A-Z]/, { message: 'Segurança fraca: Exige-se ao menos uma letra maiúscula.' })
         .regex(/[0-9]/, { message: 'Segurança fraca: Exige-se ao menos um caractere numérico.' }),
 
-    // Campo Opcional (apenas confirmação de entendimento do contexto)
-    company_name: z
-        .string()
-        .optional(),
+    confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
 });
 
 // Exportação dos Tipos inferidos automaticamente (Single Source of Truth)

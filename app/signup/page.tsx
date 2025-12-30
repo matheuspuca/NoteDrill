@@ -11,6 +11,7 @@ import AuthLayout from "@/components/auth/auth-layout"
 import { signupSchema } from "@/lib/schemas/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import Link from "next/link"
 import {
     Form,
     FormControl,
@@ -31,7 +32,7 @@ export default function SignupPage() {
             full_name: "",
             email: "",
             password: "",
-            company_name: "",
+            confirmPassword: "",
         },
     })
 
@@ -44,7 +45,7 @@ export default function SignupPage() {
             formData.append("full_name", data.full_name)
             formData.append("email", data.email)
             formData.append("password", data.password)
-            if (data.company_name) formData.append("company_name", data.company_name)
+            // Confirm password is validated by Zod schema before reach here
 
             const result = await authAction(null, formData)
 
@@ -80,7 +81,7 @@ export default function SignupPage() {
 
             <div className="pl-6 border-l-[6px] border-orange-500 py-3">
                 <p className="text-2xl text-white/95 font-medium leading-relaxed">
-                    "Controle custos, estoque e produtividade em uma única plataforma integrada."
+                    Controle custos, estoque e produtividade em uma única plataforma integrada.
                 </p>
             </div>
         </div>
@@ -93,7 +94,7 @@ export default function SignupPage() {
             <div className="space-y-3 mb-8">
                 <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">Crie sua conta.</h2>
                 <p className="text-lg text-slate-500">
-                    Teste a plataforma líder por <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">7 dias grátis</span>.
+                    Teste a plataforma líder por <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">14 dias grátis</span>.
                 </p>
             </div>
 
@@ -107,33 +108,12 @@ export default function SignupPage() {
                             <FormItem className="space-y-2">
                                 <FormLabel className="text-base font-bold text-slate-700">Nome Completo</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Ex: Carlos Engenharia" {...field} className="h-14 px-4 text-base bg-slate-50 border-slate-200 focus:bg-white rounded-xl" />
+                                    <Input placeholder="Ex: Carlos Silva" {...field} className="h-14 px-4 text-base bg-slate-50 border-slate-200 focus:bg-white rounded-xl" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-
-                    <div className="grid grid-cols-2 gap-5">
-                        <FormField
-                            control={form.control}
-                            name="company_name"
-                            render={({ field }) => (
-                                <FormItem className="space-y-2">
-                                    <FormLabel className="text-base font-bold text-slate-700">Empresa</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Mineração LTDA" {...field} className="h-14 px-4 text-base bg-slate-50 border-slate-200 focus:bg-white rounded-xl" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="space-y-2">
-                            <label className="text-base font-bold leading-none text-slate-700">Telefone</label>
-                            <Input placeholder="(00) 00000-0000" className="h-14 px-4 text-base bg-slate-50 border-slate-200 focus:bg-white rounded-xl" />
-                        </div>
-                    </div>
 
                     <FormField
                         control={form.control}
@@ -171,6 +151,28 @@ export default function SignupPage() {
                         )}
                     />
 
+                    <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-base font-bold text-slate-700">Confirme a Senha</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <Input
+                                            type="password"
+                                            placeholder="Repita sua senha"
+                                            {...field}
+                                            className="h-14 px-4 text-base bg-slate-50 border-slate-200 focus:bg-white pr-10 rounded-xl"
+                                        />
+                                        <Lock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     <Button
                         disabled={isLoading}
                         className="w-full h-16 bg-[#2563EB] hover:bg-blue-600 text-lg font-bold rounded-xl shadow-xl shadow-blue-500/20 mt-4 transition-all hover:scale-[1.01]"
@@ -180,6 +182,23 @@ export default function SignupPage() {
                         Iniciar Teste Grátis
                         <ArrowRight className="ml-3 h-5 w-5" />
                     </Button>
+
+                    <div className="relative my-8">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-slate-200" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-white px-4 text-slate-400 font-semibold tracking-wider">
+                                Já tem uma conta?
+                            </span>
+                        </div>
+                    </div>
+
+                    <Link href="/login" className="w-full block">
+                        <Button variant="outline" className="w-full h-16 border-slate-200 text-slate-700 hover:bg-slate-50 text-lg font-semibold rounded-xl" type="button">
+                            Entrar no Sistema
+                        </Button>
+                    </Link>
 
                     <div className="flex justify-center gap-4 mt-8">
                         <div className="flex items-center gap-2 text-xs text-slate-500 uppercase font-bold tracking-widest border border-slate-200 px-3 py-1.5 rounded-lg bg-slate-50">

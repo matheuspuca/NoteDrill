@@ -78,3 +78,22 @@ export async function updateProfile(data: ProfileSettingsSchema & { avatar_url: 
         return { error: e.message }
     }
 }
+
+export async function updatePassword(password: string) {
+    const supabase = createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+        return { error: "Usuário não autenticado" }
+    }
+
+    const { error } = await supabase.auth.updateUser({
+        password: password
+    })
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    return { success: true }
+}

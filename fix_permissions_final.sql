@@ -1,55 +1,58 @@
--- 1. GARANTIR TABELA
-CREATE TABLE IF NOT EXISTS public.company_settings (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    created_at timestamptz DEFAULT now(),
-    updated_at timestamptz DEFAULT now(),
-    user_id uuid REFERENCES auth.users(id) NOT NULL UNIQUE,
-    company_name text,
-    cnpj text,
-    address text,
-    email text,
-    phone text,
-    logo_url text,
-    website text
+-- FIX: Break Infinite Recursion in RLS Policies
+-- We use SECURITY DEFINER functions to safely check roles without triggering RLS loops.
+
+-- 1. Create Helper Functions (Bypass RLS)
+CREATE OR REPLACE FUNCTION public.get_user_role(user_id uuid)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN (SELECT role FROM public.profiles WHERE id = user_id);
+END;
+$$;
+
+-- 2. Drop Existing Policies
+DROP POLICY IF EXISTS "Admins can do everything on profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Supervisors can view all profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+
+-- 3. Re-create Policies (Clean & Recursive-Free)
+
+-- Admin Policy: Can do everything if their own role is 'admin'
+CREATE POLICY "Admins can do everything on profiles"
+ON public.profiles
+FOR ALL
+USING (
+  public.get_user_role(auth.uid()) = 'admin'
 );
 
--- 2. HABILITAR RLS
-ALTER TABLE public.company_settings ENABLE ROW LEVEL SECURITY;
+-- Supervisor Policy: Can view everything if their role is 'supervisor'
+CREATE POLICY "Supervisors can view all profiles"
+ON public.profiles
+FOR SELECT
+USING (
+  public.get_user_role(auth.uid()) = 'supervisor'
+);
 
--- 3. GARANTIR GRANTS (Permissões básicas de acesso à tabela)
--- Isso muitas vezes é a causa do 403 mesmo com Policies corretas
-GRANT ALL ON public.company_settings TO postgres;
-GRANT ALL ON public.company_settings TO service_role;
-GRANT ALL ON public.company_settings TO authenticated;
+-- Basic User Policy: Can read OWN profile (Always allowed for self)
+CREATE POLICY "Users can read own profile"
+ON public.profiles
+FOR SELECT
+USING (
+  auth.uid() = id
+);
 
--- 4. LIMPAR POLICIES ANTIGAS
-DROP POLICY IF EXISTS "Users can view their own company settings" ON public.company_settings;
-DROP POLICY IF EXISTS "Users can update their own company settings" ON public.company_settings;
-DROP POLICY IF EXISTS "Users can insert their own company settings" ON public.company_settings;
-DROP POLICY IF EXISTS "Enable all actions for users based on user_id" ON public.company_settings;
-
--- 5. CRIAR POLICY UNIFICADA
--- Permite SELECT, INSERT, UPDATE, DELETE apenas se o user_id bater com o auth.uid()
-CREATE POLICY "Enable all actions for users based on user_id" ON public.company_settings
-    FOR ALL
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
-
--- 6. CRIAR BUCKETS (Por precaução, caso não existam)
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('company-logos', 'company-logos', true) 
-ON CONFLICT (id) DO NOTHING;
-
--- Grants para Storage
-GRANT ALL ON storage.objects TO authenticated;
-GRANT ALL ON storage.buckets TO authenticated;
-
--- Policies para Storage (Logos)
-DROP POLICY IF EXISTS "Logos Public Access" ON storage.objects;
-CREATE POLICY "Logos Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'company-logos');
-
-DROP POLICY IF EXISTS "Logos Auth Upload" ON storage.objects;
-CREATE POLICY "Logos Auth Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'company-logos' AND auth.role() = 'authenticated');
-
-DROP POLICY IF EXISTS "Logos Auth Update" ON storage.objects;
-CREATE POLICY "Logos Auth Update" ON storage.objects FOR UPDATE USING (bucket_id = 'company-logos' AND auth.role() = 'authenticated');
+-- Basic User Policy: Can update OWN profile
+-- Added WITH CHECK to ensure they can't change their own ID
+CREATE POLICY "Users can update own profile"
+ON public.profiles
+FOR UPDATE
+USING (
+  auth.uid() = id
+)
+WITH CHECK (
+  auth.uid() = id
+);

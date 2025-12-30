@@ -4,20 +4,91 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { teamMemberSchema, TeamMemberSchema } from "@/lib/schemas-team"
 
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+
+// Helper for Admin operations (User Creation)
+function createAdminClient() {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null
+    return createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        }
+    )
+}
+
 export async function createTeamMember(data: TeamMemberSchema) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return { error: "Usuário não autenticado" }
 
-    const { success, data: validated } = teamMemberSchema.safeParse(data)
-    if (!success) return { error: "Dados inválidos" }
+    const { success, data: validated, error: validationError } = teamMemberSchema.safeParse(data)
+    if (!success) {
+        console.error("--> Validation Error:", validationError.flatten())
+        return { error: "Dados inválidos: " + JSON.stringify(validationError.flatten().fieldErrors) }
+    }
 
-    const { error } = await supabase.from("team_members").insert({ ...validated, user_id: user.id })
+    let linkedUserId = null
+
+    // Create System User if requested
+    if (validated.createSystemUser && validated.email && validated.password) {
+        console.log("--> Starting System User Creation for:", validated.email)
+
+        const adminClient = createAdminClient()
+        if (!adminClient) {
+            console.error("--> ERROR: Service Role Key missing.")
+            return { error: "Erro de configuração: Chave Service Role não encontrada. Contate o suporte." }
+        }
+
+        const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+            email: validated.email,
+            password: validated.password,
+            email_confirm: true,
+            user_metadata: { role: validated.systemRole, full_name: validated.name }
+        })
+
+        if (authError) {
+            console.error("--> Auth Create Error:", authError)
+            return { error: `Erro ao criar usuário: ${authError.message}` }
+        }
+
+        console.log("--> User Created Successfully in Auth. User ID:", authData.user.id)
+        linkedUserId = authData.user.id
+
+        // Update Profile Role immediately
+        console.log("--> Updating Profile Role to:", validated.systemRole)
+        const { error: profileError } = await adminClient
+            .from('profiles')
+            .update({ role: validated.systemRole })
+            .eq('id', linkedUserId)
+
+        if (profileError) {
+            console.error("--> Profile Role Update Error:", profileError)
+            // Non-blocking error, but good to know
+        } else {
+            console.log("--> Profile Role Updated Successfully.")
+        }
+    }
+
+    // Clean data for insert (remove system fields)
+    const { createSystemUser, systemRole, password, ...dbData } = validated
+
+    const { error } = await supabase.from("team_members").insert({
+        ...dbData,
+        user_id: user.id, // Created By
+        linked_user_id: linkedUserId
+    })
 
     if (error) {
         console.error("Erro ao adicionar membro:", error)
-        return { error: "Erro ao adicionar membro" }
+        // Note: If DB insert fails, we might have an orphaned Auth User. 
+        // Ideal: Transaction or cleanup. For MVP: Log error.
+        return { error: "Erro ao adicionar membro à equipe" }
     }
 
     revalidatePath("/dashboard/team")

@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/form"
 import { Toaster } from "@/components/ui/toaster"
 
+import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog"
+
 export default function LoginPage() {
     const [isLoading, setIsLoading] = React.useState(false)
     const { toast } = useToast()
@@ -74,7 +76,7 @@ export default function LoginPage() {
     const sidebarContent = (
         <div className="space-y-8">
             <h1 className="text-5xl md:text-6xl font-extrabold leading-[1.1] drop-shadow-xl">
-                Bem-vindo de volta ao <br /> controle total.
+                Bem-vindo(a) de volta ao <br /> controle total.
             </h1>
 
             <div className="flex items-start gap-5 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
@@ -127,7 +129,10 @@ export default function LoginPage() {
                         name="password"
                         render={({ field }) => (
                             <FormItem className="space-y-3">
-                                <FormLabel className="text-lg font-bold text-slate-700">Senha</FormLabel>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel className="text-lg font-bold text-slate-700">Senha</FormLabel>
+                                    <ForgotPasswordDialog />
+                                </div>
                                 <FormControl>
                                     <div className="relative">
                                         <Input

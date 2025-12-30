@@ -96,7 +96,15 @@ export function TeamList({ members, companySettings }: TeamListProps) {
                                                     <Users className="h-6 w-6 text-slate-500" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-slate-800 text-2xl tracking-tight">{member.name}</div>
+                                                    <div className="font-black text-slate-800 text-2xl tracking-tight flex items-center gap-2">
+                                                        {member.name}
+                                                    </div>
+                                                    {member.linked_user_id && (
+                                                        <div className="flex items-center gap-1.5 mt-1">
+                                                            <div className="bg-green-500 rounded-full w-2 h-2 animate-pulse" />
+                                                            <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Acesso Liberado</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </TableCell>

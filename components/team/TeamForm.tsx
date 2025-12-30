@@ -18,6 +18,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
@@ -28,6 +29,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Eye, EyeOff } from "lucide-react"
 
 import { Plus, Printer, HardHat } from "lucide-react"
 import { assignEpi } from "@/app/dashboard/team/actions"
@@ -54,17 +57,17 @@ interface TeamFormProps {
 }
 
 const ROLES = ["Operador", "Ajudante", "Supervisor", "Encarregado", "Mecânico", "Eletricista", "Motorista", "Auxiliar"]
+const SYSTEM_ROLES = [
+    { value: "admin", label: "Admin (Gestor)" },
+    { value: "supervisor", label: "Supervisor" },
+    { value: "operator", label: "Operador" }
+]
 
 export function TeamForm({ member, epis = [], epiHistory = [], companySettings }: TeamFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const [isPending, setIsPending] = useState(false)
-
-    // EPI State
-    const [selectedEpiId, setSelectedEpiId] = useState("")
-    const [epiQuantity, setEpiQuantity] = useState(1)
-    const [isAssigning, setIsAssigning] = useState(false)
-
+    const [showPassword, setShowPassword] = useState(false)
     const form = useForm<TeamMemberSchema>({
         resolver: zodResolver(teamMemberSchema),
         defaultValues: {
@@ -74,8 +77,19 @@ export function TeamForm({ member, epis = [], epiHistory = [], companySettings }
             birthDate: member?.birthDate || "",
             admissionDate: member?.admissionDate || "",
             asoDate: member?.asoDate || "",
+            createSystemUser: false,
+            email: "",
+            password: "",
+            systemRole: "operator",
         },
     })
+
+    // EPI State
+    const [selectedEpiId, setSelectedEpiId] = useState("")
+    const [epiQuantity, setEpiQuantity] = useState(1)
+    const [isAssigning, setIsAssigning] = useState(false)
+
+    const watchCreateSystemUser = form.watch("createSystemUser")
 
     const onSubmit = async (data: TeamMemberSchema) => {
         setIsPending(true)
@@ -140,7 +154,7 @@ export function TeamForm({ member, epis = [], epiHistory = [], companySettings }
     return (
         <div className="space-y-12">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit, (errors) => console.log(errors))} className="space-y-8">
 
                     <div className="space-y-6">
                         <h3 className="text-2xl font-black text-slate-800 border-b pb-2">Dados Pessoais & Função</h3>
@@ -334,6 +348,93 @@ export function TeamForm({ member, epis = [], epiHistory = [], companySettings }
                             )} />
                         </div>
                     </div>
+
+                    {!member && (
+                        <div className="bg-slate-50 p-6 rounded-2xl border border-blue-100 space-y-6">
+                            <h3 className="text-2xl font-black text-slate-800 border-b pb-2 flex items-center gap-2">
+                                <HardHat className="h-6 w-6 text-blue-600" />
+                                Acesso ao Sistema
+                            </h3>
+
+                            <FormField
+                                control={form.control}
+                                name="createSystemUser"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-xl bg-white shadow-sm">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                className="w-6 h-6"
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-lg font-bold text-slate-700 cursor-pointer">
+                                                Criar usuário de acesso para este membro?
+                                            </FormLabel>
+                                            <FormDescription>
+                                                Isso gerará um login e senha para que ele possa acessar o sistema ou App.
+                                            </FormDescription>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+
+                            {watchCreateSystemUser && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-top-4 duration-300">
+                                    <FormField control={form.control} name="email" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-xl font-bold text-slate-700">Email de Login</FormLabel>
+                                            <FormControl><Input className="h-14 text-xl" placeholder="email@exemplo.com" {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+
+                                    <FormField control={form.control} name="password" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-xl font-bold text-slate-700">Senha Temporária</FormLabel>
+                                            <div className="relative">
+                                                <FormControl>
+                                                    <Input type={showPassword ? "text" : "password"} className="h-14 text-xl pr-10" placeholder="******" {...field} />
+                                                </FormControl>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    className="absolute right-0 top-0 h-14 w-14 px-3"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                >
+                                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                                </Button>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+
+                                    <FormField control={form.control} name="systemRole" render={({ field }) => (
+                                        <FormItem className="col-span-2">
+                                            <FormLabel className="text-xl font-bold text-slate-700">Nível de Permissão</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="h-14 text-xl font-medium">
+                                                        <SelectValue placeholder="Selecione o nível de acesso..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {SYSTEM_ROLES.map((role) => (
+                                                        <SelectItem className="text-lg py-3" key={role.value} value={role.value}>
+                                                            <span className="font-bold">{role.label}</span>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                </div>
+                            )}
+                        </div>
+                    )}
+
 
                     <div className="pt-8 flex justify-end gap-3">
                         <Button type="submit" disabled={isPending} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xl h-16 px-10 rounded-2xl font-black shadow-xl shadow-blue-600/20">

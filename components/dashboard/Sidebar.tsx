@@ -59,8 +59,15 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
         async function fetchProfile() {
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
-                const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single()
-                if (data) setProfile(data)
+                if (user) {
+                    const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+                    if (error) {
+                        console.error("Erro ao carregar perfil (Provável erro de SQL/Enum):", error)
+                        // Fallback to avoid UI issues
+                    } else if (data) {
+                        setProfile(data)
+                    }
+                }
             }
         }
         fetchProfile()
@@ -150,10 +157,10 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                             "flex items-center gap-3 p-3 rounded-2xl hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all text-left w-full",
                             isCollapsed && "justify-center p-2"
                         )}>
-                            <Avatar className="h-10 w-10 border-2 border-white shadow-sm flex-shrink-0">
-                                <AvatarImage src={displayAvatar || "/avatars/01.png"} alt={displayName} />
-                                <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">
-                                    {displayName[0]?.toUpperCase() || <User className="h-4 w-4" />}
+                            <Avatar className="h-10 w-10 border-2 border-white shadow-sm flex-shrink-0 bg-slate-100 flex items-center justify-center">
+                                <AvatarImage src={displayAvatar || ""} alt={displayName} />
+                                <AvatarFallback className="bg-blue-100 text-blue-700 font-bold flex items-center justify-center w-full h-full">
+                                    {displayName === "Engenheiro" ? <User className="h-5 w-5" /> : displayName[0]?.toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
 

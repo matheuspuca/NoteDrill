@@ -60,7 +60,6 @@ export async function authAction(
                 options: {
                     data: {
                         full_name: validatedFields.data.full_name,
-                        company_name: validatedFields.data.company_name
                     }
                 }
             })
@@ -76,5 +75,38 @@ export async function authAction(
             success: false,
             message: "Ocorreu um erro inesperado no servidor. Tente novamente.",
         }
+    }
+}
+
+export async function resetPasswordAction(prevState: AuthState | null, formData: FormData): Promise<AuthState> {
+    const email = formData.get("email") as string
+    const supabase = createClient()
+
+    if (!email) {
+        return { success: false, message: "Email é obrigatório." }
+    }
+
+    try {
+        // Construct the redirect URL for the reset password flow
+        // The user will be redirected to the /dashboard/settings?tab=security or a dedicated page
+        // For now, let's point to the origin + /dashboard/settings
+        // Note: Supabase needs 'SITE_URL' or allowed redirect URLs configured. 
+        // We will trust Supabase default behavior or simple localhost for now.
+
+        // Use origin if available from headers? In server action, hard to get without headers(), 
+        // but Supabase usually handles specific callback logic or we pass redirectTo.
+        // Let's assume the callback route handles the session.
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback?next=/dashboard/settings`,
+        })
+
+        if (error) {
+            return { success: false, message: error.message }
+        }
+
+        return { success: true, message: "Link de recuperação enviado para o e-mail." }
+    } catch (error) {
+        return { success: false, message: "Erro ao tentar recuperar senha." }
     }
 }
