@@ -32,7 +32,7 @@ export default function SignupPage() {
             full_name: "",
             email: "",
             password: "",
-            confirmPassword: "",
+
         },
     })
 
@@ -151,27 +151,7 @@ export default function SignupPage() {
                         )}
                     />
 
-                    <FormField
-                        control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem className="space-y-2">
-                                <FormLabel className="text-base font-bold text-slate-700">Confirme a Senha</FormLabel>
-                                <FormControl>
-                                    <div className="relative">
-                                        <Input
-                                            type="password"
-                                            placeholder="Repita sua senha"
-                                            {...field}
-                                            className="h-14 px-4 text-base bg-slate-50 border-slate-200 focus:bg-white pr-10 rounded-xl"
-                                        />
-                                        <Lock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+
 
                     <Button
                         disabled={isLoading}
