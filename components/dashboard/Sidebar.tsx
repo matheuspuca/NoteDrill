@@ -39,7 +39,7 @@ const menuItems = [
     { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
     { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },
     { label: "Equipe", icon: Users, href: "/dashboard/team" },
-    { label: "Configurações", icon: Settings, href: "/dashboard/settings" },
+
 ]
 
 export function Sidebar({ userEmail }: { userEmail?: string }) {
@@ -95,18 +95,27 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
             )}
         >
             {/* Header / Logo */}
-            <div className="h-24 flex items-center justify-between px-8 border-b border-slate-100 flex-shrink-0">
-                <div className={cn("flex items-center gap-4 overflow-hidden transition-all", isCollapsed && "justify-center w-full px-0")}>
+            <div className={cn(
+                "h-24 flex items-center border-b border-slate-100 flex-shrink-0 transition-all",
+                isCollapsed ? "justify-center px-2" : "justify-between px-8"
+            )}>
+                <div className={cn("flex items-center gap-4 overflow-hidden transition-all", isCollapsed && "hidden")}>
                     <div className="bg-blue-600 p-3.5 rounded-2xl flex-shrink-0 shadow-lg shadow-blue-600/20">
                         <Zap className="h-8 w-8 text-white fill-white" />
                     </div>
 
-                    {!isCollapsed && (
-                        <span className="font-extrabold text-3xl text-slate-800 tracking-tight whitespace-nowrap">
-                            SmartDrill
-                        </span>
-                    )}
+                    <span className="font-extrabold text-3xl text-slate-800 tracking-tight whitespace-nowrap">
+                        SmartDrill
+                    </span>
                 </div>
+
+                <button
+                    onClick={toggleCollapse}
+                    className="p-2 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all"
+                >
+                    {isCollapsed ? <ChevronRight className="h-6 w-6" /> : <ChevronLeft className="h-6 w-6" />}
+                </button>
+
             </div>
 
             {/* Navigation */}
@@ -189,17 +198,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                 </DropdownMenu>
 
                 {/* 3. Collapse Toggle */}
-                <button
-                    onClick={toggleCollapse}
-                    className="w-full flex items-center justify-center p-2 rounded-xl hover:bg-slate-200/50 text-slate-400 transition-colors mt-1"
-                >
-                    {isCollapsed ? <ChevronRight className="h-5 w-5" /> : (
-                        <div className="flex items-center gap-2 text-sm font-semibold">
-                            <ChevronLeft className="h-4 w-4" />
-                            <span>Recolher</span>
-                        </div>
-                    )}
-                </button>
+
             </div>
         </aside>
     )
