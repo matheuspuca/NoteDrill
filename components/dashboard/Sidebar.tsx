@@ -48,6 +48,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
     const router = useRouter()
     const supabase = createClient()
     const [profile, setProfile] = useState<any>(null)
+    const [user, setUser] = useState<any>(null)
 
     // Persist collapsed state
     useEffect(() => {
@@ -58,15 +59,11 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
     useEffect(() => {
         async function fetchProfile() {
             const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
             if (user) {
-                if (user) {
-                    const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()
-                    if (error) {
-                        console.error("Erro ao carregar perfil (Provável erro de SQL/Enum):", error)
-                        // Fallback to avoid UI issues
-                    } else if (data) {
-                        setProfile(data)
-                    }
+                const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+                if (data) {
+                    setProfile(data)
                 }
             }
         }
@@ -84,8 +81,9 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
         router.push("/login")
     }
 
-    const displayName = profile?.full_name || "Engenheiro"
-    const displayAvatar = profile?.avatar_url
+    // Fallback to auth metadata if profile table is empty
+    const displayName = profile?.full_name || user?.user_metadata?.full_name || "Engenheiro"
+    const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url
 
     return (
         <aside
