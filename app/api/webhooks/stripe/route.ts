@@ -48,7 +48,7 @@ export async function POST(req: Request) {
             stripe_subscription_id: subscriptionId,
             plan_type: planType,
             status: subDetails.status,
-            current_period_end: new Date(subDetails.current_period_end * 1000).toISOString()
+            current_period_end: new Date((subDetails as any).current_period_end * 1000).toISOString()
         })
 
         if (error) console.error("Error updating subscription:", error)
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
         // Sync status updates (e.g. past_due, canceled)
         const subscriptionId = subscription.id
         const status = subscription.status
-        const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString()
+        const currentPeriodEnd = new Date((subscription as any).current_period_end * 1000).toISOString()
 
         // We might need to map price ID to plan type if user upgraded via Portal, 
         // but for now assume plan_type is static or we'd need a mapping config.
