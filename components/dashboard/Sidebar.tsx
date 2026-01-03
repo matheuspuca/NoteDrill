@@ -117,7 +117,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {menuItems.map((item) => {
                     const isActive = pathname === item.href
 
