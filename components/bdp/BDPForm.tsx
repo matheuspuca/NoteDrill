@@ -342,93 +342,98 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
 
                 </div>
 
-                {/* 1.1 METRICS (Moved to Top) */}
-                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-cyan-100 p-2.5 rounded-xl"><Activity className="w-6 h-6 text-cyan-600" /></div>
-                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Horários e Horímetros</h3>
+                {/* 1.1 METRICS (Top) */}
+                <div className="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 space-y-5">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-blue-100 p-2 rounded-lg"><Activity className="w-5 h-5 text-blue-600" /></div>
+                        <h3 className="font-bold text-slate-800 text-base uppercase tracking-wider">Resumo Diário</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <FormField control={form.control} name="startTime" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Hora Início</FormLabel>
-                                <FormControl><Input type="time" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="endTime" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Hora Fim</FormLabel>
-                                <FormControl><Input type="time" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <FormField control={form.control} name="hourmeterStart" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Horímetro Inicial</FormLabel>
-                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Horímetro Inicial</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.1" className="bg-slate-50 border-slate-200 h-10 font-bold" {...field} />
+                                </FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="hourmeterEnd" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Horímetro Final</FormLabel>
-                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Horímetro Final</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.1" className="bg-slate-50 border-slate-200 h-10 font-bold" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+                        {/* Time Inputs similarly compacted */}
+                        <FormField control={form.control} name="startTime" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Hora Início</FormLabel>
+                                <FormControl><Input type="time" className="bg-slate-50 border-slate-200 h-10 font-bold" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="endTime" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Hora Término</FormLabel>
+                                <FormControl><Input type="time" className="bg-slate-50 border-slate-200 h-10 font-bold" {...field} /></FormControl>
                             </FormItem>
                         )} />
                     </div>
                 </div>
 
-                {/* 1.2 GEOLOGY (Enhanced) */}
-                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-stone-100 p-2.5 rounded-xl"><HardHat className="w-6 h-6 text-stone-600" /></div>
-                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Geologia / Rocha</h3>
+                {/* 1.2 GEOLOGY */}
+                <div className="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 space-y-5">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-orange-100 p-2 rounded-lg"><Activity className="w-5 h-5 text-orange-600" /></div>
+                        <h3 className="font-bold text-slate-800 text-base uppercase tracking-wider">Geologia / Rocha</h3>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Compacted fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="materialDescription" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Tipo de Rocha</FormLabel>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Tipo de Rocha</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-10 bg-slate-50 border-slate-200"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {rockTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </FormItem>
                         )} />
-
+                        {/* ... other geology fields ... */}
                         <FormField control={form.control} name="rockStatus" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Status da Rocha</FormLabel>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Estado da Rocha</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Condição" /></SelectTrigger></FormControl>
+                                    <FormControl><SelectTrigger className="h-10 bg-slate-50 border-slate-200"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {rockStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </FormItem>
                         )} />
-
-                        {form.watch("rockStatus") === "Outros" && (
-                            <FormField control={form.control} name="rockStatusReason" render={({ field }) => (
-                                <FormItem className="animate-in fade-in slide-in-from-top-2">
-                                    <FormLabel className="font-bold text-slate-700">Qual motivo?</FormLabel>
-                                    <FormControl><Input placeholder="Especifique..." className="h-12 bg-slate-50 rounded-xl" {...field} /></FormControl>
-                                </FormItem>
-                            )} />
-                        )}
-
                         <FormField control={form.control} name="lithologyProfile" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Perfil Litológico</FormLabel>
-                                <FormControl><Input placeholder="Detalhes..." className="h-12 bg-slate-50 rounded-xl" {...field} /></FormControl>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Perfil Litológico</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Ex: Camada superficial..." className="bg-slate-50 border-slate-200 h-10" {...field} />
+                                </FormControl>
                             </FormItem>
                         )} />
                     </div>
+                    {form.watch("rockStatus") === "Outros" && (
+                        <FormField control={form.control} name="rockStatusReason" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700 text-xs uppercase">Detalhe (Outros)</FormLabel>
+                                <FormControl><Input className="bg-white h-10" placeholder="Especifique..." {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                    )}
                 </div>
 
                 {/* 2. SERVICES & HOLES */}
-                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
+                <div className="bg-white p-5 rounded-[32px] shadow-sm border border-slate-100 space-y-5">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="bg-purple-100 p-2.5 rounded-xl"><HardHat className="w-6 h-6 text-purple-600" /></div>
@@ -458,7 +463,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                     </div>
 
                     {/* Service Sections */}
-                    <div className="space-y-8">
+                    <div className="space-y-5">
                         {serviceFields.map((field, index) => (
                             <BDPServiceSection
                                 key={field.id}
@@ -479,26 +484,26 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                     </div>
                 </div>
 
-                {/* 3. OCCURRENCES */}
-                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
+                {/* 3. PARADAS/OCORRÊNCIAS */}
+                <div className="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 space-y-5">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="bg-red-100 p-2.5 rounded-xl"><Activity className="w-6 h-6 text-red-600" /></div>
-                            <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Paradas e Ocorrências</h3>
+                            <div className="bg-red-100 p-2 rounded-lg"><HardHat className="w-5 h-5 text-red-600" /></div>
+                            <h3 className="font-bold text-slate-800 text-base uppercase tracking-wider">Paradas e Ocorrências</h3>
                         </div>
-                        <Button type="button" onClick={() => appendOcc({ type: "Outros", timeStart: "00:00", timeEnd: "00:00" })} variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
-                            <Plus className="mr-2 h-4 w-4" /> Adicionar Ocorrência
+                        <Button type="button" onClick={() => appendOcc({ type: "Outros", timeStart: "00:00", timeEnd: "00:00", description: "" })} variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 h-9 text-sm">
+                            <Plus className="mr-2 h-3 w-3" /> Adicionar
                         </Button>
                     </div>
-
-                    <div className="space-y-4">
+                    {/* Compact list */}
+                    <div className="space-y-3">
                         {occFields.map((field, index) => (
-                            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-100 relative">
+                            <div key={field.id} className="relative grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <FormField control={form.control} name={`occurrences.${index}.type`} render={({ field }) => (
-                                    <FormItem className="md:col-span-1">
-                                        <FormLabel className="font-bold text-xs uppercase">Tipo</FormLabel>
+                                    <FormItem className="md:col-span-4">
+                                        <FormLabel className="font-bold text-xs uppercase">Motivo</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger className="bg-white"><SelectValue /></SelectTrigger></FormControl>
+                                            <FormControl><SelectTrigger className="bg-white h-9 text-sm"><SelectValue /></SelectTrigger></FormControl>
                                             <SelectContent>
                                                 {occurrenceTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                                             </SelectContent>
@@ -506,51 +511,53 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name={`occurrences.${index}.timeStart`} render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="md:col-span-2">
                                         <FormLabel className="font-bold text-xs uppercase">Início</FormLabel>
-                                        <FormControl><Input type="time" className="bg-white" {...field} /></FormControl>
+                                        <FormControl><Input type="time" className="bg-white h-9 text-sm" {...field} /></FormControl>
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name={`occurrences.${index}.timeEnd`} render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="md:col-span-2">
                                         <FormLabel className="font-bold text-xs uppercase">Fim</FormLabel>
-                                        <FormControl><Input type="time" className="bg-white" {...field} /></FormControl>
+                                        <FormControl><Input type="time" className="bg-white h-9 text-sm" {...field} /></FormControl>
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name={`occurrences.${index}.description`} render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="md:col-span-3">
                                         <FormLabel className="font-bold text-xs uppercase">Obs. Técnica</FormLabel>
-                                        <FormControl><Input placeholder="Detalhes..." className="bg-white" {...field} /></FormControl>
+                                        <FormControl><Input placeholder="Detalhes..." className="bg-white h-9 text-sm" {...field} /></FormControl>
                                     </FormItem>
                                 )} />
-                                <Button type="button" variant="ghost" size="icon" onClick={() => removeOcc(index)} className="absolute top-2 right-2 text-red-400 hover:text-red-500">
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <div className="md:col-span-1 flex justify-end">
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => removeOcc(index)} className="text-red-400 hover:text-red-500 h-9 w-9">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* 4. SUPPLIES */}
-                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
+                <div className="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 space-y-5">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="bg-yellow-100 p-2.5 rounded-xl"><Fuel className="w-6 h-6 text-yellow-600" /></div>
-                            <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Abastecimento e Insumos</h3>
+                            <div className="bg-yellow-100 p-2 rounded-lg"><Fuel className="w-5 h-5 text-yellow-600" /></div>
+                            <h3 className="font-bold text-slate-800 text-base uppercase tracking-wider">Abastecimento e Insumos</h3>
                         </div>
-                        <Button type="button" onClick={() => appendSupply({ type: "Diesel (L)", quantity: 0 })} variant="outline" className="text-yellow-600 border-yellow-200 hover:bg-yellow-50">
-                            <Plus className="mr-2 h-4 w-4" /> Adicionar Insumo
+                        <Button type="button" onClick={() => appendSupply({ type: "Diesel (L)", quantity: 0 })} variant="outline" className="text-yellow-600 border-yellow-200 hover:bg-yellow-50 h-9 text-sm">
+                            <Plus className="mr-2 h-3 w-3" /> Adicionar
                         </Button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {supplyFields.map((field, index) => (
-                            <div key={field.id} className="flex gap-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <div key={field.id} className="flex gap-4 items-end bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <FormField control={form.control} name={`supplies.${index}.type`} render={({ field }) => (
                                     <FormItem className="flex-1">
                                         <FormLabel className="font-bold text-xs uppercase">Material</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger className="bg-white"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
+                                            <FormControl><SelectTrigger className="bg-white h-9 text-sm"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                             <SelectContent>
                                                 {inventoryItems.map(item => (
                                                     <SelectItem key={item.id} value={item.name}>
@@ -565,11 +572,11 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                                 <FormField control={form.control} name={`supplies.${index}.quantity`} render={({ field }) => (
                                     <FormItem className="w-32">
                                         <FormLabel className="font-bold text-xs uppercase">Quantidade</FormLabel>
-                                        <FormControl><Input type="number" inputMode="decimal" step="0.1" className="bg-white h-12" {...field} /></FormControl>
+                                        <FormControl><Input type="number" inputMode="decimal" step="0.1" className="bg-white h-9 text-sm" {...field} /></FormControl>
                                     </FormItem>
                                 )} />
-                                <Button type="button" variant="ghost" size="icon" onClick={() => removeSupply(index)} className="text-red-400 hover:text-red-500">
-                                    <Trash2 className="h-5 w-5" />
+                                <Button type="button" variant="ghost" size="icon" onClick={() => removeSupply(index)} className="text-red-400 hover:text-red-500 h-9 w-9">
+                                    <Trash2 className="h-4 w-4" />
                                 </Button>
                             </div>
                         ))}
@@ -577,28 +584,28 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                 </div>
 
                 {/* 5. METRICS SUMMARY (KPIs) */}
-                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-8">
+                <div className="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 space-y-5">
                     <div className="flex items-center gap-3">
-                        <div className="bg-green-100 p-2.5 rounded-xl"><Activity className="w-6 h-6 text-green-600" /></div>
-                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Resumo de Performance (KPIs)</h3>
+                        <div className="bg-green-100 p-2 rounded-lg"><Activity className="w-5 h-5 text-green-600" /></div>
+                        <h3 className="font-bold text-slate-800 text-base uppercase tracking-wider">Resumo de Performance (KPIs)</h3>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-center">
-                            <span className="block text-3xl font-black text-blue-700">{kpi.totalMeters.toFixed(1)}m</span>
-                            <span className="text-xs font-bold uppercase text-blue-400">Total Perfurado</span>
+                        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 text-center">
+                            <span className="block text-2xl font-black text-blue-700">{kpi.totalMeters.toFixed(1)}m</span>
+                            <span className="text-[10px] font-bold uppercase text-blue-400">Total Perfurado</span>
                         </div>
-                        <div className="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
-                            <span className="block text-3xl font-black text-purple-700">{kpi.avgHeight.toFixed(1)}m</span>
-                            <span className="text-xs font-bold uppercase text-purple-400">Média (Prof/Furo)</span>
+                        <div className="p-3 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                            <span className="block text-2xl font-black text-purple-700">{kpi.avgHeight.toFixed(1)}m</span>
+                            <span className="text-[10px] font-bold uppercase text-purple-400">Média (Prof/Furo)</span>
                         </div>
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                            <span className="block text-3xl font-black text-slate-700">{kpi.totalHours.toFixed(1)}h</span>
-                            <span className="text-xs font-bold uppercase text-slate-400">Total Horas</span>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                            <span className="block text-2xl font-black text-slate-700">{kpi.totalHours.toFixed(1)}h</span>
+                            <span className="text-[10px] font-bold uppercase text-slate-400">Total Horas</span>
                         </div>
-                        <div className="p-4 bg-green-50 rounded-xl border border-green-100 text-center">
-                            <span className="block text-3xl font-black text-green-700">{kpi.uf.toFixed(0)}%</span>
-                            <span className="text-xs font-bold uppercase text-green-600">UF (Utilização)</span>
+                        <div className="p-3 bg-green-50 rounded-xl border border-green-100 text-center">
+                            <span className="block text-2xl font-black text-green-700">{kpi.uf.toFixed(0)}%</span>
+                            <span className="text-[10px] font-bold uppercase text-green-600">UF (Utilização)</span>
                         </div>
                     </div>
                 </div>
