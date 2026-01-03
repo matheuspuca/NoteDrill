@@ -15,6 +15,9 @@ export default async function NewBDPPage() {
     const { data: projects } = await supabase.from("projects").select("id, name").order("name")
     const { data: teamMembers } = await supabase.from("team_members").select("id, name, role").eq("status", "Ativo").order("name")
     const { data: equipments } = await supabase.from("equipment").select("id, name, type").eq("status", "Operacional").order("name")
+    // Fetch Inventory Items for Supplies (only consumable materials or others as needed)
+    // Assuming 'type' column distinguishes or we just fetch all ACTIVE items
+    const { data: inventoryItems } = await supabase.from("inventory_items").select("id, name, unit").order("name")
 
     return (
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
@@ -32,6 +35,7 @@ export default async function NewBDPPage() {
                 projects={projects || []}
                 teamMembers={teamMembers || []}
                 equipments={equipments || []}
+                inventoryItems={inventoryItems || []}
             />
         </div>
     )

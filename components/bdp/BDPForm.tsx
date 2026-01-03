@@ -37,9 +37,10 @@ interface BDPFormProps {
     projects: { id: string, name: string }[]
     teamMembers: { id: string, name: string, role: string }[]
     equipments: { id: string, name: string, type: string }[]
+    inventoryItems: { id: string, name: string, unit: string }[]
 }
 
-export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
+export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: BDPFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,7 +50,7 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
     const compressors = equipments.filter(e => e.type === 'Compressor')
     const serviceTypes = Object.values(serviceTypeSchema.Values)
     const occurrenceTypes = Object.values(occurrenceTypeSchema.Values).sort((a, b) => a.localeCompare(b))
-    const supplyTypes = Object.values(supplyTypeSchema.Values)
+
 
     // Rock Options
     const rockTypes = [
@@ -549,9 +550,14 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                                     <FormItem className="flex-1">
                                         <FormLabel className="font-bold text-xs uppercase">Material</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger className="bg-white"><SelectValue /></SelectTrigger></FormControl>
+                                            <FormControl><SelectTrigger className="bg-white"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                             <SelectContent>
-                                                {supplyTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                {inventoryItems.map(item => (
+                                                    <SelectItem key={item.id} value={item.name}>
+                                                        {item.name} ({item.unit})
+                                                    </SelectItem>
+                                                ))}
+                                                <SelectItem value="Outros">Outros</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </FormItem>

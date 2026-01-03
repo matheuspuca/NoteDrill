@@ -59,16 +59,8 @@ export const occurrenceEntrySchema = z.object({
     description: z.string().optional(),
 })
 
-export const supplyTypeSchema = z.enum([
-    "Diesel (L)",
-    "Óleo 220 (L)",
-    "Óleo 90 (L)",
-    "Óleo 68 (L)",
-    "Óleo 15w40 (L)",
-    "Graxa Comum (kg)",
-    "Graxa Grafitada (kg)",
-    "Outros"
-])
+// Dynamic now, fetched from Inventory
+export const supplyTypeSchema = z.string()
 // Mapping for keys if needed, but we'll store array of objects now
 export const supplyEntrySchema = z.object({
     id: z.string().optional(),
