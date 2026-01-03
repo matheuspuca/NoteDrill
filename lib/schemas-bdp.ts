@@ -103,9 +103,11 @@ export const bdpSchema = z.object({
     azimuth: z.coerce.number().optional(),
 
     // Geology (Header Level)
-    materialDescription: z.string().optional(),
+    materialDescription: z.string().optional(), // Agora será um Select no front
+    rockStatus: z.enum(["Sã", "Fissurada", "Sedimento", "Outros"]).optional(),
+    rockStatusReason: z.string().optional(), // Para quando rockStatus for "Outros"
     lithologyProfile: z.string().optional(),
-    penetrationTime: z.string().optional(), // e.g. "20m/h"
+    // penetartionTime removed in v2.1
 
     // Services (Grouping)
     // We replace 'holes' with a structured 'production' array or modify holes to be nested?
@@ -117,7 +119,7 @@ export const bdpSchema = z.object({
         // Header Params for the Service Group
         meshLength: z.coerce.number().optional(), // Afastamento
         meshWidth: z.coerce.number().optional(),  // Espaçamento
-        diameter: z.coerce.number().optional(),
+        diameter: z.coerce.number().optional(), // Em polegadas agora (label front)
         angle: z.coerce.number().optional(),
         azimuth: z.coerce.number().optional(),
 

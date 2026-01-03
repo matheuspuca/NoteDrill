@@ -52,6 +52,10 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             start_date: project?.start_date || "",
             end_date: project?.end_date || "",
             contract_number: project?.contract_number || "",
+            payroll_estimate: project?.payroll_estimate || 0,
+            price_per_m3: project?.price_per_m3 || 0,
+            mob_demob_cost: project?.mob_demob_cost || 0,
+            tax_rate: project?.tax_rate || 0,
         },
     })
 
@@ -315,6 +319,74 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                                         <Input type="date" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
                                     </FormControl>
                                     <FormMessage className="text-base" />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <Separator className="bg-slate-100" />
+
+                {/* Section: Financial */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="bg-emerald-100 p-2.5 rounded-xl">
+                            <Box className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Viabilidade Financeira (Opcional)</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="price_per_m3"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-slate-700 font-bold text-lg">Preço por m³ (R$)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                    </FormControl>
+                                    <FormMessage className="text-base" />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="tax_rate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-slate-700 font-bold text-lg">Impostos (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.1" placeholder="0.0" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                    </FormControl>
+                                    <FormMessage className="text-base" />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="payroll_estimate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-slate-700 font-bold text-lg">Folha Mensal Est. (R$)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="mob_demob_cost"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-slate-700 font-bold text-lg">Custo Mob/Demob (R$)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                    </FormControl>
                                 </FormItem>
                             )}
                         />

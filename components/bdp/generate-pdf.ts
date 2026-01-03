@@ -241,11 +241,10 @@ export const generateBDPPDF = async (bdp: BDP, companySettings?: CompanySettings
 
     autoTable(doc, {
         startY: currentY,
-        head: [["Descrição Material", "Perfil Lit.", "Tempo Pen."]],
+        head: [["Descrição Material", "Perfil Lit."]],
         body: [[
             bdp.materialDescription || "-",
-            bdp.lithologyProfile || "-",
-            bdp.penetrationTime || "-"
+            bdp.lithologyProfile || "-"
         ]],
         theme: "grid",
         styles: { fontSize: 8 },

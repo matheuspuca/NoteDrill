@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { InventoryList } from "@/components/inventory/InventoryList"
+import { InventoryPriceHistory } from "@/components/inventory/InventoryPriceHistory"
 import { InventoryItem } from "@/lib/schemas-inventory"
 import { Project } from "@/lib/schemas-project"
 
@@ -35,7 +36,16 @@ export default async function InventoryPage() {
         .from("company_settings")
         .select("*")
         .eq("user_id", user.id)
+        .eq("user_id", user.id)
         .single()
+
+    // Fetch Price History
+    const { data: priceHistoryData } = await supabase
+        .from("inventory_price_history")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("date", { ascending: false })
+        .limit(20)
 
     if (inventoryError || projectsError || epiError) {
         return <div className="p-4 text-red-500">Erro ao carregar dados.</div>
@@ -64,6 +74,13 @@ export default async function InventoryPage() {
                 projects={(projectsData as Project[]) || []}
                 companySettings={companySettings}
             />
+
+            <div className="mt-8">
+                <InventoryPriceHistory
+                    items={(inventoryData || []).map(i => ({ name: i.name }))}
+                    history={(priceHistoryData as any[]) || []}
+                />
+            </div>
         </div>
     )
 }

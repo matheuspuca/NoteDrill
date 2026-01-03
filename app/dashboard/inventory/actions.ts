@@ -196,3 +196,25 @@ export async function deleteEPI(id: string) {
     revalidatePath("/dashboard/inventory")
     return { success: true }
 }
+
+export async function createPriceHistory(data: { itemName: string, price: number, date: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { error: "Usuário não autenticado" }
+
+    const { error } = await supabase.from("inventory_price_history").insert({
+        item_name: data.itemName,
+        price: data.price,
+        date: data.date,
+        user_id: user.id
+    })
+
+    if (error) {
+        console.error("Erro ao salvar histórico:", error)
+        return { error: "Erro ao salvar histórico" }
+    }
+
+    revalidatePath("/dashboard/inventory")
+    return { success: true }
+}

@@ -11,6 +11,8 @@ export interface DashboardKPIs {
     dieselConsumption: number // Litros
     downtime: number // Minutos Totais
     topBottleneck: string // Nome do maior gargalo
+    costPerMeter: number // R$/m
+    projectViabilityIndex: number // 0-100 Score
 }
 
 export interface ChartData {

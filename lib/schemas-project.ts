@@ -14,6 +14,12 @@ export const projectSchema = z.object({
     start_date: z.string().optional(),
     end_date: z.string().optional(),
     contract_number: z.string().optional(),
+
+    // Financial (Optional)
+    payroll_estimate: z.coerce.number().min(0).optional(),
+    price_per_m3: z.coerce.number().min(0).optional(),
+    mob_demob_cost: z.coerce.number().min(0).optional(),
+    tax_rate: z.coerce.number().min(0).max(100).optional(),
 })
 
 export type ProjectSchema = z.infer<typeof projectSchema>

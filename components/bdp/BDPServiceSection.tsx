@@ -75,7 +75,7 @@ export function BDPServiceSection({ control, register, watch, index, serviceType
 
                 <FormField control={control} name={`services.${index}.diameter`} render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="text-xs text-slate-500">Diâmetro (mm)</FormLabel>
+                        <FormLabel className="text-xs text-slate-500">Diâmetro (pol)</FormLabel>
                         <FormControl>
                             <Input type="number" inputMode="decimal" step="0.1" placeholder="0.0" className="bg-white h-8 text-sm" {...field} />
                         </FormControl>

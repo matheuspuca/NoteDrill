@@ -48,18 +48,30 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
     const drills = equipments.filter(e => e.type === 'Hidráulica' || e.type === 'Pneumática' || !e.type)
     const compressors = equipments.filter(e => e.type === 'Compressor')
     const serviceTypes = Object.values(serviceTypeSchema.Values)
-    const occurrenceTypes = Object.values(occurrenceTypeSchema.Values)
+    const occurrenceTypes = Object.values(occurrenceTypeSchema.Values).sort((a, b) => a.localeCompare(b))
     const supplyTypes = Object.values(supplyTypeSchema.Values)
+
+    // Rock Options
+    const rockTypes = [
+        "Granito", "Gnaisse", "Basalto", "Calcário", "Itabirito", "Minério de Ferro Friável", "Outros"
+    ]
+    const rockStatuses = ["Sã", "Fissurada", "Sedimento", "Outros"]
 
     const form = useForm<BDPSchema>({
         resolver: zodResolver(bdpSchema),
         defaultValues: {
+            // Header
             // Header
             shift: undefined,
             date: format(new Date(), "yyyy-MM-dd"),
             projectId: "",
             operatorId: "",
             drillId: "",
+
+            // Geology (New)
+            materialDescription: "",
+            rockStatus: undefined,
+            rockStatusReason: "",
 
             // Params
             hourmeterStart: 0,
@@ -109,8 +121,38 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
         const avgHeight = totalHoles ? totalMeters / totalHoles : 0
         const totalHours = (Number(hourEnd) || 0) - (Number(hourStart) || 0)
 
+        // UF Calculation
+        // Retrieve occurrences from form values directly as we might not be watching them yet?
+        // We need to watch occurrences to update this in real-time.
+        // Assuming occurrences is watched or we add it to dependency.
+        // Let's watch specific fields or fallback to current form state if feasible, but usage of 'services' suggests we rely on watched values.
+        // We'll add 'occurrences' to watched values.
         return { totalMeters, avgHeight, totalHours }
-    }, [services, hourStart, hourEnd])
+    }, [services, hourStart, hourEnd]) // We will fix the hook below to include occurrences
+
+    const occurrences = form.watch("occurrences")
+
+    const kpi = useMemo(() => {
+        const { totalMeters, avgHeight, totalHours } = stats
+
+        let totalStoppedHours = 0
+        occurrences?.forEach(occ => {
+            if (!occ.timeStart || !occ.timeEnd) return
+            // Simple diff calculation HH:mm
+            const [h1, m1] = occ.timeStart.split(':').map(Number)
+            const [h2, m2] = occ.timeEnd.split(':').map(Number)
+            const startDec_ = h1 + m1 / 60
+            const endDec_ = h2 + m2 / 60
+            let diff = endDec_ - startDec_
+            if (diff < 0) diff += 24 // Wrapping midnight? Unlikely for single shift but handling
+            totalStoppedHours += diff
+        })
+
+        const effectiveHours = Math.max(0, totalHours - totalStoppedHours)
+        const uf = totalHours > 0 ? (effectiveHours / totalHours) * 100 : 0
+
+        return { ...stats, uf, effectiveHours }
+    }, [stats, occurrences])
 
     const handleAddService = (type: string) => {
         // Prevent dupes? User requirement allows mulitple services, maybe multiple of same type? Assume unique type for now.
@@ -132,9 +174,10 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
         // Flatten services into holes or Keep structured?
         // Let's flatten for DB compatibility if the backend expects "holes".
         // Also populate the calculated stats fields
-        data.totalMeters = stats.totalMeters
-        data.totalHours = stats.totalHours
-        data.averageHeight = stats.avgHeight
+        // Also populate the calculated stats fields
+        data.totalMeters = kpi.totalMeters
+        data.totalHours = kpi.totalHours
+        data.averageHeight = kpi.avgHeight
 
         // If we want to save all holes in the main array:
         const allHoles: any[] = []
@@ -296,24 +339,88 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                         )} />
                     </div>
 
-                    {/* Geology Header */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
-                        <FormField control={form.control} name="materialDescription" render={({ field }) => (
+                </div>
+
+                {/* 1.1 METRICS (Moved to Top) */}
+                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-cyan-100 p-2.5 rounded-xl"><Activity className="w-6 h-6 text-cyan-600" /></div>
+                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Horários e Horímetros</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <FormField control={form.control} name="startTime" render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Descrição do Material / Rocha</FormLabel>
-                                <FormControl><Input placeholder="Ex: Basalto, Sedimento" className="bg-slate-50 rounded-xl" {...field} /></FormControl>
+                                <FormLabel className="font-bold text-slate-700">Hora Início</FormLabel>
+                                <FormControl><Input type="time" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
                             </FormItem>
                         )} />
+                        <FormField control={form.control} name="endTime" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700">Hora Fim</FormLabel>
+                                <FormControl><Input type="time" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="hourmeterStart" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700">Horímetro Inicial</FormLabel>
+                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="hourmeterEnd" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700">Horímetro Final</FormLabel>
+                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                    </div>
+                </div>
+
+                {/* 1.2 GEOLOGY (Enhanced) */}
+                <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-6">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-stone-100 p-2.5 rounded-xl"><HardHat className="w-6 h-6 text-stone-600" /></div>
+                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Geologia / Rocha</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField control={form.control} name="materialDescription" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700">Tipo de Rocha</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {rockTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="rockStatus" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="font-bold text-slate-700">Status da Rocha</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Condição" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {rockStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )} />
+
+                        {form.watch("rockStatus") === "Outros" && (
+                            <FormField control={form.control} name="rockStatusReason" render={({ field }) => (
+                                <FormItem className="animate-in fade-in slide-in-from-top-2">
+                                    <FormLabel className="font-bold text-slate-700">Qual motivo?</FormLabel>
+                                    <FormControl><Input placeholder="Especifique..." className="h-12 bg-slate-50 rounded-xl" {...field} /></FormControl>
+                                </FormItem>
+                            )} />
+                        )}
+
                         <FormField control={form.control} name="lithologyProfile" render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="font-bold text-slate-700">Perfil Litológico</FormLabel>
-                                <FormControl><Input placeholder="Detalhes da camada..." className="bg-slate-50 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="penetrationTime" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Tempo de Penetração</FormLabel>
-                                <FormControl><Input placeholder="Ex: 20m/h" className="bg-slate-50 rounded-xl" {...field} /></FormControl>
+                                <FormControl><Input placeholder="Detalhes..." className="h-12 bg-slate-50 rounded-xl" {...field} /></FormControl>
                             </FormItem>
                         )} />
                     </div>
@@ -463,57 +570,34 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                     </div>
                 </div>
 
-                {/* 5. METRICS */}
+                {/* 5. METRICS SUMMARY (KPIs) */}
                 <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 space-y-8">
                     <div className="flex items-center gap-3">
-                        <div className="bg-cyan-100 p-2.5 rounded-xl"><HardHat className="w-6 h-6 text-cyan-600" /></div>
-                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Resumo Diário</h3>
+                        <div className="bg-green-100 p-2.5 rounded-xl"><Activity className="w-6 h-6 text-green-600" /></div>
+                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Resumo de Performance (KPIs)</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="hourmeterStart" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Horímetro Inicial</FormLabel>
-                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="hourmeterEnd" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Horímetro Final</FormLabel>
-                                <FormControl><Input type="number" inputMode="decimal" step="0.1" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="startTime" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Hora Início</FormLabel>
-                                <FormControl><Input type="time" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="endTime" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Hora Fim</FormLabel>
-                                <FormControl><Input type="time" className="h-14 bg-slate-50 border-slate-200 rounded-xl" {...field} /></FormControl>
-                            </FormItem>
-                        )} />
-                    </div>
-
-                    <Separator />
-
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-center">
-                            <span className="block text-3xl font-black text-blue-700">{stats.totalMeters.toFixed(1)}m</span>
+                            <span className="block text-3xl font-black text-blue-700">{kpi.totalMeters.toFixed(1)}m</span>
                             <span className="text-xs font-bold uppercase text-blue-400">Total Perfurado</span>
                         </div>
                         <div className="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
-                            <span className="block text-3xl font-black text-purple-700">{stats.avgHeight.toFixed(1)}m</span>
+                            <span className="block text-3xl font-black text-purple-700">{kpi.avgHeight.toFixed(1)}m</span>
                             <span className="text-xs font-bold uppercase text-purple-400">Média (Prof/Furo)</span>
                         </div>
                         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                            <span className="block text-3xl font-black text-slate-700">{stats.totalHours.toFixed(1)}h</span>
+                            <span className="block text-3xl font-black text-slate-700">{kpi.totalHours.toFixed(1)}h</span>
                             <span className="text-xs font-bold uppercase text-slate-400">Total Horas</span>
+                        </div>
+                        <div className="p-4 bg-green-50 rounded-xl border border-green-100 text-center">
+                            <span className="block text-3xl font-black text-green-700">{kpi.uf.toFixed(0)}%</span>
+                            <span className="text-xs font-bold uppercase text-green-600">UF (Utilização)</span>
                         </div>
                     </div>
                 </div>
+
+
 
                 <div className="pt-8 pb-20 sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-4 -mx-4 px-4 sm:-mx-8 sm:px-8 z-20">
                     <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-16 rounded-2xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.01]">
@@ -523,6 +607,6 @@ export function BDPForm({ projects, teamMembers, equipments }: BDPFormProps) {
                 </div>
 
             </form>
-        </Form>
+        </Form >
     )
 }

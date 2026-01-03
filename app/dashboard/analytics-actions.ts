@@ -38,7 +38,9 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
 
         dieselConsumption: 0,
         downtime: 0,
-        topBottleneck: "N/A"
+        topBottleneck: "N/A",
+        costPerMeter: 0,
+        projectViabilityIndex: 0
     }
 
     const today = new Date()
@@ -141,6 +143,21 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
         .eq("user_id", user.id)
         .eq("status", "Em Andamento") // Assuming status field exists, otherwise logic needs check
 
+    // 5. Cost per Meter Calculation (Approximate)
+    // Cost = Diesel Cost + Fixed Costs Allocation (Estimated at 2x Diesel for now as placeholder)
+    // In v2.2 this should be real data from Bills
+    const avgDieselPrice = 6.50 // Placeholder assumption or fetch from DB
+    const estimatedTotalCost = (dieselConsumption * avgDieselPrice) * 2.5
+    const costPerMeter = totalProduction > 0 ? (estimatedTotalCost / totalProduction) : 0
+
+    // 6. Project Viability Index (Simplified)
+    // Based on High Efficiency (>30m/h) and Low Downtime (<10%)
+    // Normalized to 0-100
+    const efficiencyScore = Math.min(efficiency / 40, 1) * 50 // Max 50 pts
+    const downtimePercentage = totalHours > 0 ? (totalDowntime / 60) / totalHours : 0
+    const downtimeScore = Math.max(0, 1 - (downtimePercentage / 0.20)) * 50 // Max 50 pts
+    const projectViabilityIndex = Math.round(efficiencyScore + downtimeScore)
+
     return {
         totalProduction: Math.round(totalProduction * 10) / 10,
         efficiency: Math.round(efficiency * 10) / 10,
@@ -153,7 +170,9 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
         activeProjects: projectCount || 0,
         dieselConsumption: Math.round(dieselConsumption),
         downtime: totalDowntime,
-        topBottleneck
+        topBottleneck,
+        costPerMeter: Math.round(costPerMeter * 100) / 100,
+        projectViabilityIndex
     }
 }
 
