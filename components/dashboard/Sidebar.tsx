@@ -117,7 +117,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 py-8 px-4 space-y-2 overflow-y-auto">
+            <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto">
                 {menuItems.map((item) => {
                     const isActive = pathname === item.href
 
@@ -126,7 +126,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-4 px-5 py-4 rounded-xl transition-all group",
+                                "flex items-center gap-4 px-5 py-3 rounded-xl transition-all group",
                                 isActive
                                     ? "bg-blue-50 text-blue-700 font-bold shadow-sm border border-blue-100"
                                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium",
@@ -198,6 +198,6 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                 {/* 3. Collapse Toggle */}
 
             </div>
-        </aside>
+        </aside >
     )
 }
