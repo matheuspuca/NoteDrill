@@ -57,7 +57,12 @@ export function EquipmentForm({ equipment }: EquipmentFormProps) {
                 year: 0,
                 serialNumber: "",
                 hourmeter: 0
-            }
+            },
+            // [v2.2]
+            ownership_type: (equipment?.ownership_type as "OWNED" | "RENTED") || "OWNED",
+            rental_company_name: equipment?.rental_company_name || "",
+            rental_cost_monthly: Number(equipment?.rental_cost_monthly) || 0,
+            depreciation_cost_monthly: Number(equipment?.depreciation_cost_monthly) || 0,
         },
     })
 
@@ -203,6 +208,80 @@ export function EquipmentForm({ equipment }: EquipmentFormProps) {
                     </div>
                 </div>
 
+
+
+                <Separator className="my-8" />
+
+                {/* [v2.2] Asset Management Section */}
+                <div className="space-y-6">
+                    <h3 className="text-2xl font-black text-slate-800 border-b pb-2">Propriedade e Custos</h3>
+
+                    <FormField control={form.control} name="ownership_type" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-xl font-bold text-slate-700 block mb-2">Tipo de Propriedade</FormLabel>
+                            <FormControl>
+                                <div className="flex gap-4">
+                                    <div
+                                        onClick={() => field.onChange("OWNED")}
+                                        className={`cursor-pointer border-2 rounded-xl px-6 py-4 flex-1 text-center transition-all ${field.value === "OWNED" ? "border-blue-600 bg-blue-50 text-blue-700 font-bold" : "border-slate-200 hover:border-slate-300 text-slate-500"}`}
+                                    >
+                                        Própria
+                                    </div>
+                                    <div
+                                        onClick={() => field.onChange("RENTED")}
+                                        className={`cursor-pointer border-2 rounded-xl px-6 py-4 flex-1 text-center transition-all ${field.value === "RENTED" ? "border-blue-600 bg-blue-50 text-blue-700 font-bold" : "border-slate-200 hover:border-slate-300 text-slate-500"}`}
+                                    >
+                                        Locada
+                                    </div>
+                                </div>
+                            </FormControl>
+                            <FormMessage className="text-lg" />
+                        </FormItem>
+                    )} />
+
+                    {form.watch("ownership_type") === "RENTED" ? (
+                        <div className="grid grid-cols-2 gap-8 animate-in fade-in slide-in-from-top-2">
+                            <FormField control={form.control} name="rental_company_name" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xl font-bold text-slate-700">Locadora</FormLabel>
+                                    <FormControl><Input className="h-16 text-xl font-medium" placeholder="Nome da empresa" {...field} /></FormControl>
+                                    <FormMessage className="text-lg" />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="rental_cost_monthly" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xl font-bold text-slate-700">Custo Mensal (Aluguel)</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">R$</span>
+                                            <Input className="h-16 text-xl font-medium pl-12" type="number" step="0.01" placeholder="0,00" {...field} value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value)} />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage className="text-lg" />
+                                </FormItem>
+                            )} />
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-8 animate-in fade-in slide-in-from-top-2">
+                            <FormField control={form.control} name="depreciation_cost_monthly" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xl font-bold text-slate-700">Depreciação Mensal (Estimada)</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">R$</span>
+                                            <Input className="h-16 text-xl font-medium pl-12" type="number" step="0.01" placeholder="0,00" {...field} value={field.value ?? ''} onChange={(e) => field.onChange(e.target.value)} />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage className="text-lg" />
+                                </FormItem>
+                            )} />
+                            <div className="p-4 bg-slate-50 text-slate-500 rounded-xl text-sm flex items-center">
+                                O custo de depreciação será utilizado para o cálculo do Custo/Metro quando esta máquina estiver alocada.
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <Separator className="my-8" />
 
                 {/* Status & Maintenance */}
@@ -308,6 +387,6 @@ export function EquipmentForm({ equipment }: EquipmentFormProps) {
                     </Button>
                 </div>
             </form>
-        </Form>
+        </Form >
     )
 }

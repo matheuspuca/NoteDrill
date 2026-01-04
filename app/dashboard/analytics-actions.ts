@@ -143,12 +143,44 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
         .eq("user_id", user.id)
         .eq("status", "Em Andamento") // Assuming status field exists, otherwise logic needs check
 
-    // 5. Cost per Meter Calculation (Approximate)
-    // Cost = Diesel Cost + Fixed Costs Allocation (Estimated at 2x Diesel for now as placeholder)
-    // In v2.2 this should be real data from Bills
-    const avgDieselPrice = 6.50 // Placeholder assumption or fetch from DB
-    const estimatedTotalCost = (dieselConsumption * avgDieselPrice) * 2.5
-    const costPerMeter = totalProduction > 0 ? (estimatedTotalCost / totalProduction) : 0
+    // 5. Cost per Meter Calculation (Updated v2.2)
+    // Numerador = (Insumos) + (Mão de Obra) + (Depreciação/Aluguel) + (Manutenção)
+
+    // A. Insumos (Diesel + Outros já incluídos na varredura de 'supplies' acima? Não, só calculamos Diesel. Ideal seria calc tudo)
+    // Para simplificar e manter compatibilidade, vamos usar o Inventory Valuation como base parcial ou somar supplies dos BDPs.
+    // Vamos usar a estimativa de Diesel como "consumíveis" por enquanto ou melhorar se possível.
+    const avgDieselPrice = 6.50
+    const fuelCost = dieselConsumption * avgDieselPrice
+
+    // B. Mão de Obra (Placeholder - será vindo de Projects no futuro)
+    const laborCost = 15000 // Estimativa mensal fixa por enquanto
+
+    // C. Depreciação / Aluguel (Equipamentos)
+    // Fetch rental/depreciation costs
+    const { data: equipCosts } = await supabase
+        .from("equipment")
+        .select("ownership_type, rental_cost_monthly, depreciation_cost_monthly")
+        .eq("user_id", user.id)
+
+    const fixedAssetCost = equipCosts?.reduce((acc, eq) => {
+        const cost = eq.ownership_type === 'RENTED'
+            ? (Number(eq.rental_cost_monthly) || 0)
+            : (Number(eq.depreciation_cost_monthly) || 0)
+        return acc + cost
+    }, 0) || 0
+
+    // D. Manutenção (Events in Period)
+    const { data: maintEvents } = await supabase
+        .from("maintenance_events")
+        .select("cost")
+        .eq("user_id", user.id)
+        .gte("date", startMonth)
+        .lte("date", endMonth)
+
+    const maintenanceCost = maintEvents?.reduce((acc, evt) => acc + (Number(evt.cost) || 0), 0) || 0
+
+    const totalCostOfMonth = fuelCost + laborCost + fixedAssetCost + maintenanceCost
+    const costPerMeter = totalProduction > 0 ? (totalCostOfMonth / totalProduction) : 0
 
     // 6. Project Viability Index (Simplified)
     // Based on High Efficiency (>30m/h) and Low Downtime (<10%)
