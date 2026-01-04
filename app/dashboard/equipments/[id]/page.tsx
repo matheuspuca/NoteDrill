@@ -1,8 +1,15 @@
-import { getMaintenanceEvents } from "@/app/dashboard/equipments/maintenance-actions"
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { EquipmentForm } from "@/components/equipment/EquipmentForm"
 import { MaintenanceList } from "@/components/equipment/MaintenanceList"
-import { MaintenanceEvent } from "@/lib/schemas-equipment"
+import { getMaintenanceEvents } from "@/app/dashboard/equipments/maintenance-actions"
+import { Equipment, MaintenanceEvent } from "@/lib/schemas-equipment"
 
-// ... imports remain the same
+interface PageProps {
+    params: {
+        id: string
+    }
+}
 
 export default async function EditEquipmentPage({ params }: PageProps) {
     const supabase = createClient()
