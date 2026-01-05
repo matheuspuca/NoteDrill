@@ -39,7 +39,9 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
         query = query.lte("date", searchParams.endDate)
     }
 
-    const { data: reports, error } = await query.order("created_at", { ascending: false })
+    const { data: reports, error } = await query
+        .order("projectId", { ascending: true })
+        .order("date", { ascending: false })
 
     // Map relations to flat structure expected by BDP type
     const formattedReports = (reports || []).map((r: any) => ({

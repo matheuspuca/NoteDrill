@@ -11,6 +11,7 @@ import { createEPI, createInventoryItem, updateInventoryItem, updateEPI } from "
 import { Project } from "@/lib/schemas-project"
 
 import { Button } from "@/components/ui/button"
+import { CurrencyInput } from "@/components/ui/currency-input"
 import {
     Form,
     FormControl,
@@ -262,8 +263,14 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
 
                     <FormField control={form.control} name="value" render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-xl font-bold text-slate-700">Valor Unitário (R$)</FormLabel>
-                            <FormControl><Input className="h-16 text-xl font-medium" type="number" step="0.01" {...field} /></FormControl>
+                            <FormLabel className="text-xl font-bold text-slate-700">Valor Unitário</FormLabel>
+                            <FormControl>
+                                <CurrencyInput
+                                    className="h-16 text-xl font-medium"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
                             <FormMessage className="text-lg" />
                         </FormItem>
                     )} />
