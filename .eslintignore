@@ -1,0 +1,6 @@
+supabase/
+backups/
+node_modules/
+.next/
+out/
+build/

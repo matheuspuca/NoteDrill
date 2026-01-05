@@ -29,10 +29,14 @@
     },
     "include": [
         "next-env.d.ts",
-        "**/*.ts",
-        "**/*.tsx",
         ".next/types/**/*.ts",
-        "app/api/webhooks/stripe/route.ts.old"
+        "app/**/*.ts",
+        "app/**/*.tsx",
+        "components/**/*.ts",
+        "components/**/*.tsx",
+        "lib/**/*.ts",
+        "utils/**/*.ts",
+        "hooks/**/*.ts"
     ],
     "exclude": [
         "node_modules",
