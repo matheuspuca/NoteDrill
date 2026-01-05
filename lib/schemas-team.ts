@@ -13,16 +13,19 @@ export const teamMemberSchema = z.object({
     // System Access
     createSystemUser: z.boolean().default(false).optional(),
     email: z.string().email("Email inválido").optional().or(z.literal("")),
-    password: z.string().min(6, "Senha deve ter 6 caracteres").optional().or(z.literal("")),
+    // Password removed for Invite Flow
+    // password: z.string().min(6, "Senha deve ter 6 caracteres").optional().or(z.literal("")),
     systemRole: z.enum(["admin", "supervisor", "operator"]).optional(),
+    projectId: z.string().optional(), // Obra Inicial
 }).refine((data) => {
     if (data.createSystemUser) {
-        return !!data.email && !!data.password && !!data.systemRole
+        // Invite Flow requires Email and Role (and preferably Project)
+        return !!data.email && !!data.systemRole
     }
     return true
 }, {
-    message: "Email, Senha e Nível de Acesso são obrigatórios para criar usuário",
-    path: ["createSystemUser"] // Attach error to checkbox or generic
+    message: "Email e Nível de Acesso são obrigatórios para enviar convite",
+    path: ["createSystemUser"]
 })
 
 export type TeamMemberSchema = z.infer<typeof teamMemberSchema>

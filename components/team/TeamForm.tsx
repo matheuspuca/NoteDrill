@@ -54,6 +54,7 @@ interface TeamFormProps {
     epis?: any[]
     epiHistory?: any[]
     companySettings?: CompanySettingsSchema & { logo_url?: string | null } | null
+    projects?: any[]
 }
 
 const ROLES = ["Operador", "Ajudante", "Supervisor", "Encarregado", "Mecânico", "Eletricista", "Motorista", "Auxiliar"]
@@ -63,7 +64,8 @@ const SYSTEM_ROLES = [
     { value: "operator", label: "Operador" }
 ]
 
-export function TeamForm({ member, epis = [], epiHistory = [], companySettings }: TeamFormProps) {
+export function TeamForm(props: TeamFormProps) {
+    const { member, epis = [], epiHistory = [], companySettings, projects = [] } = props
     const { toast } = useToast()
     const router = useRouter()
     const [isPending, setIsPending] = useState(false)
@@ -384,34 +386,14 @@ export function TeamForm({ member, epis = [], epiHistory = [], companySettings }
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-top-4 duration-300">
                                     <FormField control={form.control} name="email" render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-xl font-bold text-slate-700">Email de Login</FormLabel>
+                                            <FormLabel className="text-xl font-bold text-slate-700">Email para Convite</FormLabel>
                                             <FormControl><Input className="h-14 text-xl" placeholder="email@exemplo.com" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
 
-                                    <FormField control={form.control} name="password" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-xl font-bold text-slate-700">Senha Temporária</FormLabel>
-                                            <div className="relative">
-                                                <FormControl>
-                                                    <Input type={showPassword ? "text" : "password"} className="h-14 text-xl pr-10" placeholder="******" {...field} />
-                                                </FormControl>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    className="absolute right-0 top-0 h-14 w-14 px-3"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                >
-                                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                                </Button>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-
                                     <FormField control={form.control} name="systemRole" render={({ field }) => (
-                                        <FormItem className="col-span-2">
+                                        <FormItem>
                                             <FormLabel className="text-xl font-bold text-slate-700">Nível de Permissão</FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
@@ -430,6 +412,32 @@ export function TeamForm({ member, epis = [], epiHistory = [], companySettings }
                                             <FormMessage />
                                         </FormItem>
                                     )} />
+
+                                    <FormField control={form.control} name="projectId" render={({ field }) => (
+                                        <FormItem className="col-span-2">
+                                            <FormLabel className="text-xl font-bold text-slate-700">Obra Inicial (Opcional)</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="h-14 text-xl font-medium">
+                                                        <SelectValue placeholder="Vincular a uma obra..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {/* Projects Prop (passed from parent) */}
+                                                    {/* We need to define projects in props first (done in previous steps but generic type in props interface needs update locally if strict) */}
+                                                    {(props.projects || []).map((p: any) => (
+                                                        <SelectItem className="text-lg py-3" key={p.id} value={p.id}>
+                                                            {p.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription>
+                                                O usuário será vinculado automaticamente a esta obra.
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
                                 </div>
                             )}
                         </div>
@@ -439,7 +447,7 @@ export function TeamForm({ member, epis = [], epiHistory = [], companySettings }
                     <div className="pt-8 flex justify-end gap-3">
                         <Button type="submit" disabled={isPending} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xl h-16 px-10 rounded-2xl font-black shadow-xl shadow-blue-600/20">
                             {isPending && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
-                            {member ? "Salvar Alterações" : "Adicionar Membro"}
+                            {member ? "Salvar Alterações" : (watchCreateSystemUser ? "Enviar Convite e Adicionar" : "Adicionar Membro")}
                         </Button>
                     </div>
                 </form>

@@ -25,6 +25,13 @@ export default async function TeamPage() {
         .eq("user_id", user.id)
         .single()
 
+    // Fetch Projects for Invite
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("name")
+
     return (
         <div className="max-w-[1600px] mx-auto py-10 space-y-8">
             <div>
@@ -34,7 +41,7 @@ export default async function TeamPage() {
                 </p>
             </div>
 
-            <TeamList members={(teamData as TeamMember[]) || []} companySettings={companySettings} />
+            <TeamList members={(teamData as TeamMember[]) || []} companySettings={companySettings} projects={projects || []} />
         </div>
     )
 }

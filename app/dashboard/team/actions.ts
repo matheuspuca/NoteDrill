@@ -35,59 +35,45 @@ export async function createTeamMember(data: TeamMemberSchema) {
 
     let linkedUserId = null
 
-    // Create System User if requested
-    if (validated.createSystemUser && validated.email && validated.password) {
-        console.log("--> Starting System User Creation for:", validated.email)
+    // Invite System User if requested
+    if (validated.createSystemUser && validated.email) {
+        console.log("--> Starting System User Invite for:", validated.email)
 
-        const adminClient = createAdminClient()
-        if (!adminClient) {
-            console.error("--> ERROR: Service Role Key missing.")
-            return { error: "Erro de configuração: Chave Service Role não encontrada. Contate o suporte." }
-        }
-
-        const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
-            email: validated.email,
-            password: validated.password,
-            email_confirm: true,
-            user_metadata: { role: validated.systemRole, full_name: validated.name }
+        // Call Edge Function
+        const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-team-member', {
+            body: {
+                email: validated.email,
+                role: validated.systemRole,
+                fullName: validated.name,
+                projectId: validated.projectId,
+                redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/update-password`
+            }
         })
 
-        if (authError) {
-            console.error("--> Auth Create Error:", authError)
-            return { error: `Erro ao criar usuário: ${authError.message}` }
+        if (inviteError) {
+            console.error("--> Invite Error:", inviteError)
+            return { error: "Erro ao enviar convite: " + inviteError.message }
         }
 
-        console.log("--> User Created Successfully in Auth. User ID:", authData.user.id)
-        linkedUserId = authData.user.id
-
-        // Update Profile Role immediately
-        console.log("--> Updating Profile Role to:", validated.systemRole)
-        const { error: profileError } = await adminClient
-            .from('profiles')
-            .update({ role: validated.systemRole })
-            .eq('id', linkedUserId)
-
-        if (profileError) {
-            console.error("--> Profile Role Update Error:", profileError)
-            // Non-blocking error, but good to know
-        } else {
-            console.log("--> Profile Role Updated Successfully.")
+        // Edge function returns userId if successful
+        if (inviteData?.userId) {
+            linkedUserId = inviteData.userId
         }
     }
 
     // Clean data for insert (remove system fields)
-    const { createSystemUser, systemRole, password, ...dbData } = validated
+    const { createSystemUser, systemRole, projectId, email, ...dbData } = validated
 
+    // Insert into basic team_members list (HR record)
     const { error } = await supabase.from("team_members").insert({
         ...dbData,
+        email: validated.email, // Save email in HR record too
         user_id: user.id, // Created By
         linked_user_id: linkedUserId
     })
 
     if (error) {
         console.error("Erro ao adicionar membro:", error)
-        // Note: If DB insert fails, we might have an orphaned Auth User. 
-        // Ideal: Transaction or cleanup. For MVP: Log error.
         return { error: "Erro ao adicionar membro à equipe" }
     }
 
