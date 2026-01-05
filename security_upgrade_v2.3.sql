@@ -102,3 +102,4 @@ BEGIN
     AND trial_end_date < now();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+--------
