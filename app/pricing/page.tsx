@@ -45,7 +45,7 @@ export default function PricingPage() {
                         <div className="mb-8">
                             <h3 className="text-xl font-bold text-slate-900">Basic</h3>
                             <div className="mt-4 flex items-baseline">
-                                <span className="text-4xl font-extrabold tracking-tight text-slate-900">R$ 97</span>
+                                <span className="text-4xl font-extrabold tracking-tight text-slate-900">R$ 699</span>
                                 <span className="ml-1 text-xl font-semibold text-slate-500">/mês</span>
                             </div>
                             <p className="mt-4 text-slate-500">Para operadores individuais e freelancers.</p>
@@ -55,7 +55,7 @@ export default function PricingPage() {
                             <li className="flex items-center text-slate-600"><Check className="h-5 w-5 text-green-500 mr-2" /> 1 Obra Ativa</li>
                             <li className="flex items-center text-slate-600"><Check className="h-5 w-5 text-green-500 mr-2" /> Relatórios PDF Simples</li>
                         </ul>
-                        <Button className="w-full" variant="outline">Falar com Vendas</Button>
+                        <Button className="w-full" variant="outline">Falar com Consultor</Button>
                     </div>
 
                     {/* Pro */}
@@ -66,7 +66,7 @@ export default function PricingPage() {
                         <div className="mb-8">
                             <h3 className="text-xl font-bold text-white">Pro</h3>
                             <div className="mt-4 flex items-baseline">
-                                <span className="text-4xl font-extrabold tracking-tight text-white">R$ 297</span>
+                                <span className="text-4xl font-extrabold tracking-tight text-white">R$ 1.299</span>
                                 <span className="ml-1 text-xl font-semibold text-slate-400">/mês</span>
                             </div>
                             <p className="mt-4 text-slate-300">Para pequenas empresas e equipes em crescimento.</p>
@@ -77,7 +77,7 @@ export default function PricingPage() {
                             <li className="flex items-center text-slate-200"><Check className="h-5 w-5 text-blue-400 mr-2" /> Gestão de Estoque</li>
                             <li className="flex items-center text-slate-200"><Check className="h-5 w-5 text-blue-400 mr-2" /> Múltiplos Operadores</li>
                         </ul>
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Assinar Agora</Button>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Falar com Consultor</Button>
                     </div>
 
                     {/* Enterprise */}
@@ -95,7 +95,7 @@ export default function PricingPage() {
                             <li className="flex items-center text-slate-600"><Check className="h-5 w-5 text-green-500 mr-2" /> API & Integrações</li>
                             <li className="flex items-center text-slate-600"><Check className="h-5 w-5 text-green-500 mr-2" /> Suporte Dedicado 24/7</li>
                         </ul>
-                        <Button className="w-full" variant="outline">Contatar Comercial</Button>
+                        <Button className="w-full" variant="outline">Falar com Consultor</Button>
                     </div>
 
                 </div>
