@@ -88,7 +88,6 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
             toast({
                 title: "Sucesso",
                 description: `Status atualizado para ${newStatus}`,
-                className: newStatus === 'APROVADO' ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800"
             })
         }
     }

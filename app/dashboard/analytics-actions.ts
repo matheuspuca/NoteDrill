@@ -40,7 +40,8 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
         downtime: 0,
         topBottleneck: "N/A",
         costPerMeter: 0,
-        projectViabilityIndex: 0
+        projectViabilityIndex: 0,
+        bitPerformance: 0
     }
 
     const today = new Date()

@@ -1,7 +1,31 @@
+"use client"
+
+import React, { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { LogOut, User, Bell, Sun, Moon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
+import { InstallPWA } from "@/components/pwa/InstallPWA"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { useRouter } from "next/navigation"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "next-themes"
 
-// ... imports
+interface HeaderProps {
+    userEmail?: string | null
+}
 
 export function Header({ userEmail }: HeaderProps) {
     const router = useRouter()
@@ -9,7 +33,24 @@ export function Header({ userEmail }: HeaderProps) {
     const [profile, setProfile] = useState<any>(null)
     const { setTheme } = useTheme()
 
-    // ... useEffect
+    useEffect(() => {
+        async function fetchProfile() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+                if (data) setProfile(data)
+            }
+        }
+        fetchProfile()
+    }, [])
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        router.push("/login")
+    }
+
+    const displayName = profile?.full_name || "Engenheiro Sênior"
+    const displayAvatar = profile?.avatar_url
 
     return (
         <header className="h-28 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-40 shadow-sm">
@@ -17,11 +58,12 @@ export function Header({ userEmail }: HeaderProps) {
             <div className="flex items-center gap-4">
                 <InstallPWA />
                 <MobileSidebar />
-                {/* Placeholder for future page title integration */}
             </div>
 
             {/* Right side: User & Actions */}
             <div className="flex items-center gap-6">
+
+                {/* Theme Toggle */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-12 w-12 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 relative">
@@ -43,6 +85,7 @@ export function Header({ userEmail }: HeaderProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
+                {/* Notifications */}
                 <Popover>
                     <PopoverTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-12 w-12 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 relative">
@@ -50,11 +93,25 @@ export function Header({ userEmail }: HeaderProps) {
                             <span className="absolute top-3 right-3 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                         </Button>
                     </PopoverTrigger>
-                    {/* ... (Notifications content unchanged) ... */}
+                    <PopoverContent className="w-80 p-0" align="end">
+                        <div className="p-4 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-900/50 dark:border-slate-800">
+                            <h4 className="font-bold text-slate-800 dark:text-slate-200">Notificações</h4>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Gerencie seus alertas em configurações.</p>
+                        </div>
+                        <div className="p-4 text-center text-sm text-slate-400 py-8">
+                            Nenhuma notificação nova.
+                        </div>
+                        <div className="p-2 border-t border-slate-100 bg-slate-50/50 dark:bg-slate-900/50 dark:border-slate-800">
+                            <Button variant="ghost" className="w-full text-xs h-8 text-blue-600 dark:text-blue-400" onClick={() => router.push('/dashboard/settings?tab=notifications')}>
+                                Configurar notificações
+                            </Button>
+                        </div>
+                    </PopoverContent>
                 </Popover>
 
                 <div className="h-10 w-px bg-slate-200 dark:bg-slate-800" />
 
+                {/* User Menu */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="flex items-center gap-5 pl-3 pr-6 py-8 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-2xl border border-transparent hover:border-slate-100 dark:hover:border-slate-800 h-auto transition-all">
@@ -72,7 +129,19 @@ export function Header({ userEmail }: HeaderProps) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-64">
-                        {/* ... (Menu items unchanged) ... */}
+                        <DropdownMenuLabel className="text-base">Minha Conta</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="py-3 text-base cursor-pointer" onClick={() => router.push("/dashboard/settings?tab=profile")}>
+                            Perfil
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="py-3 text-base cursor-pointer" onClick={() => router.push("/dashboard/settings")}>
+                            Configurações
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 py-3 text-base font-medium cursor-pointer">
+                            <LogOut className="mr-3 h-5 w-5" />
+                            Sair do Sistema
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
