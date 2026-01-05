@@ -4,27 +4,38 @@ import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 
-export default function PricingPage() {
+function PricingContent() {
     const searchParams = useSearchParams()
     const reason = searchParams.get("reason")
 
     return (
+        <>
+            {/* Header */}
+            <div className="text-center space-y-4">
+                {reason === "trial_expired" && (
+                    <div className="bg-red-100 text-red-700 px-4 py-2 rounded-full inline-block font-semibold border border-red-200 mb-4">
+                        Seu período de teste expirou. Escolha um plano para continuar.
+                    </div>
+                )}
+                <h1 className="text-4xl font-extrabold text-slate-900">Escolha o plano ideal para sua operação</h1>
+                <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                    Desbloqueie todo o potencial do SmartDrill com nossos planos flexíveis.
+                </p>
+            </div>
+        </>
+    )
+}
+
+export default function PricingPage() {
+    return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
             <div className="max-w-5xl w-full space-y-8">
 
-                {/* Header */}
-                <div className="text-center space-y-4">
-                    {reason === "trial_expired" && (
-                        <div className="bg-red-100 text-red-700 px-4 py-2 rounded-full inline-block font-semibold border border-red-200 mb-4">
-                            Seu período de teste expirou. Escolha um plano para continuar.
-                        </div>
-                    )}
-                    <h1 className="text-4xl font-extrabold text-slate-900">Escolha o plano ideal para sua operação</h1>
-                    <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                        Desbloqueie todo o potencial do SmartDrill com nossos planos flexíveis.
-                    </p>
-                </div>
+                <Suspense fallback={<div>Carregando opções...</div>}>
+                    <PricingContent />
+                </Suspense>
 
                 {/* Pricing Cards */}
                 <div className="grid md:grid-cols-3 gap-8 mt-12">
