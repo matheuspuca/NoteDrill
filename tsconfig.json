@@ -41,7 +41,7 @@
     "exclude": [
         "node_modules",
         "backups",
-        "supabase",
-        "supabase/**/*"
+        "./supabase",
+        "./supabase/**/*"
     ]
 }
