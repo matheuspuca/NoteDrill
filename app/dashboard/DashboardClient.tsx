@@ -62,7 +62,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
             </div>
 
             {/* KPI Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
                 {/* KPI 1: Produção */}
                 <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 rounded-[24px] overflow-hidden relative group">
@@ -155,7 +155,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     </CardContent>
                 </Card>
 
-                {/* KPI 5: Valor em Estoque (Moved or Updated style if grid changes) */}
+                {/* KPI 5: Valor em Estoque */}
                 <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 rounded-[24px] overflow-hidden relative group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Package className="w-24 h-24 text-purple-600" />
@@ -170,6 +170,26 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                             <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Valor em Estoque</p>
                             <h3 className="text-3xl font-black text-slate-900 mt-2 tracking-tighter truncate" title={formatCurrency(kpis.inventoryValuation)}>
                                 {formatCurrency(kpis.inventoryValuation)}
+                            </h3>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* KPI 6: Performance Média Bit */}
+                <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 rounded-[24px] overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Zap className="w-24 h-24 text-indigo-600" />
+                    </div>
+                    <CardContent className="p-8">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 bg-indigo-100/50 rounded-xl text-indigo-700">
+                                <Zap className="h-8 w-8" />
+                            </div>
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Performance Média Bit</p>
+                            <h3 className="text-4xl font-black text-slate-900 mt-2 tracking-tighter">
+                                {kpis.bitPerformance || 0} <span className="text-lg text-slate-400 font-bold">m/un</span>
                             </h3>
                         </div>
                     </CardContent>

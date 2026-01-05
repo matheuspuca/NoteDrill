@@ -13,6 +13,7 @@ export interface DashboardKPIs {
     topBottleneck: string // Nome do maior gargalo
     costPerMeter: number // R$/m
     projectViabilityIndex: number // 0-100 Score
+    bitPerformance: number // Metros / Unidade
 }
 
 export interface ChartData {

@@ -21,6 +21,7 @@ export async function createBDP(data: BDPSchema) {
             .insert({
                 ...dbData,
                 user_id: user.id,
+                status: 'PENDENTE' // Force default status for new BDPs
             })
 
         if (error) {
@@ -80,6 +81,30 @@ export async function createBDP(data: BDPSchema) {
         revalidatePath("/dashboard/bdp")
         revalidatePath("/dashboard/inventory") // Refresh inventory UI
         revalidatePath("/dashboard") // Refresh KPI Cards
+        return { success: true }
+    } catch (e) {
+        return { error: "Erro interno do servidor" }
+    }
+}
+
+export async function updateBDPStatus(id: string, newStatus: 'APROVADO' | 'REJEITADO' | 'PENDENTE') {
+    const supabase = createClient()
+
+    // We rely on RLS/Policy to ensure only proper roles can update. 
+    // However, as a safeguard, we could fetch profile role here too.
+
+    try {
+        const { error } = await supabase
+            .from("bdp_reports")
+            .update({ status: newStatus })
+            .eq("id", id)
+
+        if (error) {
+            console.error(error)
+            return { error: "Erro ao atualizar status" }
+        }
+
+        revalidatePath("/dashboard/bdp")
         return { success: true }
     } catch (e) {
         return { error: "Erro interno do servidor" }

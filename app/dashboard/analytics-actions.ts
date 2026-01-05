@@ -190,6 +190,30 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
     const downtimeScore = Math.max(0, 1 - (downtimePercentage / 0.20)) * 50 // Max 50 pts
     const projectViabilityIndex = Math.round(efficiencyScore + downtimeScore)
 
+    // 7. Bit Performance (Metros / Unidade)
+    let bitPerformance = 0
+    try {
+        const { count: bitCount, error: bitError } = await supabase
+            .from('bit_instances')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+
+        if (!bitError && bitCount && bitCount > 0) {
+            const { data: bdpBits, error: bdpError } = await supabase
+                .from('bdp_reports')
+                .select('totalMeters')
+                .eq('user_id', user.id)
+                .not('bit_instance_id', 'is', null)
+
+            if (!bdpError && bdpBits) {
+                const totalBitMeters = bdpBits.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0)
+                bitPerformance = totalBitMeters / bitCount
+            }
+        }
+    } catch (e) {
+        console.warn("Bit Performance calc failed (likely pending migration):", e)
+    }
+
     return {
         totalProduction: Math.round(totalProduction * 10) / 10,
         efficiency: Math.round(efficiency * 10) / 10,
@@ -204,7 +228,8 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
         downtime: totalDowntime,
         topBottleneck,
         costPerMeter: Math.round(costPerMeter * 100) / 100,
-        projectViabilityIndex
+        projectViabilityIndex,
+        bitPerformance: Math.round(bitPerformance * 10) / 10
     }
 }
 

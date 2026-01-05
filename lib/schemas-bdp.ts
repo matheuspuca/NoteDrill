@@ -130,6 +130,9 @@ export const bdpSchema = z.object({
     // Occurrences & Supplies
     occurrences: z.array(occurrenceEntrySchema).optional(),
     supplies: z.array(supplyEntrySchema).optional(),
+
+    // Workflow
+    status: z.enum(['PENDENTE', 'APROVADO', 'REJEITADO']).optional(),
 })
 
 export type BDPSchema = z.infer<typeof bdpSchema>
@@ -138,6 +141,7 @@ export type BDP = BDPSchema & {
     id: string
     created_at: string
     user_id: string
+    status?: 'PENDENTE' | 'APROVADO' | 'REJEITADO' // DB Column
     // Expanded relations types for UI display if joined
     projects?: { name: string }
     operator?: { name: string }
