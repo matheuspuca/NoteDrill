@@ -17,13 +17,14 @@ export const teamMemberSchema = z.object({
     systemRole: z.enum(["admin", "supervisor", "operator"]).optional(),
     projectId: z.string().optional(), // Obra Inicial
     // Refinement removed as requested for 'Start from Zero' on access creation
+})
 
-    export type TeamMemberSchema = z.infer<typeof teamMemberSchema>
+export type TeamMemberSchema = z.infer<typeof teamMemberSchema>
 
 export type TeamMember = TeamMemberSchema & {
-        id: string
+    id: string
     user_id: string
     linked_user_id?: string
     email?: string
     created_at: string
-    }
+}
