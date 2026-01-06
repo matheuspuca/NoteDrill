@@ -35,31 +35,8 @@ export async function createTeamMember(data: TeamMemberSchema) {
 
     let linkedUserId = null
 
-    // Invite System User if requested
-    if (validated.createSystemUser && validated.email) {
-        console.log("--> Starting System User Invite for:", validated.email)
-
-        // Call Edge Function
-        const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-team-member', {
-            body: {
-                email: validated.email,
-                role: validated.systemRole,
-                fullName: validated.name,
-                projectId: validated.projectId,
-                redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/update-password`
-            }
-        })
-
-        if (inviteError) {
-            console.error("--> Invite Error:", inviteError)
-            return { error: "Erro ao enviar convite: " + inviteError.message }
-        }
-
-        // Edge function returns userId if successful
-        if (inviteData?.userId) {
-            linkedUserId = inviteData.userId
-        }
-    }
+    // Logic for 'createSystemUser' removed as requested. 
+    // We are resetting this flow.
 
     // Clean data for insert (remove system fields)
     const { createSystemUser, systemRole, projectId, email, ...dbData } = validated

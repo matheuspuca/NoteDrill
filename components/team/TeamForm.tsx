@@ -349,103 +349,12 @@ export function TeamForm(props: TeamFormProps) {
                         </div>
                     </div>
 
-                    {!member && (
-                        <div className="bg-slate-50 p-6 rounded-2xl border border-blue-100 space-y-6">
-                            <h3 className="text-2xl font-black text-slate-800 border-b pb-2 flex items-center gap-2">
-                                <HardHat className="h-6 w-6 text-blue-600" />
-                                Acesso ao Sistema
-                            </h3>
-
-                            <FormField
-                                control={form.control}
-                                name="createSystemUser"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-xl bg-white shadow-sm">
-                                        <FormControl>
-                                            <Checkbox
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                className="w-6 h-6"
-                                            />
-                                        </FormControl>
-                                        <div className="space-y-1 leading-none">
-                                            <FormLabel className="text-lg font-bold text-slate-700 cursor-pointer">
-                                                Convidar para acessar o sistema?
-                                            </FormLabel>
-                                            <FormDescription>
-                                                O usuário receberá um convite por e-mail para definir sua senha.
-                                            </FormDescription>
-                                        </div>
-                                    </FormItem>
-                                )}
-                            />
-
-                            {watchCreateSystemUser && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                                    <FormField control={form.control} name="email" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-xl font-bold text-slate-700">Email para Convite</FormLabel>
-                                            <FormControl><Input className="h-14 text-xl" placeholder="email@exemplo.com" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-
-                                    <FormField control={form.control} name="systemRole" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-xl font-bold text-slate-700">Nível de Permissão</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="h-14 text-xl font-medium">
-                                                        <SelectValue placeholder="Selecione o nível de acesso..." />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {SYSTEM_ROLES.map((role) => (
-                                                        <SelectItem className="text-lg py-3" key={role.value} value={role.value}>
-                                                            <span className="font-bold">{role.label}</span>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-
-                                    <FormField control={form.control} name="projectId" render={({ field }) => (
-                                        <FormItem className="col-span-2">
-                                            <FormLabel className="text-xl font-bold text-slate-700">Obra Inicial (Opcional)</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="h-14 text-xl font-medium">
-                                                        <SelectValue placeholder="Vincular a uma obra..." />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {/* Projects Prop (passed from parent) */}
-                                                    {/* We need to define projects in props first (done in previous steps but generic type in props interface needs update locally if strict) */}
-                                                    {(props.projects || []).map((p: any) => (
-                                                        <SelectItem className="text-lg py-3" key={p.id} value={p.id}>
-                                                            {p.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormDescription>
-                                                O usuário será vinculado automaticamente a esta obra.
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                </div>
-                            )}
-                        </div>
-                    )}
-
+                    {/* Acesso ao Sistema section removed as requested for re-implementation */}
 
                     <div className="pt-8 flex justify-end gap-3">
                         <Button type="submit" disabled={isPending} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xl h-16 px-10 rounded-2xl font-black shadow-xl shadow-blue-600/20">
                             {isPending && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
-                            {member ? "Salvar Alterações" : (watchCreateSystemUser ? "Enviar Convite e Adicionar" : "Adicionar Membro")}
+                            {member ? "Salvar Alterações" : "Adicionar Membro"}
                         </Button>
                     </div>
                 </form>
@@ -559,5 +468,6 @@ export function TeamForm(props: TeamFormProps) {
         </div>
     )
 }
-/ /   C O M M I T   T R I G G E R  
+/ /   C O M M I T   T R I G G E R 
+ 
  
