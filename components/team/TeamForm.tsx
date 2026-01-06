@@ -354,7 +354,7 @@ export function TeamForm(props: TeamFormProps) {
                         <div className="bg-slate-50 p-6 rounded-2xl border border-blue-100 space-y-6">
                             <h3 className="text-2xl font-black text-slate-800 border-b pb-2 flex items-center gap-2">
                                 <HardHat className="h-6 w-6 text-blue-600" />
-                                Acesso ao Sistema
+                                Acesso ao Sistema (Convite Seguro)
                             </h3>
 
                             <FormField
