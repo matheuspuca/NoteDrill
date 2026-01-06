@@ -54,6 +54,13 @@ export default async function EditTeamMemberPage({ params }: PageProps) {
         console.log("DEBUG SERVER PAGE: Company Settings Found:", companySettings?.company_name)
     }
 
+    // Fetch Projects
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("name")
+
     if (!member) return <div>Membro não encontrado.</div>
 
     return (
@@ -65,6 +72,7 @@ export default async function EditTeamMemberPage({ params }: PageProps) {
                     epis={epis || []}
                     epiHistory={epiHistory || []}
                     companySettings={companySettings}
+                    projects={projects || []}
                 />
             </div>
         </div>

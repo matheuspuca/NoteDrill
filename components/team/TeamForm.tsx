@@ -69,7 +69,6 @@ export function TeamForm(props: TeamFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const [isPending, setIsPending] = useState(false)
-    const [showPassword, setShowPassword] = useState(false)
     const form = useForm<TeamMemberSchema>({
         resolver: zodResolver(teamMemberSchema),
         defaultValues: {
@@ -81,7 +80,6 @@ export function TeamForm(props: TeamFormProps) {
             asoDate: member?.asoDate || "",
             createSystemUser: false,
             email: "",
-            password: "",
             systemRole: "operator",
         },
     })
@@ -372,10 +370,10 @@ export function TeamForm(props: TeamFormProps) {
                                         </FormControl>
                                         <div className="space-y-1 leading-none">
                                             <FormLabel className="text-lg font-bold text-slate-700 cursor-pointer">
-                                                Criar usuário de acesso para este membro?
+                                                Convidar para acessar o sistema?
                                             </FormLabel>
                                             <FormDescription>
-                                                Isso gerará um login e senha para que ele possa acessar o sistema ou App.
+                                                O usuário receberá um convite por e-mail para definir sua senha.
                                             </FormDescription>
                                         </div>
                                     </FormItem>

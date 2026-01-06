@@ -8,11 +8,18 @@ export default async function NewTeamMemberPage() {
 
     if (!user) return redirect("/login")
 
+    // Fetch Projects for Invite
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("name")
+
     return (
         <div className="max-w-4xl mx-auto py-10">
             <h1 className="text-3xl font-black text-slate-900 mb-8">Novo Membro da Equipe</h1>
             <div className="bg-white p-8 rounded-2xl shadow-xl ring-1 ring-slate-100">
-                <TeamForm />
+                <TeamForm projects={projects || []} />
             </div>
         </div>
     )

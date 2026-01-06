@@ -13,8 +13,7 @@ export const teamMemberSchema = z.object({
     // System Access
     createSystemUser: z.boolean().default(false).optional(),
     email: z.string().email("Email inválido").optional().or(z.literal("")),
-    // Password removed for Invite Flow
-    // password: z.string().min(6, "Senha deve ter 6 caracteres").optional().or(z.literal("")),
+
     systemRole: z.enum(["admin", "supervisor", "operator"]).optional(),
     projectId: z.string().optional(), // Obra Inicial
 }).refine((data) => {
