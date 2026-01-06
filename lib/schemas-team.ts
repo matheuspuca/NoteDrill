@@ -14,9 +14,15 @@ export const teamMemberSchema = z.object({
     createSystemUser: z.boolean().default(false).optional(),
     email: z.string().email("Email inválido").optional().or(z.literal("")),
 
-    systemRole: z.enum(["admin", "supervisor", "operator"]).optional(),
-    projectId: z.string().optional(), // Obra Inicial
-    // Refinement removed as requested for 'Start from Zero' on access creation
+}).refine((data) => {
+    if (data.createSystemUser) {
+        // Invite Flow requires Email and Role
+        return !!data.email && !!data.systemRole
+    }
+    return true
+}, {
+    message: "Email e Nível de Acesso são obrigatórios para enviar convite",
+    path: ["createSystemUser"]
 })
 
 export type TeamMemberSchema = z.infer<typeof teamMemberSchema>
