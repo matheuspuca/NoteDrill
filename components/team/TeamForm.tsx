@@ -557,6 +557,3 @@ export function TeamForm(props: TeamFormProps) {
         </div>
     )
 }
-/ /   C O M M I T   T R I G G E R 
- 
- 
