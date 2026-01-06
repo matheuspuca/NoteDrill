@@ -3,7 +3,8 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
-import { useState } from "react"
+// [TRIGGER] Manual Commit Check for Deployment
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 import { teamMemberSchema, TeamMemberSchema, TeamMember } from "@/lib/schemas-team"
