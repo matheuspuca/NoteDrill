@@ -16,33 +16,42 @@ export async function createBDP(data: BDPSchema) {
         // Exclude 'services' array as it's not in the DB schema
         const { services, ...rest } = data
 
-        // Manual mapping camelCase -> snake_case
+        // Manual mapping to match DB Schema (Mixed camelCase and snake_case)
         const dbPayload = {
-            date: rest.date || new Date().toISOString().split('T')[0], // Fallback to Today
-            shift: rest.shift || 'Diurno', // Fallback to Diurno
-            project_id: rest.projectId || null,
-            operator_id: rest.operatorId || null,
-            helper_id: rest.helperId || null,
-            drill_id: rest.drillId || null,
-            compressor_id: rest.compressorId || null,
-            hourmeter_start: rest.hourmeterStart,
-            hourmeter_end: rest.hourmeterEnd,
-            start_time: rest.startTime,
-            end_time: rest.endTime,
-            material_description: rest.materialDescription,
-            rock_status: rest.rockStatus,
-            rock_status_reason: rest.rockStatusReason,
-            lithology_profile: rest.lithologyProfile,
-            total_meters: rest.totalMeters,
-            average_height: rest.averageHeight,
-            total_hours: rest.totalHours,
+            date: rest.date || new Date().toISOString().split('T')[0],
+            shift: rest.shift || 'Diurno',
 
-            // JSONB / Array fields
+            // Foreign Keys (camelCase in bdp_setup.sql)
+            "projectId": rest.projectId || null,
+            "operatorId": rest.operatorId || null,
+            "helperId": rest.helperId || null,
+            "drillId": rest.drillId || null,
+            "compressorId": rest.compressorId || null,
+
+            // Counters (camelCase in bdp_setup.sql)
+            "hourmeterStart": rest.hourmeterStart,
+            "hourmeterEnd": rest.hourmeterEnd,
+            "startTime": rest.startTime,
+            "endTime": rest.endTime,
+
+            // Geology (Legacy camelCase + V2.1 snake_case)
+            "materialDescription": rest.materialDescription,
+            "lithologyProfile": rest.lithologyProfile,
+            rock_status: rest.rockStatus,         // V2.1 (snake_case)
+            rock_status_reason: rest.rockStatusReason, // V2.1 (snake_case)
+
+            // Stats (camelCase)
+            "totalMeters": rest.totalMeters,
+            "averageHeight": rest.averageHeight,
+            "totalHours": rest.totalHours,
+
+            // JSONB Arrays (camelCase)
             holes: rest.holes,
             occurrences: rest.occurrences,
             supplies: rest.supplies,
 
-            user_id: user.id,
+            user_id: user.id, // user_id is implicit/standard usually snake in supabase auth but let's check setup. 
+            // bdp_setup.sql: user_id uuid REFERENCES auth.users(id), -> YES snake_case
             status: 'PENDENTE'
         }
 

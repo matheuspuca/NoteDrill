@@ -133,6 +133,9 @@ export const bdpSchema = z.object({
 
     // Workflow
     status: z.enum(['PENDENTE', 'APROVADO', 'REJEITADO']).optional(),
+
+    // Chronological Number (Read/Display only)
+    reportNumber: z.number().optional()
 })
 
 export type BDPSchema = z.infer<typeof bdpSchema>

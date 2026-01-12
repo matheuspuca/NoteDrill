@@ -204,7 +204,8 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                         <Table className="min-w-[1000px]">
                             <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
                                 <TableRow className="border-slate-100 hover:bg-transparent">
-                                    <TableHead className="pl-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Data/Turno</TableHead>
+                                    <TableHead className="pl-6 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em] w-[80px]">Nº</TableHead>
+                                    <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Data/Turno</TableHead>
                                     <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Obra</TableHead>
                                     <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Status</TableHead>
                                     <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Equipamento</TableHead>
@@ -216,7 +217,7 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                             <TableBody>
                                 {filteredReports.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-64 text-center text-slate-400 font-medium text-xl">
+                                        <TableCell colSpan={8} className="h-64 text-center text-slate-400 font-medium text-xl">
                                             <div className="flex flex-col items-center gap-4">
                                                 <div className="bg-slate-50 p-6 rounded-full">
                                                     <FileText className="h-12 w-12 text-slate-300" />
@@ -228,7 +229,10 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                                 ) : (
                                     filteredReports.map((report) => (
                                         <TableRow key={report.id} className="border-slate-50 hover:bg-blue-50/40 transition-all duration-200 group cursor-pointer">
-                                            <TableCell className="pl-10 py-8">
+                                            <TableCell className="pl-6 py-8">
+                                                <span className="font-mono font-bold text-slate-400">#{report.reportNumber}</span>
+                                            </TableCell>
+                                            <TableCell className="py-8">
                                                 <div className="flex bg-slate-100 w-fit px-3 py-1 rounded-lg border border-slate-200 items-center gap-2 mb-1">
                                                     <Calendar className="h-4 w-4 text-slate-500" />
                                                     <span className="font-bold text-slate-700">{format(new Date(report.date || new Date()), "dd/MM/yy")}</span>
@@ -297,6 +301,7 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-mono font-bold text-slate-400 bg-slate-100 px-1.5 rounded text-xs">#{report.reportNumber}</span>
                                                 <Calendar className="h-4 w-4 text-slate-400" />
                                                 <span className="font-bold text-slate-800 text-lg">{format(new Date(report.date || new Date()), "dd/MM/yy")}</span>
                                             </div>
