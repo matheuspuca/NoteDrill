@@ -192,8 +192,16 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
             if (result.error) {
                 toast({
                     variant: "destructive",
-                    title: "Erro",
-                    description: result.error,
+                    title: "Erro ao Salvar",
+                    description: (
+                        <div className="flex flex-col gap-1">
+                            <span>Não foi possível salvar o BDP.</span>
+                            <span className="text-xs font-mono bg-red-900/10 p-1 rounded opacity-80">
+                                {result.error}
+                            </span>
+                        </div>
+                    ),
+                    duration: 10000,
                 })
             } else {
                 toast({
