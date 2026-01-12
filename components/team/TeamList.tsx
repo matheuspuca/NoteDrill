@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Edit, Trash2, Plus, Users, Shield, Printer } from "lucide-react"
+import { Edit, Trash2, Plus, Users, Shield, Printer, AlertTriangle, AlertCircle } from "lucide-react"
+import { differenceInDays, parseISO } from "date-fns"
 import { TeamMember } from "@/lib/schemas-team"
 import { deleteTeamMember, getEpiHistory } from "@/app/dashboard/team/actions"
 import { generateEPISheet } from "./generate-epi-sheet"
@@ -99,12 +100,38 @@ export function TeamList({ members, companySettings }: TeamListProps) {
                                                     <div className="font-black text-slate-800 text-2xl tracking-tight flex items-center gap-2">
                                                         {member.name}
                                                     </div>
-                                                    {member.linked_user_id && (
-                                                        <div className="flex items-center gap-1.5 mt-1">
-                                                            <div className="bg-green-500 rounded-full w-2 h-2 animate-pulse" />
-                                                            <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Acesso Liberado</span>
-                                                        </div>
-                                                    )}
+                                                    <div className="flex flex-col gap-1 mt-1">
+                                                        {member.linked_user_id && (
+                                                            <div className="flex items-center gap-1.5">
+                                                                <div className="bg-green-500 rounded-full w-2 h-2 animate-pulse" />
+                                                                <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Acesso Liberado</span>
+                                                            </div>
+                                                        )}
+                                                        {/* ASO Warning Logic */}
+                                                        {(() => {
+                                                            if (!member.asoDate) return null
+                                                            const days = differenceInDays(parseISO(member.asoDate), new Date())
+                                                            // Expired (Red)
+                                                            if (days < 0) {
+                                                                return (
+                                                                    <div className="flex items-center gap-1.5 text-red-600 bg-red-50 px-2 py-0.5 rounded-md w-fit border border-red-100">
+                                                                        <AlertCircle className="w-3 h-3" />
+                                                                        <span className="text-[10px] font-bold uppercase">ASO Vencido há {Math.abs(days)} dias</span>
+                                                                    </div>
+                                                                )
+                                                            }
+                                                            // Expiring soon (Yellow - 30 days)
+                                                            if (days <= 30) {
+                                                                return (
+                                                                    <div className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md w-fit border border-amber-100">
+                                                                        <AlertTriangle className="w-3 h-3" />
+                                                                        <span className="text-[10px] font-bold uppercase">ASO Vence em {days} dias</span>
+                                                                    </div>
+                                                                )
+                                                            }
+                                                            return null
+                                                        })()}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </TableCell>
