@@ -54,8 +54,8 @@ export const occurrenceTypeSchema = z.enum([
 export const occurrenceEntrySchema = z.object({
     id: z.string().optional(),
     type: occurrenceTypeSchema,
-    timeStart: z.string().min(1, "Início obrigatório"), // HH:mm
-    timeEnd: z.string().min(1, "Fim obrigatório"),     // HH:mm
+    timeStart: z.string().optional(), // HH:mm
+    timeEnd: z.string().optional(),     // HH:mm
     description: z.string().optional(),
 })
 
@@ -72,22 +72,22 @@ export const supplyEntrySchema = z.object({
 
 export const bdpSchema = z.object({
     // Header Data (Relations)
-    date: z.string().min(1, "Data é obrigatória"),
-    shift: z.enum(["Diurno", "Noturno"], { required_error: "Turno é obrigatório" }),
+    date: z.string().optional(),
+    shift: z.enum(["Diurno", "Noturno"]).optional(),
 
     // Relations (UUIDs)
-    projectId: z.string().min(1, "Selecione a obra"),
-    operatorId: z.string().min(1, "Selecione o operador"), // From Team table
+    projectId: z.string().optional(),
+    operatorId: z.string().optional(), // From Team table
     helperId: z.string().optional(), // Helper from Team table
 
-    drillId: z.string().min(1, "Selecione a perfuratriz"), // From Equipment table
+    drillId: z.string().optional(), // From Equipment table
 
 
     // Counters
-    hourmeterStart: z.coerce.number().min(0),
-    hourmeterEnd: z.coerce.number().min(0),
-    startTime: z.string().min(1, "Início obrigatório"), // HH:mm
-    endTime: z.string().min(1, "Fim obrigatório"), // HH:mm
+    hourmeterStart: z.coerce.number().optional(),
+    hourmeterEnd: z.coerce.number().optional(),
+    startTime: z.string().optional(), // HH:mm
+    endTime: z.string().optional(), // HH:mm
 
     // General Parameters (Legacy / Root defaults - Optional now as they are per service)
     holeDiameter: z.coerce.number().optional(),
