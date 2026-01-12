@@ -9,6 +9,7 @@ import { generateEPISheet } from "./generate-epi-sheet"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { CompanySettingsSchema } from "@/lib/schemas-settings"
+import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -147,7 +148,16 @@ export function TeamList({ members, companySettings }: TeamListProps) {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={member.status === "Ativo" ? "default" : "secondary"} className={`text-base px-4 py-1.5 rounded-lg ${member.status === "Ativo" ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200" : "bg-slate-100 text-slate-500"}`}>
+                                            <Badge
+                                                variant={member.status === "Ativo" ? "default" : "secondary"}
+                                                className={cn(
+                                                    "text-base px-4 py-1.5 rounded-lg",
+                                                    member.status === "Ativo" && "bg-green-100 text-green-700 hover:bg-green-200 border-green-200",
+                                                    member.status === "Férias" && "bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200",
+                                                    member.status === "Atestado" && "bg-red-100 text-red-700 hover:bg-red-200 border-red-200",
+                                                    member.status === "Inativo" && "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                                )}
+                                            >
                                                 {member.status}
                                             </Badge>
                                         </TableCell>
