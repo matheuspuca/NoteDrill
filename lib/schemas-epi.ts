@@ -11,6 +11,12 @@ export const epiSchema = z.object({
     minStock: z.coerce.number().min(0).optional(),
     expirationDate: z.string().nullable().optional(), // YYYY-MM-DD or null
     size: z.string().optional(),
+
+    // New Fields
+    model: z.string().optional(),
+    supplier: z.string().optional(),
+    entry_date: z.string().nullable().optional(),
+    invoice_number: z.string().optional(),
 })
 
 export type EPISchema = z.infer<typeof epiSchema>

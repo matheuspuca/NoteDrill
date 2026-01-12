@@ -124,6 +124,7 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                                 <TableHead className="font-bold text-base uppercase text-slate-500">Marca/Detalhes</TableHead>
                                                 <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Qtd.</TableHead>
                                                 <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Valor Unit.</TableHead>
+                                                <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Subtotal</TableHead>
                                                 <TableHead className="font-bold text-base uppercase text-slate-500 text-right pr-8">Ações</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -156,6 +157,9 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                                         </TableCell>
                                                         <TableCell className="text-right text-slate-600 text-lg font-medium">
                                                             R$ {Number(item.value).toFixed(2)}
+                                                        </TableCell>
+                                                        <TableCell className="text-right text-emerald-600 text-lg font-bold">
+                                                            R$ {(Number(item.quantity || 0) * Number(item.value || 0)).toFixed(2)}
                                                         </TableCell>
                                                         <TableCell className="text-right pr-8">
                                                             <div className="flex justify-end gap-3">

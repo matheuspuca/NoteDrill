@@ -2,14 +2,21 @@ import { z } from "zod"
 
 export const unitSchema = z.enum(["Unidade", "Litros", "Metros", "Kg", "Caixa", "Pacote", "Tambor"])
 
-export const itemTypeSchema = z.enum(["Material", "Ferramenta", "EPI"])
+export const itemTypeSchema = z.enum(["Material", "Ferramenta", "EPI", "Combustível"])
 
 export const inventoryItemSchema = z.object({
     name: z.string().min(1, "Nome é obrigatório"),
-    type: itemTypeSchema.default("Material"), // New field
+    type: itemTypeSchema.default("Material"),
     projectId: z.string().min(1, "Obra é obrigatória"),
     unit: unitSchema,
     brand: z.string().optional(),
+
+    // New Fields
+    model: z.string().optional(),
+    supplier: z.string().optional(),
+    entry_date: z.string().optional(),
+    invoice_number: z.string().optional(),
+
     quantity: z.coerce.number().min(0, "Quantidade não pode ser negativa"),
     value: z.coerce.number().min(0, "Valor não pode ser negativo"),
     minStock: z.coerce.number().min(0).optional(),

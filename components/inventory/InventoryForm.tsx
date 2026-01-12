@@ -55,6 +55,11 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
             quantity: Number(item?.quantity) || 0,
             value: Number(item?.value) || 0,
             minStock: Number(item?.minStock) || 5,
+            entry_date: item?.entry_date || "",
+            invoice_number: item?.invoice_number || "",
+            model: item?.model || "",
+            supplier: item?.supplier || "",
+
             ca: item?.ca || "",
             size: item?.size || "",
             expirationDate: item?.expirationDate || "",
@@ -85,8 +90,13 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
                     quantity: data.quantity,
                     expirationDate: data.expirationDate || null,
                     size: data.size,
-                    value: data.value, // New field
-                    minStock: data.minStock // New field
+                    value: data.value,
+                    minStock: data.minStock,
+                    // New Fields
+                    model: data.model,
+                    supplier: data.supplier,
+                    entry_date: data.entry_date || null,
+                    invoice_number: data.invoice_number
                 }
 
                 result = item
@@ -103,10 +113,12 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
                     quantity: data.quantity,
                     value: data.value,
                     minStock: data.minStock,
-                    type: data.type // We can save the type 'Material'/'Ferramenta' if we add that column to DB later, or just ignore. 
-                    // NOTE: The current `inventory_items` table DOES NOT have a 'type' column. 
-                    // I should probably add it or just treat them as generic items.
-                    // For now, I'm just sending the data expected by `createInventoryItem`.
+                    type: data.type,
+                    // New Fields
+                    model: data.model,
+                    supplier: data.supplier,
+                    invoice_number: data.invoice_number,
+                    entry_date: data.entry_date || null
                 }
 
                 result = item
@@ -226,13 +238,53 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
                         </FormItem>
                     )} />
 
-                    <FormField control={form.control} name="brand" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-xl font-bold text-slate-700">Marca/Fabricante</FormLabel>
-                            <FormControl><Input className="h-16 text-xl font-medium" placeholder="Ex: 3M, Sandvik" {...field} /></FormControl>
-                            <FormMessage className="text-lg" />
-                        </FormItem>
-                    )} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <FormField control={form.control} name="brand" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-xl font-bold text-slate-700">Marca/Fabricante</FormLabel>
+                                <FormControl><Input className="h-16 text-xl font-medium" placeholder="Ex: 3M, Sandvik" {...field} /></FormControl>
+                                <FormMessage className="text-lg" />
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="model" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-xl font-bold text-slate-700">Modelo</FormLabel>
+                                <FormControl><Input className="h-16 text-xl font-medium" placeholder="Ex: X200, Premium" {...field} /></FormControl>
+                                <FormMessage className="text-lg" />
+                            </FormItem>
+                        )} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div className="md:col-span-3 pb-2 border-b border-slate-200 mb-2">
+                            <h4 className="text-slate-600 font-bold text-lg flex items-center gap-2">Dados de Entrada</h4>
+                        </div>
+
+                        <FormField control={form.control} name="supplier" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-lg font-bold text-slate-700">Fornecedor</FormLabel>
+                                <FormControl><Input className="h-14 text-lg" placeholder="Nome do Fornecedor" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="entry_date" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-lg font-bold text-slate-700">Data Lançamento</FormLabel>
+                                <FormControl><Input type="date" className="h-14 text-lg" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="invoice_number" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-lg font-bold text-slate-700">Número da NF</FormLabel>
+                                <FormControl><Input className="h-14 text-lg" placeholder="Ex: 000.123" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    </div>
 
                     <FormField control={form.control} name="unit" render={({ field }) => (
                         <FormItem>
