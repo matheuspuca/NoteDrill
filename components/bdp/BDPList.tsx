@@ -274,6 +274,9 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                                                             {/* Actions Row */}
                                                             {(!report.status || report.status === 'PENDENTE') && (
                                                                 <>
+                                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg" onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/bdp/${report.id}/edit`) }} title="Editar">
+                                                                        <Edit className="h-5 w-5" />
+                                                                    </Button>
                                                                     <Button variant="ghost" size="icon" className="h-9 w-9 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-lg" onClick={(e) => handleStatusUpdate(report.id, 'APROVADO', e)} title="Aprovar">
                                                                         <CheckCircle className="h-5 w-5" />
                                                                     </Button>

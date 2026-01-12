@@ -194,7 +194,12 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
         data.holes = allHoles
 
         try {
-            const result = await createBDP(data)
+            let result;
+            if (initialData?.id) {
+                result = await updateBDP(initialData.id, data)
+            } else {
+                result = await createBDP(data)
+            }
 
             if (result.error) {
                 toast({
@@ -213,16 +218,16 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
             } else {
                 toast({
                     title: "Sucesso!",
-                    description: "BDP criado com sucesso.",
+                    description: initialData?.id ? "BDP atualizado com sucesso!" : "BDP criado com sucesso.",
                 })
                 router.push("/dashboard/bdp")
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
             toast({
                 variant: "destructive",
                 title: "Erro",
-                description: "Erro inesperado.",
+                description: `Erro inesperado: ${error?.message || ""}`,
             })
         } finally {
             setIsSubmitting(false)
