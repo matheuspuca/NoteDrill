@@ -12,10 +12,10 @@ export const inventoryItemSchema = z.object({
     brand: z.string().optional(),
 
     // New Fields
-    model: z.string().optional(),
-    supplier: z.string().optional(),
-    entry_date: z.string().optional(),
-    invoice_number: z.string().optional(),
+    model: z.string().nullable().optional(),
+    supplier: z.string().nullable().optional(),
+    entry_date: z.string().nullable().optional(),
+    invoice_number: z.string().nullable().optional(),
 
     quantity: z.coerce.number().min(0, "Quantidade não pode ser negativa"),
     value: z.coerce.number().min(0, "Valor não pode ser negativo"),
