@@ -100,7 +100,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
             )}>
                 <div className={cn("flex items-center gap-4 overflow-hidden transition-all", isCollapsed && "hidden")}>
                     <div className="relative h-10 w-10 flex-shrink-0">
-                        <Image src="/logo.png" alt="NoteDrill" fill className="object-contain" />
+                        <Image src="/logo-dashboard.png" alt="NoteDrill" fill className="object-contain" />
                     </div>
 
                     <span className="font-extrabold text-3xl text-slate-800 tracking-tight whitespace-nowrap">

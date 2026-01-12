@@ -23,8 +23,8 @@ export default function AuthLayout({ children, sideContent, showLogo = true }: A
                 {/* Header / Logo */}
                 <div className="relative z-10 flex items-center gap-5">
                     {/* Increased Logo Size */}
-                    <div className="relative h-16 w-16 bg-white/10 p-2 rounded-2xl backdrop-blur-sm border border-white/20 shadow-xl">
-                        <Image src="/logo.png" alt="NoteDrill" fill className="object-contain p-1" />
+                    <div className="relative h-24 w-24 flex-shrink-0">
+                        <Image src="/logo-auth.png" alt="NoteDrill" fill className="object-contain" />
                     </div>
                     <div className="flex flex-col leading-none gap-1">
                         <span className="text-4xl font-extrabold tracking-tight text-white drop-shadow-md">NoteDrill</span>
