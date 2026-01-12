@@ -104,16 +104,11 @@ export function EquipmentForm({ equipment }: EquipmentFormProps) {
     }
 
     const onError = (errors: any) => {
-        console.error("Validation Errors:", errors)
-        const missingFields = Object.keys(errors).map(key => {
-            // Translate common keys if needed or just show key
-            return key
-        }).join(", ")
-
+        console.error("Form errors:", errors)
         toast({
             variant: "destructive",
-            title: "Verifique os Campos",
-            description: `Erros nos campos: ${missingFields}. Verifique preenchimento.`,
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
         })
     }
 

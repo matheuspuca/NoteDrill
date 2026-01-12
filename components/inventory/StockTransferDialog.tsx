@@ -112,6 +112,15 @@ export function StockTransferDialog({ items, projects }: StockTransferDialogProp
         }
     }
 
+    const onError = (errors: any) => {
+        console.error("Form errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+        })
+    }
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
@@ -128,7 +137,7 @@ export function StockTransferDialog({ items, projects }: StockTransferDialogProp
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-4 py-4">
                         <FormField control={form.control} name="itemId" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Item de Origem</FormLabel>

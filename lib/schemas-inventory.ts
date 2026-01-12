@@ -12,18 +12,18 @@ export const inventoryItemSchema = z.object({
     brand: z.string().optional(),
 
     // New Fields
-    model: z.string().nullable().optional(),
-    supplier: z.string().nullable().optional(),
-    entry_date: z.string().nullable().optional(),
-    invoice_number: z.string().nullable().optional(),
+    model: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+    supplier: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+    entry_date: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+    invoice_number: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
 
     quantity: z.coerce.number().min(0, "Quantidade não pode ser negativa"),
     value: z.coerce.number().min(0, "Valor não pode ser negativo"),
     minStock: z.coerce.number().min(0).optional(),
 
-    // EPI Specifics (Optional in this base schema, but enforced in UI/Form logic)
+    // EPI Specifics
     ca: z.string().optional(),
-    expirationDate: z.string().optional(),
+    expirationDate: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
     size: z.string().optional(),
 })
 

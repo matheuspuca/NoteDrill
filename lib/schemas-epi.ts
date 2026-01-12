@@ -9,13 +9,13 @@ export const epiSchema = z.object({
     quantity: z.coerce.number().min(0, "Quantidade não pode ser negativa"),
     value: z.coerce.number().min(0, "Valor não pode ser negativo").optional(),
     minStock: z.coerce.number().min(0).optional(),
-    expirationDate: z.string().nullable().optional(), // YYYY-MM-DD or null
+    expirationDate: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()), // YYYY-MM-DD or null
     size: z.string().optional(),
 
     // New Fields
-    model: z.string().optional(),
-    supplier: z.string().optional(),
-    entry_date: z.string().nullable().optional(),
+    model: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+    supplier: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+    entry_date: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
     invoice_number: z.string().optional(),
 })
 

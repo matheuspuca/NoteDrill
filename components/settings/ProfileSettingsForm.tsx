@@ -99,6 +99,15 @@ export function ProfileSettingsForm({ initialData }: { initialData?: any }) {
 
 
 
+    const onError = (errors: any) => {
+        console.error("Form errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+        })
+    }
+
     return (
         <Card className="border-none shadow-lg bg-white rounded-2xl ring-1 ring-slate-100">
             <CardHeader>
@@ -110,9 +119,7 @@ export function ProfileSettingsForm({ initialData }: { initialData?: any }) {
             </CardHeader>
             <CardContent>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
-                        toast({ variant: "destructive", title: "Erro de Validação", description: "Verifique os campos obrigatórios." })
-                    })} className="space-y-8">
+                    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
 
                         {/* Avatar Section */}
                         <div className="flex items-center gap-6">

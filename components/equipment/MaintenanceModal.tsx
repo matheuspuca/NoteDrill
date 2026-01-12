@@ -114,6 +114,15 @@ export function MaintenanceModal({ open, onOpenChange, equipmentId, eventToEdit 
         }
     }
 
+    const onError = (errors: any) => {
+        console.error("Form errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+        })
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px] rounded-3xl p-8">
@@ -127,7 +136,7 @@ export function MaintenanceModal({ open, onOpenChange, equipmentId, eventToEdit 
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
+                    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6 mt-4">
 
                         <div className="grid grid-cols-2 gap-6">
                             <FormField control={form.control} name="date" render={({ field }) => (

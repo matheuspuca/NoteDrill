@@ -69,6 +69,15 @@ export function SecuritySettingsForm() {
         }
     }
 
+    const onError = (errors: any) => {
+        console.error("Form errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+        })
+    }
+
     return (
         <Card>
             <CardHeader className="gap-2">
@@ -86,7 +95,7 @@ export function SecuritySettingsForm() {
             </CardHeader>
             <CardContent>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-xl">
+                    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6 max-w-xl">
                         <FormField
                             control={form.control}
                             name="password"

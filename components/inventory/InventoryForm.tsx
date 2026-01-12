@@ -88,16 +88,18 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
                     projectId: data.projectId,
                     unit: data.unit,
                     quantity: data.quantity,
-                    expirationDate: data.expirationDate || null,
+                    expirationDate: data.expirationDate, // Schema handles null/empty
                     size: data.size,
                     value: data.value,
                     minStock: data.minStock,
-                    // New Fields
+                    // New Fields (Schema handles null/empty)
                     model: data.model,
                     supplier: data.supplier,
-                    entry_date: data.entry_date || null,
+                    entry_date: data.entry_date,
                     invoice_number: data.invoice_number
                 }
+
+                console.log("Submitting EPI Payload:", epiPayload)
 
                 result = item
                     ? await updateEPI(item.id, epiPayload)
@@ -114,12 +116,14 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
                     value: data.value,
                     minStock: data.minStock,
                     type: data.type,
-                    // New Fields
+                    // New Fields (Schema handles null/empty)
                     model: data.model,
                     supplier: data.supplier,
                     invoice_number: data.invoice_number,
-                    entry_date: data.entry_date || null
+                    entry_date: data.entry_date
                 }
+
+                console.log("Submitting Item Payload:", itemPayload)
 
                 result = item
                     ? await updateInventoryItem(item.id, itemPayload as any)
@@ -129,7 +133,7 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
             if (result.error) {
                 toast({
                     variant: "destructive",
-                    title: "Erro",
+                    title: "Erro ao Salvar",
                     description: result.error,
                 })
             } else {
@@ -144,8 +148,8 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
             console.error(error)
             toast({
                 variant: "destructive",
-                title: "Erro",
-                description: "Ocorreu um erro inesperado.",
+                title: "Erro Inesperado",
+                description: "Ocorreu um erro ao processar a requisição.",
             })
         } finally {
             setIsPending(false)
@@ -153,11 +157,15 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
     }
 
     const onError = (errors: any) => {
-        console.error("Form errors:", errors)
+        console.error("Validation failed:", errors)
+        const errorMessages = Object.entries(errors).map(([key, error]: [string, any]) => {
+            return `${key}: ${error.message || "Inválido"}`
+        }).join("; ")
+
         toast({
             variant: "destructive",
             title: "Erro de Validação",
-            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+            description: `Corrija os campos: ${errorMessages}`,
         })
     }
 

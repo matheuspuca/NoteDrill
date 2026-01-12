@@ -103,8 +103,8 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         console.error("Form Validation Errors:", errors)
         toast({
             variant: "destructive",
-            title: "Campos obrigatórios faltando",
-            description: "Por favor, verifique os campos em vermelho e tente novamente.",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
         })
     }
 

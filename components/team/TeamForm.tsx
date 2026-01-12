@@ -152,10 +152,19 @@ export function TeamForm(props: TeamFormProps) {
 
 
 
+    const onError = (errors: any) => {
+        console.error("Form errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+        })
+    }
+
     return (
         <div className="space-y-12">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit, (errors) => console.log(errors))} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
 
                     <div className="space-y-6">
                         <h3 className="text-2xl font-black text-slate-800 border-b pb-2">Dados Pessoais & Função</h3>
