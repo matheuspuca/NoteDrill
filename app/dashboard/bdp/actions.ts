@@ -16,52 +16,58 @@ export async function createBDP(data: BDPSchema) {
         // Exclude 'services' array as it's not in the DB schema
         const { services, ...rest } = data
 
-        // Manual mapping to match DB Schema (Mixed camelCase and snake_case)
+        // Standardized mapping: camelCase (Frontend) -> snake_case (Database)
         const dbPayload = {
             date: rest.date || new Date().toISOString().split('T')[0],
             shift: rest.shift || 'Diurno',
 
-            // Foreign Keys (camelCase in bdp_setup.sql)
-            "projectId": rest.projectId || null,
-            "operatorId": rest.operatorId || null,
-            "helperId": rest.helperId || null,
-            "drillId": rest.drillId || null,
-            "compressorId": rest.compressorId || null,
+            // Relations
+            project_id: rest.projectId || null,
+            operator_id: rest.operatorId || null,
+            helper_id: rest.helperId || null,
+            drill_id: rest.drillId || null,
+            compressor_id: rest.compressorId || null,
 
-            // Counters (camelCase in bdp_setup.sql)
-            "hourmeterStart": rest.hourmeterStart,
-            "hourmeterEnd": rest.hourmeterEnd,
-            "startTime": rest.startTime,
-            "endTime": rest.endTime,
+            // Counters
+            hourmeter_start: rest.hourmeterStart,
+            hourmeter_end: rest.hourmeterEnd,
+            start_time: rest.startTime,
+            end_time: rest.endTime,
 
-            // Geology (Legacy camelCase + V2.1 snake_case)
-            "materialDescription": rest.materialDescription,
-            "lithologyProfile": rest.lithologyProfile,
-            rock_status: rest.rockStatus,         // V2.1 (snake_case)
-            rock_status_reason: rest.rockStatusReason, // V2.1 (snake_case)
+            // Geology
+            material_description: rest.materialDescription,
+            lithology_profile: rest.lithologyProfile,
+            rock_status: rest.rockStatus,
+            rock_status_reason: rest.rockStatusReason,
 
-            // Stats (camelCase)
-            "totalMeters": rest.totalMeters,
-            "averageHeight": rest.averageHeight,
-            "totalHours": rest.totalHours,
+            // Stats
+            total_meters: rest.totalMeters,
+            average_height: rest.averageHeight,
+            total_hours: rest.totalHours,
 
-            // JSONB Arrays (camelCase)
+            // JSONB Arrays
             holes: rest.holes,
             occurrences: rest.occurrences,
             supplies: rest.supplies,
 
-            user_id: user.id, // user_id is implicit/standard usually snake in supabase auth but let's check setup. 
-            // bdp_setup.sql: user_id uuid REFERENCES auth.users(id), -> YES snake_case
+            user_id: user.id,
             status: 'PENDENTE'
         }
+
+        console.log(">>> [createBDP] Payload being sent to Supabase:", JSON.stringify(dbPayload, null, 2))
 
         const { error } = await supabase
             .from("bdp_reports")
             .insert(dbPayload)
 
         if (error) {
-            console.error("Supabase Insert Error:", error)
-            return { error: `Erro ao criar boletim: ${error.message}` }
+            console.error(">>> [createBDP] Supabase Insert Error Details:", {
+                code: error.code,
+                message: error.message,
+                details: error.details,
+                hint: error.hint
+            })
+            return { error: `Erro SQL: ${error.message} (Code: ${error.code})` }
         }
 
         // --- AUTOMATIC STOCK DEDUCTION for SUPPLIES ---

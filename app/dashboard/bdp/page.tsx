@@ -18,9 +18,27 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
         .from("bdp_reports")
         .select(`
             *,
+            reportNumber:report_number,
+            projectId:project_id,
+            operatorId:operator_id,
+            helperId:helper_id,
+            drillId:drill_id,
+            compressorId:compressor_id,
+            hourmeterStart:hourmeter_start,
+            hourmeterEnd:hourmeter_end,
+            startTime:start_time,
+            endTime:end_time,
+            materialDescription:material_description,
+            lithologyProfile:lithology_profile,
+            rockStatus:rock_status,
+            rockStatusReason:rock_status_reason,
+            totalMeters:total_meters,
+            averageHeight:average_height,
+            totalHours:total_hours,
+
             projects (name),
-            drill:equipment!drillId (name),
-            operator:team_members!operatorId (name)
+            drill:equipment!drill_id (name),
+            operator:team_members!operator_id (name)
         `)
         .eq("user_id", user.id)
 
@@ -40,7 +58,7 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
     }
 
     const { data: reports, error } = await query
-        .order("projectId", { ascending: true })
+        .order("project_id", { ascending: true })
         .order("date", { ascending: false })
 
     // Map relations to flat structure expected by BDP type
