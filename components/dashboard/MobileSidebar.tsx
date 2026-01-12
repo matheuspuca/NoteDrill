@@ -50,7 +50,7 @@ export function MobileSidebar() {
             <SheetContent side="left" className="w-80 p-0 bg-white border-r-slate-200">
                 <SheetHeader className="h-28 flex items-center justify-start px-8 border-b border-slate-100 mb-4">
                     <div className="flex items-center gap-4 w-full">
-                        <div className="relative h-10 w-10 flex-shrink-0">
+                        <div className="relative h-14 w-14 flex-shrink-0">
                             <Image src="/logo-dashboard.png" alt="NoteDrill" fill className="object-contain" />
                         </div>
                         <SheetTitle className="font-extrabold text-2xl text-slate-800 tracking-tight">

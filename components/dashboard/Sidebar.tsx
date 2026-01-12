@@ -99,7 +99,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                 isCollapsed ? "justify-center px-2" : "justify-between px-8"
             )}>
                 <div className={cn("flex items-center gap-4 overflow-hidden transition-all", isCollapsed && "hidden")}>
-                    <div className="relative h-10 w-10 flex-shrink-0">
+                    <div className="relative h-14 w-14 flex-shrink-0">
                         <Image src="/logo-dashboard.png" alt="NoteDrill" fill className="object-contain" />
                     </div>
 
