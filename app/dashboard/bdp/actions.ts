@@ -171,3 +171,65 @@ export async function deleteBDP(id: string) {
         return { error: "Erro interno do servidor" }
     }
 }
+
+export async function updateBDP(id: string, formData: BDPSchema) {
+    const supabase = createClient()
+    const { data: user } = await supabase.auth.getUser()
+
+    if (!user || user.user === null) {
+        return { error: "Usuário não autenticado" }
+    }
+
+    // 1. Map Frontend Schema (camelCase) to Database (snake_case)
+    const dbPayload = {
+        project_id: formData.projectId,
+        operator_id: formData.operatorId,
+        helper_id: formData.helperId || null,
+        drill_id: formData.drillId,
+        compressor_id: formData.compressorId || null,
+
+        date: formData.date,
+        shift: formData.shift,
+        status: formData.status || 'PENDENTE',
+
+        hourmeter_start: formData.hourmeterStart,
+        hourmeter_end: formData.hourmeterEnd,
+
+        start_time: formData.startTime || null,
+        end_time: formData.endTime || null,
+
+        material_description: formData.materialDescription || null,
+        lithology_profile: formData.lithologyProfile || null,
+        rock_status: formData.rockStatus || null,
+        rock_status_reason: formData.rockStatusReason || null,
+
+        // Calculated fields (ensure they are updated too)
+        total_meters: formData.services.reduce((acc, s) => acc + (s.endDepth || 0) - (s.startDepth || 0), 0),
+        average_height: 0,
+        total_hours: (formData.hourmeterEnd || 0) - (formData.hourmeterStart || 0),
+
+        // JSONB Arrays
+        holes: [],
+        services: formData.services,
+        occurrences: formData.occurrences,
+        supplies: formData.supplies
+    }
+
+    try {
+        const { error } = await supabase
+            .from("bdp_reports")
+            .update(dbPayload)
+            .eq("id", id)
+
+        if (error) {
+            console.error("Supabase Error Update:", error)
+            return { error: `Erro ao atualizar BDP: ${error.message}` }
+        }
+
+        revalidatePath("/dashboard/bdp")
+        return { success: true }
+
+    } catch (e: any) {
+        return { error: e.message || "Erro interno do servidor" }
+    }
+}

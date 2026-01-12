@@ -30,17 +30,19 @@ import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 
 import { bdpSchema, BDPSchema, serviceTypeSchema, occurrenceTypeSchema, supplyTypeSchema } from "@/lib/schemas-bdp"
-import { createBDP } from "@/app/dashboard/bdp/actions"
+import { createBDP, updateBDP } from "@/app/dashboard/bdp/actions"
 import { BDPServiceSection } from "./BDPServiceSection"
+
 
 interface BDPFormProps {
     projects: { id: string, name: string }[]
     teamMembers: { id: string, name: string, role: string, registrationNumber?: number }[]
     equipments: { id: string, name: string, type: string }[]
     inventoryItems: { id: string, name: string, unit: string }[]
+    initialData?: BDPSchema & { id: string, reportNumber?: number }
 }
 
-export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: BDPFormProps) {
+export function BDPForm({ projects, teamMembers, equipments, inventoryItems, initialData }: BDPFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -58,33 +60,38 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
     ]
     const rockStatuses = ["Sã", "Fissurada", "Sedimento", "Outros"]
 
+    const defaultVals: BDPSchema = initialData ? {
+        ...initialData,
+        // Ensure date is string yyyy-MM-dd
+        date: initialData.date ? format(new Date(initialData.date), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+    } : {
+        // Header
+        shift: undefined,
+        date: format(new Date(), "yyyy-MM-dd"),
+        projectId: "",
+        operatorId: "",
+        drillId: "",
+
+        // Geology
+        materialDescription: "",
+        rockStatus: undefined,
+        rockStatusReason: "",
+
+        // Params
+        hourmeterStart: 0,
+        hourmeterEnd: 0,
+
+        // Arrays
+        services: [],
+        occurrences: [],
+        supplies: [],
+        // Legacy/Flattened
+        holes: [],
+    }
+
     const form = useForm<BDPSchema>({
         resolver: zodResolver(bdpSchema),
-        defaultValues: {
-            // Header
-            // Header
-            shift: undefined,
-            date: format(new Date(), "yyyy-MM-dd"),
-            projectId: "",
-            operatorId: "",
-            drillId: "",
-
-            // Geology (New)
-            materialDescription: "",
-            rockStatus: undefined,
-            rockStatusReason: "",
-
-            // Params
-            hourmeterStart: 0,
-            hourmeterEnd: 0,
-
-            // Arrays
-            services: [],
-            occurrences: [],
-            supplies: [],
-            // Legacy/Flattened
-            holes: [],
-        },
+        defaultValues: defaultVals,
     })
 
     // Field Arrays
