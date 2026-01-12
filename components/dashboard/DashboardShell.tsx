@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 import { BottomNav } from "@/components/dashboard/BottomNav"
+import { BackButton } from "@/components/ui/back-button"
 
 interface DashboardShellProps {
     children: React.ReactNode
@@ -44,6 +45,7 @@ export function DashboardShell({ children, userEmail }: DashboardShellProps) {
             )}
         >
             <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden pb-24 lg:pb-10 pt-8 lg:pt-10"> {/* Added top padding since header is gone */}
+                <BackButton />
                 {children}
             </main>
             <BottomNav />

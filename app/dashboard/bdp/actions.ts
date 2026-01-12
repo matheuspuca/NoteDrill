@@ -13,20 +13,46 @@ export async function createBDP(data: BDPSchema) {
     }
 
     try {
-        // Exclude 'services' array as it's not in the DB schema (it's flattened into 'holes')
-        const { services, ...dbData } = data
+        // Exclude 'services' array as it's not in the DB schema
+        const { services, ...rest } = data
+
+        // Manual mapping camelCase -> snake_case
+        const dbPayload = {
+            date: rest.date,
+            shift: rest.shift,
+            project_id: rest.projectId,
+            operator_id: rest.operatorId,
+            helper_id: rest.helperId,
+            drill_id: rest.drillId,
+            compressor_id: rest.compressorId,
+            hourmeter_start: rest.hourmeterStart,
+            hourmeter_end: rest.hourmeterEnd,
+            start_time: rest.startTime,
+            end_time: rest.endTime,
+            material_description: rest.materialDescription,
+            rock_status: rest.rockStatus,
+            rock_status_reason: rest.rockStatusReason,
+            lithology_profile: rest.lithologyProfile,
+            total_meters: rest.totalMeters,
+            average_height: rest.averageHeight,
+            total_hours: rest.totalHours,
+
+            // JSONB / Array fields
+            holes: rest.holes,
+            occurrences: rest.occurrences,
+            supplies: rest.supplies,
+
+            user_id: user.id,
+            status: 'PENDENTE'
+        }
 
         const { error } = await supabase
             .from("bdp_reports")
-            .insert({
-                ...dbData,
-                user_id: user.id,
-                status: 'PENDENTE' // Force default status for new BDPs
-            })
+            .insert(dbPayload)
 
         if (error) {
-            console.error(error)
-            return { error: "Erro ao criar boletim" }
+            console.error("Supabase Insert Error:", error)
+            return { error: `Erro ao criar boletim: ${error.message}` }
         }
 
         // --- AUTOMATIC STOCK DEDUCTION for SUPPLIES ---
