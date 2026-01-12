@@ -165,33 +165,25 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
     async function onSubmit(data: BDPSchema) {
         setIsSubmitting(true)
 
-        // Flatten services into holes or Keep structured?
-        // Let's flatten for DB compatibility if the backend expects "holes".
-        // Also populate the calculated stats fields
-        // Also populate the calculated stats fields
+        // Populate calculated stats fields
         data.totalMeters = kpi.totalMeters
         data.totalHours = kpi.totalHours
         data.averageHeight = kpi.avgHeight
 
-        // If we want to save all holes in the main array:
+        // Flatten services into holes if needed by backend (Legacy support)
         const allHoles: any[] = []
         data.services?.forEach(s => {
             s.holes?.forEach(h => {
-                // Attach service type and header params to the hole
-                // We map service-level inputs to the individual hole for the backend/legacy support
                 allHoles.push({
                     ...h,
                     serviceType: s.serviceType,
                     diameter: s.diameter,
                     azimuth: s.azimuth,
-                    // Store mesh info for reconstruction
                     meshLength: s.meshLength,
                     meshWidth: s.meshWidth,
                 })
             })
         })
-
-        // We assign to legacy 'holes' just in case existing logic uses it
         data.holes = allHoles
 
         try {
@@ -205,7 +197,6 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                 })
             } else {
                 toast({
-
                     title: "Sucesso!",
                     description: "BDP criado com sucesso.",
                 })
@@ -624,5 +615,6 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
 
                 </form>
             </Form >
-            )
+        </div>
+    )
 }
