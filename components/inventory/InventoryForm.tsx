@@ -152,9 +152,18 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
         }
     }
 
+    const onError = (errors: any) => {
+        console.error("Form errors:", errors)
+        toast({
+            variant: "destructive",
+            title: "Erro de Validação",
+            description: "Verifique os campos obrigatórios: " + Object.keys(errors).join(", "),
+        })
+    }
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField control={form.control} name="type" render={({ field }) => (
