@@ -90,7 +90,10 @@ export async function updateTeamMember(id: string, data: TeamMemberSchema) {
     const { success, data: validated } = teamMemberSchema.safeParse(data)
     if (!success) return { error: "Dados inválidos" }
 
-    const { error } = await supabase.from("team_members").update(validated).eq("id", id)
+    // Clean data (remove system fields that are not columns in team_members)
+    const { createSystemUser, systemRole, projectId, ...dbPayload } = validated
+
+    const { error } = await supabase.from("team_members").update(dbPayload).eq("id", id)
 
     if (error) return { error: "Erro ao atualizar membro" }
 
