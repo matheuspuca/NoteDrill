@@ -98,6 +98,11 @@ export function TeamList({ members, companySettings }: TeamListProps) {
                                                 </div>
                                                 <div>
                                                     <div className="font-black text-slate-800 text-2xl tracking-tight flex items-center gap-2">
+                                                        {member.registrationNumber && (
+                                                            <span className="text-sm font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                                                                {member.registrationNumber}
+                                                            </span>
+                                                        )}
                                                         {member.name}
                                                     </div>
                                                     <div className="flex flex-col gap-1 mt-1">

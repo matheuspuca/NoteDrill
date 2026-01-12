@@ -14,7 +14,7 @@ export default async function NewBDPPage() {
     // Fetch necessary data for dropdowns
     // Fetch necessary data for dropdowns
     const { data: projects } = await supabase.from("projects").select("id, name").eq("user_id", user.id).order("name")
-    const { data: teamMembers } = await supabase.from("team_members").select("id, name, role").eq("user_id", user.id).eq("status", "Ativo").order("name")
+    const { data: teamMembers } = await supabase.from("team_members").select("id, name, role, registrationNumber").eq("user_id", user.id).eq("status", "Ativo").order("name")
     const { data: equipments } = await supabase.from("equipment").select("id, name, type").eq("user_id", user.id).eq("status", "Operacional").order("name")
     // Fetch Inventory Items for Supplies (only consumable materials or others as needed)
     // Assuming 'type' column distinguishes or we just fetch all ACTIVE items

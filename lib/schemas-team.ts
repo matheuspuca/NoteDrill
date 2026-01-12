@@ -10,6 +10,9 @@ export const teamMemberSchema = z.object({
     admissionDate: z.string().optional(),
     asoDate: z.string().optional(),
 
+    // System Props
+    registrationNumber: z.number().optional(), // Auto-generated
+
     // System Access
     createSystemUser: z.boolean().default(false).optional(),
     email: z.string().email("Email inválido").optional().or(z.literal("")),
@@ -32,5 +35,6 @@ export type TeamMember = TeamMemberSchema & {
     user_id: string
     linked_user_id?: string
     email?: string
+    registrationNumber?: number
     created_at: string
 }

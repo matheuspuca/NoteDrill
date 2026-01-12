@@ -35,7 +35,7 @@ import { BDPServiceSection } from "./BDPServiceSection"
 
 interface BDPFormProps {
     projects: { id: string, name: string }[]
-    teamMembers: { id: string, name: string, role: string }[]
+    teamMembers: { id: string, name: string, role: string, registrationNumber?: number }[]
     equipments: { id: string, name: string, type: string }[]
     inventoryItems: { id: string, name: string, unit: string }[]
 }
@@ -298,7 +298,10 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                                     <FormControl><SelectTrigger className="h-14 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {teamMembers.map(t => (
-                                            <SelectItem key={t.id} value={t.id}>{t.name} <span className="text-slate-400 text-xs">({t.role})</span></SelectItem>
+                                            <SelectItem key={t.id} value={t.id}>
+                                                {t.registrationNumber ? <span className="font-mono text-slate-400 mr-2">[{t.registrationNumber}]</span> : null}
+                                                {t.name} <span className="text-slate-400 text-xs">({t.role})</span>
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -313,7 +316,10 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                                     <FormControl><SelectTrigger className="h-14 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {teamMembers.map(t => (
-                                            <SelectItem key={t.id} value={t.id}>{t.name} <span className="text-slate-400 text-xs">({t.role})</span></SelectItem>
+                                            <SelectItem key={t.id} value={t.id}>
+                                                {t.registrationNumber ? <span className="font-mono text-slate-400 mr-2">[{t.registrationNumber}]</span> : null}
+                                                {t.name} <span className="text-slate-400 text-xs">({t.role})</span>
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
