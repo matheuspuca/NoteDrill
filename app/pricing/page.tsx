@@ -21,7 +21,7 @@ function PricingContent() {
                 )}
                 <h1 className="text-4xl font-extrabold text-slate-900">Escolha o plano ideal para sua operação</h1>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                    Desbloqueie todo o potencial do SmartDrill com nossos planos flexíveis.
+                    Desbloqueie todo o potencial do NoteDrill com nossos planos flexíveis.
                 </p>
             </div>
         </>

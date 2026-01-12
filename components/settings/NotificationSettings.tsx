@@ -62,7 +62,7 @@ export function NotificationSettings() {
                         <Bell className="mt-1 h-5 w-5 text-slate-500" />
                         <div className="space-y-1">
                             <Label htmlFor="marketing" className="text-lg font-bold text-slate-800">Novidades e Dicas</Label>
-                            <p className="text-base text-slate-500">Receba novidades sobre atualizações do SmartDrill.</p>
+                            <p className="text-base text-slate-500">Receba novidades sobre atualizações do NoteDrill.</p>
                         </div>
                     </div>
                     <Switch id="marketing" checked={marketing} onCheckedChange={setMarketing} />

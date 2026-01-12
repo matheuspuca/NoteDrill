@@ -115,7 +115,7 @@ export function InventoryReportButton({
             doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy HH:mm", { locale: ptBR })}`, 14, finalY + 8)
 
             if (!companySettings) {
-                doc.text("SmartDrill - Sistema de Gestão", 14, finalY + 13)
+                doc.text("NoteDrill - Sistema de Gestão", 14, finalY + 13)
             }
 
             finalY += 20

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Zap } from "lucide-react"
 
 interface AuthLayoutProps {
@@ -22,11 +23,11 @@ export default function AuthLayout({ children, sideContent, showLogo = true }: A
                 {/* Header / Logo */}
                 <div className="relative z-10 flex items-center gap-5">
                     {/* Increased Logo Size */}
-                    <div className="bg-orange-500 p-4 rounded-2xl shadow-2xl shadow-orange-500/20">
-                        <Zap className="h-10 w-10 text-white fill-white" />
+                    <div className="relative h-16 w-16 bg-white/10 p-2 rounded-2xl backdrop-blur-sm border border-white/20 shadow-xl">
+                        <Image src="/logo.png" alt="NoteDrill" fill className="object-contain p-1" />
                     </div>
                     <div className="flex flex-col leading-none gap-1">
-                        <span className="text-4xl font-extrabold tracking-tight text-white drop-shadow-md">SmartDrill</span>
+                        <span className="text-4xl font-extrabold tracking-tight text-white drop-shadow-md">NoteDrill</span>
                         <span className="text-sm uppercase opacity-90 tracking-[0.2em] font-bold text-blue-200">Portal do Cliente</span>
                     </div>
                 </div>

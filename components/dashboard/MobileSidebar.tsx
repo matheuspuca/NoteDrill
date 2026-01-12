@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
     LayoutDashboard,
@@ -49,11 +50,11 @@ export function MobileSidebar() {
             <SheetContent side="left" className="w-80 p-0 bg-white border-r-slate-200">
                 <SheetHeader className="h-28 flex items-center justify-start px-8 border-b border-slate-100 mb-4">
                     <div className="flex items-center gap-4 w-full">
-                        <div className="bg-blue-600 p-2.5 rounded-xl flex-shrink-0 shadow-lg shadow-blue-600/20">
-                            <Zap className="h-6 w-6 text-white fill-white" />
+                        <div className="relative h-10 w-10 flex-shrink-0">
+                            <Image src="/logo.png" alt="NoteDrill" fill className="object-contain" />
                         </div>
                         <SheetTitle className="font-extrabold text-2xl text-slate-800 tracking-tight">
-                            SmartDrill
+                            NoteDrill
                         </SheetTitle>
                     </div>
                 </SheetHeader>

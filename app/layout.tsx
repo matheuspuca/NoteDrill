@@ -6,10 +6,10 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "SmartDrill",
+    title: "NoteDrill",
     description: "Sistema de Gestão de Perfuração e Desmonte",
     icons: {
-        icon: "/icon.svg",
+        icon: "/favicon.png",
     },
 };
 

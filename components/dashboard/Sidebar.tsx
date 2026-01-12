@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
     LayoutDashboard,
@@ -98,12 +99,12 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                 isCollapsed ? "justify-center px-2" : "justify-between px-8"
             )}>
                 <div className={cn("flex items-center gap-4 overflow-hidden transition-all", isCollapsed && "hidden")}>
-                    <div className="bg-blue-600 p-3.5 rounded-2xl flex-shrink-0 shadow-lg shadow-blue-600/20">
-                        <Zap className="h-8 w-8 text-white fill-white" />
+                    <div className="relative h-10 w-10 flex-shrink-0">
+                        <Image src="/logo.png" alt="NoteDrill" fill className="object-contain" />
                     </div>
 
                     <span className="font-extrabold text-3xl text-slate-800 tracking-tight whitespace-nowrap">
-                        SmartDrill
+                        NoteDrill
                     </span>
                 </div>
 
