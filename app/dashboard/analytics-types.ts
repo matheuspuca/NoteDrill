@@ -14,6 +14,8 @@ export interface DashboardKPIs {
     costPerMeter: number // R$/m
     projectViabilityIndex: number // 0-100 Score
     bitPerformance: number // Metros / Unidade
+    physicalAvailability: number // % DF
+    physicalUtilization: number // % UF
 }
 
 export interface ChartData {
