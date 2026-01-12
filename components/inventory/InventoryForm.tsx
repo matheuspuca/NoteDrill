@@ -177,6 +177,10 @@ export function InventoryForm({ item, projects }: InventoryFormProps) {
                     )} />
 
                     {/* DADOS DE ENTRADA header */}
+                    <div className="md:col-span-2 border-b border-slate-200 pb-2 mt-4 mb-2">
+                        <h4 className="text-slate-500 font-bold text-lg uppercase tracking-wider">Dados de Entrada (NF)</h4>
+                    </div>
+
                     <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-8">
                         <FormField control={form.control} name="supplier" render={({ field }) => (
                             <FormItem>
