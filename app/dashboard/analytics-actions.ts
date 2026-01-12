@@ -35,13 +35,14 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
         equipmentUtilization: { active: 0, total: 0, percentage: 0 },
         inventoryValuation: 0,
         activeProjects: 0,
-
         dieselConsumption: 0,
         downtime: 0,
         topBottleneck: "N/A",
         costPerMeter: 0,
         projectViabilityIndex: 0,
-        bitPerformance: 0
+        bitPerformance: 0,
+        physicalAvailability: 0,
+        physicalUtilization: 0
     }
 
     const today = new Date()
@@ -68,23 +69,57 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
     let totalOperationalDowntime = 0
 
     monthlyBdps?.forEach(report => {
-        // Calculate Scheduled Time (Total Shift Time) based on Start/End Time
-        // Fallback to totalHours if start/end missing, assuming totalHours = Worked + Stops? Or just Worked?
-        // Ideally we use startTime and endTime from BDP.
-        // Let's try to fetch start/end from BDP if available. The current select only fetches 'totalHours'.
-        // We need to fetch 'startTime', 'endTime'.
-        // Since we can't change the fetch here easily without changing line 54... wait, I can change line 54.
+        // Scheduled Time Calculation
+        let dailyScheduled = 0
+        if (report.startTime && report.endTime) {
+            dailyScheduled = calculateDuration(report.startTime, report.endTime)
+        } else {
+            dailyScheduled = 0
+        }
 
-        // For now, let's use the occurrences list to sum up types.
-        // And for Total Time, if we don't have start/end, we might have to rely on a standard shift (e.g. 9h?) or `totalHours` + `totalDowntime`.
-        // Usually `totalHours` in BDP is "Horas Trabalhadas" (Engine Hours?).
-        // If BDP has `totalHours` (engine) + `occurrences` (stops).
-        // Then Total Available Time approx = Total Hours + Operational Stops?
-        // Actually, let's assume `totalHours` is just engine hours (production).
-        // Let's use the explicit request: "Desconte as horas de ocorrencias e paradas do BDP com a quantidade de horas do dia informada no inicio e fim da operação."
+        if (dailyScheduled > 0) {
+            totalScheduledTime += dailyScheduled
 
-        // I need to update the SELECT query to include startTime and endTime.
+            const occurrences = report.occurrences as any[] | null
+            if (occurrences && Array.isArray(occurrences)) {
+                occurrences.forEach((occ: any) => {
+                    const duration = calculateDuration(occ.timeStart, occ.timeEnd)
+                    if (duration > 0) {
+                        totalDowntime += duration
+                        bottleneckMap[occ.type] = (bottleneckMap[occ.type] || 0) + duration
+
+                        // Categorize
+                        const isMaintenance = [
+                            "Mecânica", "Falta de peça", "Inspeção de equipamento",
+                            "Falta de material de desgaste", "Aguardando limpeza"
+                        ].includes(occ.type)
+
+                        if (isMaintenance) {
+                            totalMaintenanceDowntime += duration
+                        } else {
+                            totalOperationalDowntime += duration
+                        }
+                    }
+                })
+            }
+        }
     })
+
+    // DF = (Scheduled - Maintenance) / Scheduled
+    // UF = (Available - OperationalStops) / Available
+
+    let df = 0
+    let uf = 0
+
+    if (totalScheduledTime > 0) {
+        const availableTime = totalScheduledTime - totalMaintenanceDowntime
+        df = (availableTime / totalScheduledTime) * 100
+
+        if (availableTime > 0) {
+            const operatingTime = availableTime - totalOperationalDowntime
+            uf = (operatingTime / availableTime) * 100
+        }
+    }
 
     // Find Top Bottleneck
     let topBottleneck = "Nenhum"
@@ -98,346 +133,255 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
 
     // Calculate Diesel Consumption
     const dieselConsumption = monthlyBdps?.reduce((acc, report) => {
-        // supplies is likely a JSON b/c it's an array in schema
         const supplies = report.supplies as any[] | null
         if (!supplies || !Array.isArray(supplies)) return acc
 
         const reportDiesel = supplies
-            .filter((s: any) => s.type && s.type.includes("Diesel"))
+            .filter((s: any) => s.type && s.type.toLowerCase().includes("diesel"))
             .reduce((sum: number, s: any) => sum + (Number(s.quantity) || 0), 0)
 
         return acc + reportDiesel
-        // Resume Logic for DF/UF after fetching
-        monthlyBdps?.forEach(report => {
-            // Scheduled Time Calculation
-            let dailyScheduled = 0
-            if (report.startTime && report.endTime) {
-                dailyScheduled = calculateDuration(report.startTime, report.endTime)
-            } else {
-                // Fallback if no time recorded: assume sum of hours + stops, or 0 (ignore)
-                // Let's assume 0 and don't count towards DF/UF to avoid skewing.
-                // Or fallback to standard shift ? Let's stick to calculated.
-                dailyScheduled = 0
-            }
+    }, 0) || 0
 
-            if (dailyScheduled > 0) {
-                totalScheduledTime += dailyScheduled
+    // 2. Fetch Equipment for Utilization
+    const { data: equipments } = await supabase
+        .from("equipment")
+        .select("status")
+        .eq("user_id", user.id)
 
-                const occurrences = report.occurrences as any[] | null
-                if (occurrences && Array.isArray(occurrences)) {
-                    occurrences.forEach((occ: any) => {
-                        const duration = calculateDuration(occ.timeStart, occ.timeEnd)
-                        if (duration > 0) {
-                            totalDowntime += duration
-                            bottleneckMap[occ.type] = (bottleneckMap[occ.type] || 0) + duration
+    const totalEquipments = equipments?.length || 0
+    const activeEquipments = equipments?.filter(e => e.status === "Operacional").length || 0
+    const utilPercentage = totalEquipments > 0 ? Math.round((activeEquipments / totalEquipments) * 100) : 0
 
-                            // Categorize
-                            const isMaintenance = [
-                                "Mecânica", "Falta de peça", "Inspeção de equipamento",
-                                "Falta de material de desgaste", "Aguardando limpeza"
-                            ].includes(occ.type)
+    // 3. Fetch Inventory (Items + EPIs) for Valuation
+    const { data: inventory } = await supabase
+        .from("inventory_items")
+        .select("quantity, value")
+        .eq("user_id", user.id)
 
-                            if (isMaintenance) {
-                                totalMaintenanceDowntime += duration
-                            } else {
-                                totalOperationalDowntime += duration
-                            }
-                        }
-                    })
-                }
-            }
-        })
+    const { data: epis } = await supabase
+        .from("inventory_epis")
+        .select("quantity, value")
+        .eq("user_id", user.id)
 
-        // DF = (Scheduled - Maintenance) / Scheduled
-        // UF = (Available - OperationalStops) / Available  <=> (Scheduled - Maint - Ops) / (Scheduled - Maint)
+    const itemsValuation = inventory?.reduce((acc, curr) => {
+        const qty = Number(curr.quantity) || 0
+        const price = Number(curr.value) || 0
+        return acc + (qty * price)
+    }, 0) || 0
 
-        let df = 0
-        let uf = 0
+    const episValuation = epis?.reduce((acc, curr) => {
+        const qty = Number(curr.quantity) || 0
+        const price = Number(curr.value) || 0
+        return acc + (qty * price)
+    }, 0) || 0
 
-        if (totalScheduledTime > 0) {
-            const availableTime = totalScheduledTime - totalMaintenanceDowntime
-            df = (availableTime / totalScheduledTime) * 100
+    const inventoryValuation = itemsValuation + episValuation
 
-            if (availableTime > 0) {
-                const operatingTime = availableTime - totalOperationalDowntime
-                uf = (operatingTime / availableTime) * 100
-            }
-        }
+    // 4. Active Projects
+    const { count: projectCount } = await supabase
+        .from("projects")
+        .select("*", { count: 'exact', head: true })
+        .eq("user_id", user.id)
+        .eq("status", "Em Andamento")
 
-        // Find Top Bottleneck
-        let topBottleneck = "Nenhum"
-        let maxDuration = 0
-        for (const [type, duration] of Object.entries(bottleneckMap)) {
-            if (duration > maxDuration) {
-                maxDuration = duration
-                topBottleneck = type
-            }
-        }
+    // 5. Cost per Meter Calculation (Updated v2.2)
+    const avgDieselPrice = 6.50
+    const fuelCost = dieselConsumption * avgDieselPrice
 
-        // Calculate Diesel Consumption
-        const dieselConsumption = monthlyBdps?.reduce((acc, report) => {
-            // supplies is likely a JSON b/c it's an array in schema
-            const supplies = report.supplies as any[] | null
-            if (!supplies || !Array.isArray(supplies)) return acc
+    const laborCost = 15000 // Estimativa mensal fixa por enquanto
 
-            const reportDiesel = supplies
-                .filter((s: any) => s.type && s.type.toLowerCase().includes("diesel"))
-                .reduce((sum: number, s: any) => sum + (Number(s.quantity) || 0), 0)
+    // C. Depreciação / Aluguel (Equipamentos)
+    const { data: equipCosts } = await supabase
+        .from("equipment")
+        .select("ownership_type, rental_cost_monthly, depreciation_cost_monthly")
+        .eq("user_id", user.id)
 
-            return acc + reportDiesel
-        }, 0) || 0
+    const fixedAssetCost = equipCosts?.reduce((acc, eq) => {
+        const cost = eq.ownership_type === 'RENTED'
+            ? (Number(eq.rental_cost_monthly) || 0)
+            : (Number(eq.depreciation_cost_monthly) || 0)
+        return acc + cost
+    }, 0) || 0
 
-        // 2. Fetch Equipment for Utilization
-        const { data: equipments } = await supabase
-            .from("equipment")
-            .select("status")
-            .eq("user_id", user.id)
+    // D. Manutenção (Events in Period)
+    const { data: maintEvents } = await supabase
+        .from("maintenance_events")
+        .select("cost")
+        .eq("user_id", user.id)
+        .gte("date", startMonth)
+        .lte("date", endMonth)
 
-        const totalEquipments = equipments?.length || 0
-        const activeEquipments = equipments?.filter(e => e.status === "Operacional").length || 0
-        const utilPercentage = totalEquipments > 0 ? Math.round((activeEquipments / totalEquipments) * 100) : 0
+    const maintenanceCost = maintEvents?.reduce((acc, evt) => acc + (Number(evt.cost) || 0), 0) || 0
 
+    const totalCostOfMonth = fuelCost + laborCost + fixedAssetCost + maintenanceCost
+    const costPerMeter = totalProduction > 0 ? (totalCostOfMonth / totalProduction) : 0
 
+    // 6. Project Viability Index (Simplified)
+    const efficiencyScore = Math.min(efficiency / 40, 1) * 50 // Max 50 pts
+    const downtimePercentage = totalHours > 0 ? (totalDowntime / 60) / totalHours : 0
+    const downtimeScore = Math.max(0, 1 - (downtimePercentage / 0.20)) * 50 // Max 50 pts
+    const projectViabilityIndex = Math.round(efficiencyScore + downtimeScore)
 
-        // 3. Fetch Inventory (Items + EPIs) for Valuation
-        const { data: inventory } = await supabase
-            .from("inventory_items")
-            .select("quantity, value")
-            .eq("user_id", user.id)
+    // 7. Bit Performance (Metros / Unidade)
+    let bitPerformance = 0
+    try {
+        const { count: bitCount, error: bitError } = await supabase
+            .from('bit_instances')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
 
-        const { data: epis } = await supabase
-            .from("inventory_epis")
-            .select("quantity, value")
-            .eq("user_id", user.id)
-
-        const itemsValuation = inventory?.reduce((acc, curr) => {
-            const qty = Number(curr.quantity) || 0
-            const price = Number(curr.value) || 0
-            return acc + (qty * price)
-        }, 0) || 0
-
-        const episValuation = epis?.reduce((acc, curr) => {
-            const qty = Number(curr.quantity) || 0
-            const price = Number(curr.value) || 0
-            return acc + (qty * price)
-        }, 0) || 0
-
-        const inventoryValuation = itemsValuation + episValuation
-
-        // 4. Active Projects
-        const { count: projectCount } = await supabase
-            .from("projects")
-            .select("*", { count: 'exact', head: true })
-            .eq("user_id", user.id)
-            .eq("status", "Em Andamento") // Assuming status field exists, otherwise logic needs check
-
-        // 5. Cost per Meter Calculation (Updated v2.2)
-        // Numerador = (Insumos) + (Mão de Obra) + (Depreciação/Aluguel) + (Manutenção)
-
-        // A. Insumos (Diesel + Outros já incluídos na varredura de 'supplies' acima? Não, só calculamos Diesel. Ideal seria calc tudo)
-        // Para simplificar e manter compatibilidade, vamos usar o Inventory Valuation como base parcial ou somar supplies dos BDPs.
-        // Vamos usar a estimativa de Diesel como "consumíveis" por enquanto ou melhorar se possível.
-        const avgDieselPrice = 6.50
-        const fuelCost = dieselConsumption * avgDieselPrice
-
-        // B. Mão de Obra (Placeholder - será vindo de Projects no futuro)
-        const laborCost = 15000 // Estimativa mensal fixa por enquanto
-
-        // C. Depreciação / Aluguel (Equipamentos)
-        // Fetch rental/depreciation costs
-        const { data: equipCosts } = await supabase
-            .from("equipment")
-            .select("ownership_type, rental_cost_monthly, depreciation_cost_monthly")
-            .eq("user_id", user.id)
-
-        const fixedAssetCost = equipCosts?.reduce((acc, eq) => {
-            const cost = eq.ownership_type === 'RENTED'
-                ? (Number(eq.rental_cost_monthly) || 0)
-                : (Number(eq.depreciation_cost_monthly) || 0)
-            return acc + cost
-        }, 0) || 0
-
-        // D. Manutenção (Events in Period)
-        const { data: maintEvents } = await supabase
-            .from("maintenance_events")
-            .select("cost")
-            .eq("user_id", user.id)
-            .gte("date", startMonth)
-            .lte("date", endMonth)
-
-        const maintenanceCost = maintEvents?.reduce((acc, evt) => acc + (Number(evt.cost) || 0), 0) || 0
-
-        const totalCostOfMonth = fuelCost + laborCost + fixedAssetCost + maintenanceCost
-        const costPerMeter = totalProduction > 0 ? (totalCostOfMonth / totalProduction) : 0
-
-        // 6. Project Viability Index (Simplified)
-        // Based on High Efficiency (>30m/h) and Low Downtime (<10%)
-        // Normalized to 0-100
-        const efficiencyScore = Math.min(efficiency / 40, 1) * 50 // Max 50 pts
-        const downtimePercentage = totalHours > 0 ? (totalDowntime / 60) / totalHours : 0
-        const downtimeScore = Math.max(0, 1 - (downtimePercentage / 0.20)) * 50 // Max 50 pts
-        const projectViabilityIndex = Math.round(efficiencyScore + downtimeScore)
-
-        // 7. Bit Performance (Metros / Unidade)
-        let bitPerformance = 0
-        try {
-            const { count: bitCount, error: bitError } = await supabase
-                .from('bit_instances')
-                .select('*', { count: 'exact', head: true })
+        if (!bitError && bitCount && bitCount > 0) {
+            const { data: bdpBits, error: bdpError } = await supabase
+                .from('bdp_reports')
+                .select('totalMeters')
                 .eq('user_id', user.id)
+                .not('bit_instance_id', 'is', null)
 
-            if (!bitError && bitCount && bitCount > 0) {
-                const { data: bdpBits, error: bdpError } = await supabase
-                    .from('bdp_reports')
-                    .select('totalMeters')
-                    .eq('user_id', user.id)
-                    .not('bit_instance_id', 'is', null)
-
-                if (!bdpError && bdpBits) {
-                    const totalBitMeters = bdpBits.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0)
-                    bitPerformance = totalBitMeters / bitCount
-                }
+            if (!bdpError && bdpBits) {
+                const totalBitMeters = bdpBits.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0)
+                bitPerformance = totalBitMeters / bitCount
             }
-        } catch (e) {
-            console.warn("Bit Performance calc failed (likely pending migration):", e)
         }
-
-        return {
-            totalProduction: Math.round(totalProduction * 10) / 10,
-            efficiency: Math.round(efficiency * 10) / 10,
-            equipmentUtilization: {
-                active: activeEquipments,
-                total: totalEquipments,
-                percentage: utilPercentage
-            },
-            inventoryValuation,
-            activeProjects: projectCount || 0,
-            dieselConsumption: Math.round(dieselConsumption),
-            downtime: totalDowntime,
-            topBottleneck,
-            costPerMeter: Math.round(costPerMeter * 100) / 100,
-            projectViabilityIndex,
-            projectViabilityIndex,
-            bitPerformance: Math.round(bitPerformance * 10) / 10,
-            physicalAvailability: Math.round(df * 10) / 10, // DF %
-            physicalUtilization: Math.round(uf * 10) / 10   // UF %
-        }
+    } catch (e) {
+        console.warn("Bit Performance calc failed (likely pending migration):", e)
     }
+
+    return {
+        totalProduction: Math.round(totalProduction * 10) / 10,
+        efficiency: Math.round(efficiency * 10) / 10,
+        equipmentUtilization: {
+            active: activeEquipments,
+            total: totalEquipments,
+            percentage: utilPercentage
+        },
+        inventoryValuation,
+        activeProjects: projectCount || 0,
+        dieselConsumption: Math.round(dieselConsumption),
+        downtime: totalDowntime,
+        topBottleneck,
+        costPerMeter: Math.round(costPerMeter * 100) / 100,
+        projectViabilityIndex,
+        bitPerformance: Math.round(bitPerformance * 10) / 10,
+        physicalAvailability: Math.round(df * 10) / 10, // DF %
+        physicalUtilization: Math.round(uf * 10) / 10   // UF %
+    }
+}
 
 export async function getBottleneckAnalysis(): Promise<ChartData[]> {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-        if (!user) return []
+    if (!user) return []
 
-        const endDate = new Date()
-        const startDate = subDays(endDate, 30)
+    const endDate = new Date()
+    const startDate = subDays(endDate, 30)
 
-        const { data: reports } = await supabase
-            .from("bdp_reports")
-            .select("occurrences")
-            .eq("user_id", user.id)
-            .gte("date", startDate.toISOString())
-            .lte("date", endDate.toISOString())
+    const { data: reports } = await supabase
+        .from("bdp_reports")
+        .select("occurrences")
+        .eq("user_id", user.id)
+        .gte("date", startDate.toISOString())
+        .lte("date", endDate.toISOString())
 
-        const bottleneckMap: Record<string, number> = {}
+    const bottleneckMap: Record<string, number> = {}
 
-        try {
-            reports?.forEach(report => {
-                const occurrences = report.occurrences as any[] | null
-                if (occurrences && Array.isArray(occurrences)) {
-                    occurrences.forEach((occ: any) => {
-                        const duration = calculateDuration(occ.timeStart, occ.timeEnd)
-                        if (duration > 0) {
-                            bottleneckMap[occ.type] = (bottleneckMap[occ.type] || 0) + duration
-                        }
-                    })
-                }
-            })
-        } catch (error) {
-            console.error("Error processing bottlenecks:", error)
-            return []
+    try {
+        reports?.forEach(report => {
+            const occurrences = report.occurrences as any[] | null
+            if (occurrences && Array.isArray(occurrences)) {
+                occurrences.forEach((occ: any) => {
+                    const duration = calculateDuration(occ.timeStart, occ.timeEnd)
+                    if (duration > 0) {
+                        bottleneckMap[occ.type] = (bottleneckMap[occ.type] || 0) + duration
+                    }
+                })
+            }
+        })
+    } catch (error) {
+        console.error("Error processing bottlenecks:", error)
+        return []
+    }
+
+    // Convert to ChartData and Sort
+    const data = Object.entries(bottleneckMap)
+        .map(([name, value]) => ({
+            name,
+            value: Math.round(value / 60 * 10) / 10 // Convert minutes to Hours
+        }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 6) // Top 6
+
+    return data
+}
+
+export async function getProductionTrend(): Promise<ChartData[]> {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return []
+
+    const endDate = new Date()
+    const startDate = subDays(endDate, 30) // Last 30 days
+
+    // Fetch reports
+    const { data: reports } = await supabase
+        .from("bdp_reports")
+        .select("date, totalMeters")
+        .eq("user_id", user.id)
+        .gte("date", startDate.toISOString())
+        .lte("date", endDate.toISOString())
+        .order("date", { ascending: true })
+
+    // Generate all days in interval to avoid gaps
+    const interval = eachDayOfInterval({ start: startDate, end: endDate })
+
+    // Aggregate by date
+    const groupedData = interval.map(day => {
+        const dateStr = format(day, 'yyyy-MM-dd')
+        const dayReports = reports?.filter(r => r.date?.startsWith(dateStr))
+        const total = dayReports?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
+
+        return {
+            name: format(day, 'dd/MM'), // Display format
+            value: total
         }
+    })
 
-        // Convert to ChartData and Sort
-        const data = Object.entries(bottleneckMap)
-            .map(([name, value]) => ({
-                name,
-                value: Math.round(value / 60 * 10) / 10 // Convert minutes to Hours
-            }))
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 6) // Top 6
+    return groupedData
+}
 
-        return data
-    }
+export async function getProjectRanking(): Promise<ChartData[]> {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    export async function getProductionTrend(): Promise<ChartData[]> {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
 
-        if (!user) return []
+    // Fetch projects first
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
 
-        const endDate = new Date()
-        const startDate = subDays(endDate, 30) // Last 30 days
+    if (!projects) return []
 
-        // Fetch reports
-        const { data: reports } = await supabase
-            .from("bdp_reports")
-            .select("date, totalMeters")
-            .eq("user_id", user.id)
-            .gte("date", startDate.toISOString())
-            .lte("date", endDate.toISOString())
-            .order("date", { ascending: true })
+    const { data: bdpData } = await supabase
+        .from("bdp_reports")
+        .select("projectId, totalMeters")
+        .eq("user_id", user.id)
 
-        // Generate all days in interval to avoid gaps
-        const interval = eachDayOfInterval({ start: startDate, end: endDate })
+    // Aggregate
+    const ranking = projects.map(project => {
+        const projectReports = bdpData?.filter(r => r.projectId === project.id)
+        const total = projectReports?.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0) || 0
 
-        // Aggregate by date
-        const groupedData = interval.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd')
-            const dayReports = reports?.filter(r => r.date?.startsWith(dateStr))
-            const total = dayReports?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
+        return {
+            name: project.name,
+            value: total
+        }
+    })
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5) // Top 5
 
-            return {
-                name: format(day, 'dd/MM'), // Display format
-                value: total
-            }
-        })
-
-        return groupedData
-    }
-
-    export async function getProjectRanking(): Promise<ChartData[]> {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) return []
-
-        // Fetch projects first
-        const { data: projects } = await supabase
-            .from("projects")
-            .select("id, name")
-            .eq("user_id", user.id)
-
-        if (!projects) return []
-
-        const { data: bdpData } = await supabase
-            .from("bdp_reports")
-            .select("projectId, totalMeters")
-            .eq("user_id", user.id)
-
-        // Aggregate
-        const ranking = projects.map(project => {
-            const projectReports = bdpData?.filter(r => r.projectId === project.id)
-            const total = projectReports?.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0) || 0
-
-            return {
-                name: project.name,
-                value: total
-            }
-        })
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 5) // Top 5
-
-        return ranking
-    }
+    return ranking
+}
