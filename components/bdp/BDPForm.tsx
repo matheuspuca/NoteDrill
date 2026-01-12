@@ -47,7 +47,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
 
     // Filter lists
     const drills = equipments.filter(e => e.type === 'Hidráulica' || e.type === 'Pneumática' || !e.type)
-    const compressors = equipments.filter(e => e.type === 'Compressor')
+
     const serviceTypes = Object.values(serviceTypeSchema.Values)
     const occurrenceTypes = Object.values(occurrenceTypeSchema.Values).sort((a, b) => a.localeCompare(b))
 
@@ -107,6 +107,8 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
     const hourStart = form.watch("hourmeterStart")
     const hourEnd = form.watch("hourmeterEnd")
 
+    const occurrences = form.watch("occurrences") // Watch occurrences for real-time UF calc
+
     // Update Totals (Memoized or Effect)
     const stats = useMemo(() => {
         let totalMeters = 0
@@ -123,19 +125,6 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
         const totalHours = (Number(hourEnd) || 0) - (Number(hourStart) || 0)
 
         // UF Calculation
-        // Retrieve occurrences from form values directly as we might not be watching them yet?
-        // We need to watch occurrences to update this in real-time.
-        // Assuming occurrences is watched or we add it to dependency.
-        // Let's watch specific fields or fallback to current form state if feasible, but usage of 'services' suggests we rely on watched values.
-        // We'll add 'occurrences' to watched values.
-        return { totalMeters, avgHeight, totalHours }
-    }, [services, hourStart, hourEnd]) // We will fix the hook below to include occurrences
-
-    const occurrences = form.watch("occurrences")
-
-    const kpi = useMemo(() => {
-        const { totalMeters, avgHeight, totalHours } = stats
-
         let totalStoppedHours = 0
         occurrences?.forEach(occ => {
             if (!occ.timeStart || !occ.timeEnd) return
@@ -145,15 +134,19 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
             const startDec_ = h1 + m1 / 60
             const endDec_ = h2 + m2 / 60
             let diff = endDec_ - startDec_
-            if (diff < 0) diff += 24 // Wrapping midnight? Unlikely for single shift but handling
+            if (diff < 0) diff += 24
             totalStoppedHours += diff
         })
 
         const effectiveHours = Math.max(0, totalHours - totalStoppedHours)
         const uf = totalHours > 0 ? (effectiveHours / totalHours) * 100 : 0
 
-        return { ...stats, uf, effectiveHours }
-    }, [stats, occurrences])
+        return { totalMeters, avgHeight, totalHours, uf }
+    }, [services, hourStart, hourEnd, occurrences])
+
+    const kpi = useMemo(() => {
+        return stats
+    }, [stats])
 
     const handleAddService = (type: string) => {
         // Prevent dupes? User requirement allows mulitple services, maybe multiple of same type? Assume unique type for now.
@@ -296,19 +289,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                             </FormItem>
                         )} />
 
-                        <FormField control={form.control} name="compressorId" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="font-bold text-slate-700">Compressor (Opcional)</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger className="h-14 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Nenhum" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        {compressors.map(c => (
-                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )} />
+
 
                         <FormField control={form.control} name="operatorId" render={({ field }) => (
                             <FormItem>
@@ -499,6 +480,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                     <div className="space-y-3">
                         {occFields.map((field, index) => (
                             <div key={field.id} className="relative grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div className="absolute -left-2 -top-2 bg-slate-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10 shadow-sm">#{index + 1}</div>
                                 <FormField control={form.control} name={`occurrences.${index}.type`} render={({ field }) => (
                                     <FormItem className="md:col-span-4">
                                         <FormLabel className="font-bold text-xs uppercase">Motivo</FormLabel>

@@ -22,10 +22,7 @@ export default async function NewBDPPage() {
 
     return (
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
-            <Link href="/dashboard/bdp" className="inline-flex items-center text-slate-500 hover:text-blue-600 font-bold mb-8 transition-colors">
-                <ChevronLeft className="h-5 w-5 mr-1" />
-                Voltar para Lista
-            </Link>
+
 
             <div className="mb-10">
                 <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Novo Boletim Diário (BDP)</h1>

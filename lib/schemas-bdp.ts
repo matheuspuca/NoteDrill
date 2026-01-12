@@ -81,7 +81,7 @@ export const bdpSchema = z.object({
     helperId: z.string().optional(), // Helper from Team table
 
     drillId: z.string().min(1, "Selecione a perfuratriz"), // From Equipment table
-    compressorId: z.string().optional(), // From Equipment table
+
 
     // Counters
     hourmeterStart: z.coerce.number().min(0),
