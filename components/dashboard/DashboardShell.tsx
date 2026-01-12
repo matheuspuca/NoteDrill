@@ -1,9 +1,12 @@
 "use client"
 
+import { usePathname } from "next/navigation"
+
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 import { BottomNav } from "@/components/dashboard/BottomNav"
+import { BackButton } from "@/components/ui/back-button"
 
 
 interface DashboardShellProps {
@@ -37,6 +40,9 @@ export function DashboardShell({ children, userEmail }: DashboardShellProps) {
 
 
 
+    const pathname = usePathname()
+    const showBackButton = pathname !== "/dashboard"
+
     return (
         <div
             className={cn(
@@ -45,6 +51,7 @@ export function DashboardShell({ children, userEmail }: DashboardShellProps) {
             )}
         >
             <main className="flex-1 p-4 lg:p-10 bg-slate-50 overflow-x-hidden pb-24 lg:pb-10 pt-8 lg:pt-10"> {/* Added top padding since header is gone */}
+                {showBackButton && <BackButton />}
                 {children}
             </main>
             <BottomNav />

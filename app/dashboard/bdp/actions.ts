@@ -18,13 +18,13 @@ export async function createBDP(data: BDPSchema) {
 
         // Manual mapping camelCase -> snake_case
         const dbPayload = {
-            date: rest.date,
-            shift: rest.shift,
-            project_id: rest.projectId,
-            operator_id: rest.operatorId,
-            helper_id: rest.helperId,
-            drill_id: rest.drillId,
-            compressor_id: rest.compressorId,
+            date: rest.date || new Date().toISOString().split('T')[0], // Fallback to Today
+            shift: rest.shift || 'Diurno', // Fallback to Diurno
+            project_id: rest.projectId || null,
+            operator_id: rest.operatorId || null,
+            helper_id: rest.helperId || null,
+            drill_id: rest.drillId || null,
+            compressor_id: rest.compressorId || null,
             hourmeter_start: rest.hourmeterStart,
             hourmeter_end: rest.hourmeterEnd,
             start_time: rest.startTime,

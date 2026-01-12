@@ -480,14 +480,19 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems }: B
                     <div className="space-y-3">
                         {occFields.map((field, index) => (
                             <div key={field.id} className="relative grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <div className="absolute -left-2 -top-2 bg-slate-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10 shadow-sm">#{index + 1}</div>
+
                                 <FormField control={form.control} name={`occurrences.${index}.type`} render={({ field }) => (
                                     <FormItem className="md:col-span-4">
                                         <FormLabel className="font-bold text-xs uppercase">Motivo</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl><SelectTrigger className="bg-white h-9 text-sm"><SelectValue /></SelectTrigger></FormControl>
                                             <SelectContent>
-                                                {occurrenceTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                {occurrenceTypes.map((t, idx) => (
+                                                    <SelectItem key={t} value={t}>
+                                                        <span className="font-mono text-slate-400 mr-2">{idx + 1}.</span>
+                                                        {t}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </FormItem>
