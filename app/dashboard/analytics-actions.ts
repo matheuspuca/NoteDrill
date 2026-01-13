@@ -51,8 +51,6 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     const startMonth = startOfMonth(today).toISOString()
     const endMonth = endOfMonth(today).toISOString()
 
-    // 1. Fetch BDPs for Current Month (Production, Efficiency, Diesel, DF/UF)
-    let query = supabase
     // 1. Fetch BDPs for Current Month
     let query = supabase
         .from("bdp_reports")
