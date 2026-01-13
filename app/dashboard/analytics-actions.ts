@@ -53,8 +53,10 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
 
     // 1. Fetch BDPs for Current Month (Production, Efficiency, Diesel, DF/UF)
     let query = supabase
+    // 1. Fetch BDPs for Current Month
+    let query = supabase
         .from("bdp_reports")
-        .select("totalMeters, totalHours, supplies, occurrences, startTime, endTime, projectId")
+        .select("totalMeters:total_meters, totalHours:total_hours, supplies, occurrences, startTime:start_time, endTime:end_time, projectId:project_id")
         .eq("user_id", user.id)
         .gte("date", startMonth)
         .lte("date", endMonth)
@@ -397,7 +399,7 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
     // Fetch reports
     let query = supabase
         .from("bdp_reports")
-        .select("date, totalMeters")
+        .select("date, totalMeters:total_meters")
         .eq("user_id", user.id)
         .gte("date", startDate.toISOString())
         .lte("date", endDate.toISOString())
@@ -443,12 +445,12 @@ export async function getProjectRanking(projectId?: string): Promise<ChartData[]
 
     const { data: bdpData } = await supabase
         .from("bdp_reports")
-        .select("project_id, totalMeters")
+        .select("projectId:project_id, totalMeters:total_meters")
         .eq("user_id", user.id)
 
     // Aggregate
     const ranking = projects.map(project => {
-        const projectReports = bdpData?.filter(r => r.project_id === project.id)
+        const projectReports = bdpData?.filter(r => r.projectId === project.id)
         const total = projectReports?.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0) || 0
 
         return {

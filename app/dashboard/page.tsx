@@ -17,7 +17,7 @@ export default async function DashboardPage({
 
     if (!user) return <div>Acesso negado.</div>
 
-    const projectId = searchParams.projectId
+    const projectId = searchParams.projectId === 'all' ? undefined : searchParams.projectId
 
     // Fetch Active Projects for Filter
     const { data: projectsData } = await supabase
