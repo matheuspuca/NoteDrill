@@ -163,10 +163,11 @@ export async function transferStock(data: { itemId: string, targetProjectId: str
     }
 
     revalidatePath("/dashboard/inventory")
+    revalidatePath("/dashboard")
     return { success: true }
 }
 
-export async function registerStockOutput(data: { itemId: string, quantity: number, description: string }) {
+export async function registerStockOutput(data: { itemId: string, quantity: number, description: string, equipmentId?: string, projectId?: string }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -199,7 +200,8 @@ export async function registerStockOutput(data: { itemId: string, quantity: numb
     const { error: txnError } = await supabase.from("inventory_transactions").insert({
         user_id: user.id,
         item_id: item.id,
-        project_id: item.projectId,
+        project_id: data.projectId || item.projectId, // Allow override or default to item's project
+        equipment_id: data.equipmentId || null,
         quantity: qty,
         type: 'OUT',
         description: data.description || "Saída manual de estoque"
@@ -208,6 +210,8 @@ export async function registerStockOutput(data: { itemId: string, quantity: numb
     if (txnError) console.error("Erro ao logar transação:", txnError)
 
     revalidatePath("/dashboard/inventory")
+    revalidatePath("/dashboard") // Trigger Dashboard KPI Update
+    revalidatePath("/dashboard/equipments") // Trigger Equipment Page Update
     return { success: true }
 }
 

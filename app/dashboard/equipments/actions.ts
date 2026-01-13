@@ -40,6 +40,7 @@ export async function createEquipment(data: EquipmentSchema) {
         console.log("Equipment saved successfully:", insertedData)
 
         revalidatePath("/dashboard/equipments")
+        revalidatePath("/dashboard")
         return { success: true }
     } catch (e: any) {
         console.error("Server Action Error:", e)
