@@ -16,7 +16,7 @@ function calculateDuration(start: string, end: string): number {
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 0
 
         let diff = differenceInMinutes(endDate, startDate)
-        if (diff < 0) diff += 24 * 60 // Handle midnight crossing if necessary (though simple BDP usually same shift)
+        if (diff < 0) diff += 24 * 60 // Handle midnight crossing
 
         return diff // minutes
     } catch (e) {
@@ -42,7 +42,8 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         projectViabilityIndex: 0,
         bitPerformance: 0,
         physicalAvailability: 0,
-        physicalUtilization: 0
+        physicalUtilization: 0,
+        dieselPerMeter: 0
     }
 
     const today = new Date()
@@ -114,27 +115,33 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     })
 
     // Calculate Efficiency
-    // Shift Hours = totalScheduledTime (accumulated duration between Start and End)
-    // Scheduled Stops = ??? In current logic we distinguish Maintenance vs Operational.
-    // Usually Scheduled stops are things like "Refeição", "Troca de Turno".
-    // Let's assume "Aguardando limpeza" or specific codes are scheduled.
-    // User prompted: Efficiency = (Drilling Hours / (Shift - Scheduled Stops)) * 100.
-    // Drilling Hours = Shift - Total Downtime.
+    // Formula: (Drilling Hours / (Shift Hours - Scheduled Stops)) * 100
 
-    // For this update, let's treat "Inspeção de equipamento" and "Troca de turno" (if exists) as scheduled.
-    // Since we don't have explicit "Scheduled" category, let's look for specific types if possible in loop above.
-    // To simplify and match prompt:
-    // We already sum 'totalDowntime'.
-    // Drilling Hours = totalScheduledTime - totalDowntime.
+    // 1. Identify Scheduled Stops
+    // In 'occurrences', we need to check for "Refeição", "DDS", "Troca de Turno" etc.
+    // Based on 'occurrenceTypeSchema': "Lanche/almoço/jantar", "DDS", "Marcação topográfica"(maybe?), "Detonação"(maybe?)
+    // Let's explicitly look for keys.
+    const scheduledTypes = ["Lanche/almoço/jantar", "DDS", "Detonação", "Troca de turno", "Abastecimento diesel", "Abastecimento água"]
 
-    // If we define Scheduled Stops as 0 for now (or specific types), efficiency is:
-    // (DrillingHours / totalScheduledTime) * 100? No, prompt says (Shift - Scheduled).
-    // Let's assume Scheduled Stops = 0 for now unless we find types like 'Meal'.
+    // Re-iterate occurrences to sum scheduled stops specifically
+    let totalScheduledStops = 0
 
-    const drillingHours = Math.max(0, totalScheduledTime - totalDowntime)
-    const scheduledStops = 0 // Update if specific scheduled codes exist
-    const effDenominator = Math.max(1, totalScheduledTime - scheduledStops)
-    efficiency = (drillingHours / effDenominator) * 100
+    monthlyBdps?.forEach(report => {
+        const occurrences = report.occurrences as any[] | null
+        if (occurrences && Array.isArray(occurrences)) {
+            occurrences.forEach((occ: any) => {
+                const duration = calculateDuration(occ.timeStart, occ.timeEnd)
+                if (scheduledTypes.includes(occ.type)) {
+                    totalScheduledStops += duration
+                }
+            })
+        }
+    })
+
+    const totalDrillingTime = Math.max(0, totalScheduledTime - totalDowntime) // Actual drilling time
+    const netAvailableTime = Math.max(1, totalScheduledTime - totalScheduledStops) // Shift - Scheduled
+
+    efficiency = (totalDrillingTime / netAvailableTime) * 100
 
     // DF = (Scheduled - Maintenance) / Scheduled
     // UF = (Available - OperationalStops) / Available
@@ -178,26 +185,40 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     // Diesel per Meter (L/m)
     const dieselPerMeter = totalProduction > 0 ? (dieselConsumption / totalProduction) : 0
 
+    // Diesel per Hour (L/h)
+    const totalDrillingHours = Math.max(1, (totalScheduledTime - totalDowntime) / 60) // Hours
+    // Note: Efficiency formula below uses drillingHours in minutes usually, let's keep consistency.
+
     // 2. Fetch Equipment for Utilization
-    const { data: equipments } = await supabase
+    let equipQuery = supabase
         .from("equipment")
-        .select("status")
+        .select("status, ownership_type, rental_cost_monthly, depreciation_cost_monthly")
         .eq("user_id", user.id)
+
+    // Note: Equipment isn't strictly tied to project in DB schema yet usually, 
+    // but if we had location, we would filter. For now, we assume global float if projectId is selected
+    // OR we filter by 'current_project_id' if that column existed.
+    // Let's assume global fleet for now unless schema supports it.
+
+    const { data: equipments } = await equipQuery
+
+    // ... (rest of equipment logic)
 
     const totalEquipments = equipments?.length || 0
     const activeEquipments = equipments?.filter(e => e.status === "Operacional").length || 0
     const utilPercentage = totalEquipments > 0 ? Math.round((activeEquipments / totalEquipments) * 100) : 0
 
     // 3. Fetch Inventory (Items + EPIs) for Valuation
-    const { data: inventory } = await supabase
-        .from("inventory_items")
-        .select("quantity, value")
-        .eq("user_id", user.id)
+    let inventoryQuery = supabase.from("inventory_items").select("quantity, value, projectId").eq("user_id", user.id)
+    let epiQuery = supabase.from("inventory_epis").select("quantity, value, projectId").eq("user_id", user.id)
 
-    const { data: epis } = await supabase
-        .from("inventory_epis")
-        .select("quantity, value")
-        .eq("user_id", user.id)
+    if (projectId) {
+        inventoryQuery = inventoryQuery.eq("projectId", projectId)
+        epiQuery = epiQuery.eq("projectId", projectId)
+    }
+
+    const { data: inventory } = await inventoryQuery
+    const { data: epis } = await epiQuery
 
     const itemsValuation = inventory?.reduce((acc, curr) => {
         const qty = Number(curr.quantity) || 0
@@ -262,21 +283,32 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     let bitPerformance = 0
     try {
         const { count: bitCount, error: bitError } = await supabase
-            .from('bit_instances')
-            .select('*', { count: 'exact', head: true })
+        // 7. Bit Performance (Metros / Unidade)
+        // Formula: Sum(Meters Drilled by Equipment X) / Count(Stock Out "Bit" for Equipment X)
+        // Simplified Global: Sum(All Meters) / Sum(All Bit Stock Outs)
+
+        let bitPerformance = 0
+
+        // Fetch Stock Outs from inventory_transactions
+        let transQuery = supabase
+            .from('inventory_transactions')
+            .select('quantity, item:inventory_items!inner(name), projectId')
             .eq('user_id', user.id)
+            .eq('type', 'OUT')
+            // Filter by item name containing "Bit" or "Broca"
+            .ilike('item.name', '%Bit%') // or '%Broca%'
 
-        if (!bitError && bitCount && bitCount > 0) {
-            const { data: bdpBits, error: bdpError } = await supabase
-                .from('bdp_reports')
-                .select('totalMeters')
-                .eq('user_id', user.id)
-                .not('bit_instance_id', 'is', null)
+        if (projectId) {
+            transQuery = transQuery.eq('projectId', projectId)
+        }
 
-            if (!bdpError && bdpBits) {
-                const totalBitMeters = bdpBits.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0)
-                bitPerformance = totalBitMeters / bitCount
-            }
+        const { data: bitTransactions } = await transQuery
+
+        const totalBitsConsumed = bitTransactions?.reduce((acc, curr) => acc + (Number(curr.quantity) || 0), 0) || 0
+
+        if (totalBitsConsumed > 0) {
+            // We use 'totalProduction' calculated above (which is already filtered by project)
+            bitPerformance = totalProduction / totalBitsConsumed
         }
     } catch (e) {
         console.warn("Bit Performance calc failed (likely pending migration):", e)

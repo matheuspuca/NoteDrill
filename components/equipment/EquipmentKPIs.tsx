@@ -21,6 +21,7 @@ import {
 interface EquipmentKPIsProps {
     equipments: Equipment[]
     productionData: any[] // BDP Reports
+    bitCount: number
 }
 
 const COLORS = ["#3b82f6", "#ef4444", "#fbbf24", "#d946ef"]
@@ -43,7 +44,7 @@ function calculateDuration(start: string, end: string): number {
     }
 }
 
-export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps) {
+export function EquipmentKPIs({ equipments, productionData, bitCount }: EquipmentKPIsProps) {
     const stats = useMemo(() => {
         const total = equipments.length
         const operational = equipments.filter(e => e.status === "Operacional").length
@@ -52,6 +53,9 @@ export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps
         // Restore alerts calculation
         const alerts = equipments.filter(e => e.maintenanceInterval > 0 && e.hourmeter >= e.maintenanceInterval).length
         const totalProduction = productionData.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0)
+
+        // Bit Performance
+        const bitPerformance = bitCount > 0 ? (totalProduction / bitCount) : 0
 
         // DF / UF Calculation
         let totalScheduledTime = 0
@@ -107,10 +111,11 @@ export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps
             availability: total > 0 ? ((operational / total) * 100).toFixed(0) : "0",
             alerts,
             totalProduction,
+            bitPerformance: Math.round(bitPerformance * 10) / 10,
             df: Math.round(df * 10) / 10,
             uf: Math.round(uf * 10) / 10
         }
-    }, [equipments, productionData])
+    }, [equipments, productionData, bitCount])
 
     const chartData = useMemo(() => {
         // 1. Status Distribution
@@ -196,6 +201,22 @@ export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps
                     <CardContent>
                         <div className="text-3xl font-black text-slate-800 tracking-tight">{stats.alerts}</div>
                         <p className="text-xs text-slate-400 font-bold mt-1">Revisões Pendentes</p>
+                    </CardContent>
+                </Card>
+
+                {/* KPI 5: Bit Performance */}
+                <Card className="border-none shadow-md bg-white rounded-2xl ring-1 ring-slate-100/50">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-extrabold text-slate-500 uppercase tracking-widest">
+                            Perf. Brocas
+                        </CardTitle>
+                        <div className="p-2.5 bg-indigo-50/80 rounded-xl">
+                            <Activity className="h-5 w-5 text-indigo-600" />
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-black text-slate-800 tracking-tight">{stats.bitPerformance.toLocaleString('pt-BR')} <span className="text-sm font-bold text-slate-400">m/b</span></div>
+                        <p className="text-xs text-slate-400 font-bold mt-1">Média Global</p>
                     </CardContent>
                 </Card>
             </div>

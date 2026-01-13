@@ -148,28 +148,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     </CardContent>
                 </Card>
 
-                {/* KPI 3: Frota */}
-                <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 rounded-[24px] overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Hammer className="w-24 h-24 text-orange-600" />
-                    </div>
-                    <CardContent className="p-8">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-orange-100/50 rounded-xl text-orange-700">
-                                <Drill className="h-8 w-8" />
-                            </div>
-                            <Badge variant="outline" className={`font-bold ${kpis.equipmentUtilization.percentage > 80 ? 'text-green-600 border-green-200 bg-green-50' : 'text-orange-600 border-orange-200 bg-orange-50'}`}>
-                                {kpis.equipmentUtilization.percentage}% Ativa
-                            </Badge>
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Frota Operacional</p>
-                            <h3 className="text-4xl font-black text-slate-900 mt-2 tracking-tighter">
-                                {kpis.equipmentUtilization.active} <span className="text-2xl text-slate-400 font-bold">/ {kpis.equipmentUtilization.total}</span>
-                            </h3>
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* KPI 3: Frota (Removed as per request - Migrated to Equipment Page) */}
 
 
 

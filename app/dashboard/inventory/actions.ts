@@ -104,7 +104,18 @@ export async function transferStock(data: { itemId: string, targetProjectId: str
 
     if (deductError) return { error: "Erro ao descontar estoque." }
 
+    // Log Transaction (Source OUT)
+    await supabase.from("inventory_transactions").insert({
+        user_id: user.id,
+        item_id: sourceItem.id,
+        project_id: sourceItem.projectId,
+        quantity: qty,
+        type: 'OUT',
+        description: `Transferência para obra (Destino: ${data.targetProjectId})`
+    })
+
     // B. Add to Target
+    let targetItemId = targetItem?.id
     if (targetItem) {
         // Update existing
         const newTargetQty = Number(targetItem.quantity) + qty
@@ -116,7 +127,7 @@ export async function transferStock(data: { itemId: string, targetProjectId: str
         if (addError) return { error: "Erro ao adicionar estoque no destino." }
     } else {
         // Create new item in target project
-        const { error: createError } = await supabase
+        const { data: newItem, error: createError } = await supabase
             .from("inventory_items")
             .insert({
                 name: sourceItem.name,
@@ -129,13 +140,72 @@ export async function transferStock(data: { itemId: string, targetProjectId: str
                 user_id: user.id,
                 type: sourceItem.type || "Material" // Preserve type
             })
+            .select() // return created
+            .single()
 
         if (createError) {
             console.error("Erro ao criar item no destino:", createError)
-            // Rollback source if possible? Ideally use RPC, but for now just return error
             return { error: "Erro ao criar item no destino." }
         }
+        targetItemId = newItem.id
     }
+
+    // Log Transaction (Target IN)
+    if (targetItemId) {
+        await supabase.from("inventory_transactions").insert({
+            user_id: user.id,
+            item_id: targetItemId,
+            project_id: data.targetProjectId,
+            quantity: qty,
+            type: 'IN',
+            description: `Recebimento por transferência (Origem: ${sourceItem.projectId})`
+        })
+    }
+
+    revalidatePath("/dashboard/inventory")
+    return { success: true }
+}
+
+export async function registerStockOutput(data: { itemId: string, quantity: number, description: string }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { error: "Usuário não autenticado" }
+
+    const qty = Number(data.quantity)
+    if (isNaN(qty) || qty <= 0) return { error: "Quantidade inválida." }
+
+    // 1. Get Item
+    const { data: item, error: itemError } = await supabase
+        .from("inventory_items")
+        .select("*")
+        .eq("id", data.itemId)
+        .single()
+
+    if (itemError || !item) return { error: "Item não encontrado" }
+
+    if (Number(item.quantity) < qty) return { error: "Quantidade insuficiente em estoque." }
+
+    // 2. Update Quantity
+    const newQty = Number(item.quantity) - qty
+    const { error: updateError } = await supabase
+        .from("inventory_items")
+        .update({ quantity: newQty })
+        .eq("id", item.id)
+
+    if (updateError) return { error: "Erro ao atualizar estoque." }
+
+    // 3. Log Transaction
+    const { error: txnError } = await supabase.from("inventory_transactions").insert({
+        user_id: user.id,
+        item_id: item.id,
+        project_id: item.projectId,
+        quantity: qty,
+        type: 'OUT',
+        description: data.description || "Saída manual de estoque"
+    })
+
+    if (txnError) console.error("Erro ao logar transação:", txnError)
 
     revalidatePath("/dashboard/inventory")
     return { success: true }

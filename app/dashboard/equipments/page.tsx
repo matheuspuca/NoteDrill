@@ -25,14 +25,20 @@ export default async function EquipmentsPage() {
             .select("drillId, totalMeters, startTime, endTime, occurrences, drill:equipment!drillId(name)")
             .eq("user_id", user.id),
 
+        // Updated Bit Count Logic (Inventory Transactions)
         supabase
-            .from("bit_instances")
-            .select("id", { count: "exact" })
+            .from("inventory_transactions")
+            .select("quantity, item:inventory_items!inner(name)")
             .eq("user_id", user.id)
+            .eq("type", "OUT")
+            .ilike("item.name", "%Bit%") // Filter by item name
     ])
 
     const equipments = (equipmentsResult.data as Equipment[]) || []
-    const bitCount = bitResult.count || 0
+
+    // Calculate Bit Count from transactions
+    const bitTransactions = bitResult.data as any[] || []
+    const bitCount = bitTransactions.reduce((acc, curr) => acc + (Number(curr.quantity) || 0), 0)
 
     // Process BDP data to flatten drill name if needed for chart
     const productionData = (bdpResult.data || []).map((r: any) => ({
