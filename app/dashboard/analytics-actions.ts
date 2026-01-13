@@ -54,7 +54,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     // 1. Fetch BDPs for Current Month
     let query = supabase
         .from("bdp_reports")
-        .select("totalMeters:total_meters, totalHours:total_hours, supplies, occurrences, startTime:start_time, endTime:end_time, projectId:project_id")
+        .select("total_meters, total_hours, supplies, occurrences, start_time, end_time, project_id")
         .eq("user_id", user.id)
         .gte("date", startMonth)
         .lte("date", endMonth)
@@ -63,12 +63,25 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         query = query.eq("project_id", projectId)
     }
 
-    const { data: monthlyBdps } = await query
+    const { data: rawBdps, error: bdpError } = await query
+
+    // Map raw snake_case to friendly structure if needed, or access directly
+    const monthlyBdps = rawBdps?.map(b => ({
+        totalMeters: b.total_meters,
+        totalHours: b.total_hours,
+        supplies: b.supplies,
+        occurrences: b.occurrences,
+        startTime: b.start_time,
+        endTime: b.end_time,
+        projectId: b.project_id
+    }))
+
+    if (bdpError) console.error("[KPI Debug] BDP Fetch Error:", bdpError)
+    console.log(`[KPI Debug] Raw BDPs Found: ${rawBdps?.length || 0}`)
 
     const totalProduction = monthlyBdps?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
+
     // Efficiency Formula: (Drilling Hours / (Shift Hours - Scheduled Stops)) * 100
-    // We need to calculate Scheduled Stops first.
-    // For now we initialize efficiency as 0 and calculate it after processing occurrences.
     let efficiency = 0
 
     // Calculate Downtime & Bottlenecks & DF/UF
@@ -117,14 +130,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
 
     // Calculate Efficiency
     // Formula: (Drilling Hours / (Shift Hours - Scheduled Stops)) * 100
-
-    // 1. Identify Scheduled Stops
-    // In 'occurrences', we need to check for "Refeição", "DDS", "Troca de Turno" etc.
-    // Based on 'occurrenceTypeSchema': "Lanche/almoço/jantar", "DDS", "Marcação topográfica"(maybe?), "Detonação"(maybe?)
-    // Let's explicitly look for keys.
     const scheduledTypes = ["Lanche/almoço/jantar", "DDS", "Detonação", "Troca de turno", "Abastecimento diesel", "Abastecimento água"]
-
-    // Re-iterate occurrences to sum scheduled stops specifically
     let totalScheduledStops = 0
 
     monthlyBdps?.forEach(report => {
@@ -308,7 +314,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         console.warn("Bit Performance calc failed:", e)
     }
 
-    return {
+    const finalKPIs = {
         totalProduction: Math.round(totalProduction * 10) / 10,
         efficiency: Math.round(efficiency * 10) / 10,
         equipmentUtilization: {
@@ -316,7 +322,6 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
             total: totalEquipments,
             percentage: utilPercentage
         },
-        inventoryValuation,
         inventoryValuation,
         activeProjects: projectCount || 0,
         dieselConsumption: Math.round(dieselConsumption),
@@ -330,6 +335,10 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         physicalAvailability: Math.round(df * 10) / 10, // DF %
         physicalUtilization: Math.round(uf * 10) / 10   // UF %
     }
+
+    console.log("[KPI Debug] Final Calculated KPIs:", JSON.stringify(finalKPIs, null, 2))
+
+    return finalKPIs
 }
 
 export async function getBottleneckAnalysis(projectId?: string): Promise<ChartData[]> {
@@ -343,7 +352,7 @@ export async function getBottleneckAnalysis(projectId?: string): Promise<ChartDa
 
     let query = supabase
         .from("bdp_reports")
-        .select("occurrences")
+        .select("occurrences, projectId:project_id")
         .eq("user_id", user.id)
         .gte("date", startDate.toISOString())
         .lte("date", endDate.toISOString())
@@ -397,7 +406,7 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
     // Fetch reports
     let query = supabase
         .from("bdp_reports")
-        .select("date, totalMeters:total_meters")
+        .select("date, total_meters")
         .eq("user_id", user.id)
         .gte("date", startDate.toISOString())
         .lte("date", endDate.toISOString())
@@ -416,7 +425,7 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
     const groupedData = interval.map(day => {
         const dateStr = format(day, 'yyyy-MM-dd')
         const dayReports = reports?.filter(r => r.date?.startsWith(dateStr))
-        const total = dayReports?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
+        const total = dayReports?.reduce((acc, curr) => acc + (Number(curr.total_meters) || 0), 0) || 0
 
         return {
             name: format(day, 'dd/MM'), // Display format

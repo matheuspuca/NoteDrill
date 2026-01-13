@@ -57,7 +57,7 @@ interface DashboardClientProps {
 export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks, projects }: DashboardClientProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const selectedProjectId = searchParams.get('projectId') || "all"
+    const selectedProjectId = searchParams.get('projectId') ?? "all"
 
     const handleProjectChange = (value: string) => {
         const params = new URLSearchParams(searchParams.toString())
@@ -66,7 +66,8 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
         } else {
             params.delete('projectId')
         }
-        router.push(`/dashboard?${params.toString()}`)
+        router.replace(`/dashboard?${params.toString()}`)
+        router.refresh()
     }
 
     const formatCurrency = (value: number) => {
