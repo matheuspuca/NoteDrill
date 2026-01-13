@@ -31,15 +31,44 @@ import {
 import { DashboardKPIs, ChartData } from "./analytics-types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useRouter, useSearchParams } from "next/navigation"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+interface ProjectOption {
+    id: string
+    name: string
+}
 
 interface DashboardClientProps {
     kpis: DashboardKPIs
     productionTrend: ChartData[]
     projectRanking: ChartData[]
+    projectRanking: ChartData[]
     bottlenecks: ChartData[]
+    projects: ProjectOption[]
 }
 
-export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks }: DashboardClientProps) {
+export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks, projects }: DashboardClientProps) {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const selectedProjectId = searchParams.get('projectId') || "all"
+
+    const handleProjectChange = (value: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+        if (value && value !== "all") {
+            params.set('projectId', value)
+        } else {
+            params.delete('projectId')
+        }
+        router.push(`/dashboard?${params.toString()}`)
+    }
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
     }
@@ -53,6 +82,18 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <p className="text-lg text-slate-500 mt-2 font-medium">Visão geral inteligente da sua operação.</p>
                 </div>
                 <div className="flex gap-3">
+                    <Select value={selectedProjectId} onValueChange={handleProjectChange}>
+                        <SelectTrigger className="w-[200px] h-12 rounded-xl bg-white border-slate-200">
+                            <SelectValue placeholder="Todas as Obras" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todas as Obras</SelectItem>
+                            {projects.map((p) => (
+                                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
                     <Link href="/dashboard/bdp/new">
                         <Button className="bg-[#2563EB] hover:bg-blue-700 text-white shadow-lg rounded-xl h-12 px-6 font-bold transition-all hover:scale-105">
                             Novo BDP

@@ -49,6 +49,10 @@ export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps
         const operational = equipments.filter(e => e.status === "Operacional").length
         const maintenance = equipments.filter(e => e.status === "Manutenção").length
 
+        // Restore alerts calculation
+        const alerts = equipments.filter(e => e.maintenanceInterval > 0 && e.hourmeter >= e.maintenanceInterval).length
+        const totalProduction = productionData.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0)
+
         // DF / UF Calculation
         let totalScheduledTime = 0
         let totalMaintenanceDowntime = 0

@@ -25,7 +25,7 @@ function calculateDuration(start: string, end: string): number {
     }
 }
 
-export async function getDashboardKPIs(): Promise<DashboardKPIs> {
+export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPIs> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -50,12 +50,18 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
     const endMonth = endOfMonth(today).toISOString()
 
     // 1. Fetch BDPs for Current Month (Production, Efficiency, Diesel, DF/UF)
-    const { data: monthlyBdps } = await supabase
+    let query = supabase
         .from("bdp_reports")
-        .select("totalMeters, totalHours, supplies, occurrences, startTime, endTime")
+        .select("totalMeters, totalHours, supplies, occurrences, startTime, endTime, projectId")
         .eq("user_id", user.id)
         .gte("date", startMonth)
         .lte("date", endMonth)
+
+    if (projectId) {
+        query = query.eq("projectId", projectId)
+    }
+
+    const { data: monthlyBdps } = await query
 
     const totalProduction = monthlyBdps?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
     const totalHours = monthlyBdps?.reduce((acc, curr) => acc + (Number(curr.totalHours) || 0), 0) || 0
@@ -268,7 +274,7 @@ export async function getDashboardKPIs(): Promise<DashboardKPIs> {
     }
 }
 
-export async function getBottleneckAnalysis(): Promise<ChartData[]> {
+export async function getBottleneckAnalysis(projectId?: string): Promise<ChartData[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -277,12 +283,18 @@ export async function getBottleneckAnalysis(): Promise<ChartData[]> {
     const endDate = new Date()
     const startDate = subDays(endDate, 30)
 
-    const { data: reports } = await supabase
+    let query = supabase
         .from("bdp_reports")
         .select("occurrences")
         .eq("user_id", user.id)
         .gte("date", startDate.toISOString())
         .lte("date", endDate.toISOString())
+
+    if (projectId) {
+        query = query.eq("projectId", projectId)
+    }
+
+    const { data: reports } = await query
 
     const bottleneckMap: Record<string, number> = {}
 
@@ -315,7 +327,7 @@ export async function getBottleneckAnalysis(): Promise<ChartData[]> {
     return data
 }
 
-export async function getProductionTrend(): Promise<ChartData[]> {
+export async function getProductionTrend(projectId?: string): Promise<ChartData[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -325,13 +337,19 @@ export async function getProductionTrend(): Promise<ChartData[]> {
     const startDate = subDays(endDate, 30) // Last 30 days
 
     // Fetch reports
-    const { data: reports } = await supabase
+    let query = supabase
         .from("bdp_reports")
         .select("date, totalMeters")
         .eq("user_id", user.id)
         .gte("date", startDate.toISOString())
         .lte("date", endDate.toISOString())
         .order("date", { ascending: true })
+
+    if (projectId) {
+        query = query.eq("projectId", projectId)
+    }
+
+    const { data: reports } = await query
 
     // Generate all days in interval to avoid gaps
     const interval = eachDayOfInterval({ start: startDate, end: endDate })
@@ -351,7 +369,7 @@ export async function getProductionTrend(): Promise<ChartData[]> {
     return groupedData
 }
 
-export async function getProjectRanking(): Promise<ChartData[]> {
+export async function getProjectRanking(projectId?: string): Promise<ChartData[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

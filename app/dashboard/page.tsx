@@ -1,4 +1,5 @@
 import React from "react"
+import { createClient } from "@/lib/supabase/server"
 import { getDashboardKPIs, getProductionTrend, getProjectRanking, getBottleneckAnalysis } from "./analytics-actions"
 import { DashboardKPIs, ChartData } from "./analytics-types"
 import { DashboardClient } from "./DashboardClient"
@@ -6,7 +7,28 @@ import { DashboardClient } from "./DashboardClient"
 // Force dynamic rendering to ensure fresh data on every request
 export const dynamic = 'force-dynamic'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+    searchParams,
+}: {
+    searchParams: { projectId?: string }
+}) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return <div>Acesso negado.</div>
+
+    const projectId = searchParams.projectId
+
+    // Fetch Active Projects for Filter
+    const { data: projectsData } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .eq("status", "Em Andamento")
+        .order("name")
+
+    const projects = projectsData || []
+
     // Parallel data fetching for performance
     let kpis: DashboardKPIs | null = null
     let productionTrend: ChartData[] = []
@@ -15,10 +37,10 @@ export default async function DashboardPage() {
 
     try {
         [kpis, productionTrend, projectRanking, bottlenecks] = await Promise.all([
-            getDashboardKPIs(),
-            getProductionTrend(),
-            getProjectRanking(),
-            getBottleneckAnalysis()
+            getDashboardKPIs(projectId),
+            getProductionTrend(projectId),
+            getProjectRanking(projectId), // If project selected, returns single bar
+            getBottleneckAnalysis(projectId)
         ])
     } catch (error) {
         console.error("Dashboard Data Fetch Error:", error)
@@ -48,6 +70,7 @@ export default async function DashboardPage() {
                 productionTrend={productionTrend}
                 projectRanking={projectRanking}
                 bottlenecks={bottlenecks}
+                projects={projects}
             />
         </div>
     )
