@@ -2,7 +2,8 @@
 
 import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Truck, Wrench, Activity, Zap, BarChart3, PieChart } from "lucide-react"
+import { Truck, Wrench, Activity, Zap, BarChart3, PieChart, Timer, AlertOctagon } from "lucide-react"
+import { differenceInMinutes, parse } from "date-fns"
 import { Equipment } from "@/lib/schemas-equipment"
 import {
     BarChart,
@@ -24,22 +25,87 @@ interface EquipmentKPIsProps {
 
 const COLORS = ["#3b82f6", "#ef4444", "#fbbf24", "#d946ef"]
 
+function calculateDuration(start: string, end: string): number {
+    try {
+        if (!start || !end) return 0
+        const today = new Date()
+        const startDate = parse(start, 'HH:mm', today)
+        const endDate = parse(end, 'HH:mm', today)
+
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 0
+
+        let diff = differenceInMinutes(endDate, startDate)
+        if (diff < 0) diff += 24 * 60
+
+        return diff
+    } catch {
+        return 0
+    }
+}
+
 export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps) {
     const stats = useMemo(() => {
         const total = equipments.length
         const operational = equipments.filter(e => e.status === "Operacional").length
         const maintenance = equipments.filter(e => e.status === "Manutenção").length
 
-        // Availability
-        const availability = total > 0 ? ((operational / total) * 100).toFixed(0) : "0"
+        // DF / UF Calculation
+        let totalScheduledTime = 0
+        let totalMaintenanceDowntime = 0
+        let totalOperationalDowntime = 0
 
-        // Maintenance Alerts (Hourmeter > Interval)
-        const alerts = equipments.filter(e => e.maintenanceInterval > 0 && e.hourmeter >= e.maintenanceInterval).length
+        productionData.forEach((report: any) => {
+            let dailyScheduled = 0
+            if (report.startTime && report.endTime) {
+                dailyScheduled = calculateDuration(report.startTime, report.endTime)
+            }
 
-        // Total Production from BDP (sum meters)
-        const totalProduction = productionData.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0)
+            if (dailyScheduled > 0) {
+                totalScheduledTime += dailyScheduled
 
-        return { total, operational, maintenance, availability, alerts, totalProduction }
+                if (report.occurrences && Array.isArray(report.occurrences)) {
+                    report.occurrences.forEach((occ: any) => {
+                        const duration = calculateDuration(occ.timeStart, occ.timeEnd)
+                        if (duration > 0) {
+                            const isMaintenance = [
+                                "Mecânica", "Falta de peça", "Inspeção de equipamento",
+                                "Falta de material de desgaste", "Aguardando limpeza"
+                            ].includes(occ.type)
+
+                            if (isMaintenance) {
+                                totalMaintenanceDowntime += duration
+                            } else {
+                                totalOperationalDowntime += duration
+                            }
+                        }
+                    })
+                }
+            }
+        })
+
+        let df = 0
+        let uf = 0
+
+        if (totalScheduledTime > 0) {
+            const availableTime = totalScheduledTime - totalMaintenanceDowntime
+            df = (availableTime / totalScheduledTime) * 100
+
+            if (availableTime > 0) {
+                const operatingTime = availableTime - totalOperationalDowntime
+                uf = (operatingTime / availableTime) * 100
+            }
+        }
+
+        return {
+            total,
+            operational,
+            maintenance,
+            availability: total > 0 ? ((operational / total) * 100).toFixed(0) : "0",
+            alerts,
+            totalProduction,
+            df: Math.round(df * 10) / 10,
+            uf: Math.round(uf * 10) / 10
+        }
     }, [equipments, productionData])
 
     const chartData = useMemo(() => {
@@ -72,15 +138,15 @@ export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps
                 <Card className="border-none shadow-md bg-white rounded-2xl ring-1 ring-slate-100/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-extrabold text-slate-500 uppercase tracking-widest">
-                            Disponibilidade Física
+                            Disp. Física (DF)
                         </CardTitle>
                         <div className="p-2.5 bg-blue-50/80 rounded-xl">
                             <Activity className="h-5 w-5 text-blue-600" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black text-slate-800 tracking-tight">{stats.availability}%</div>
-                        <p className="text-xs text-slate-400 font-bold mt-1">Frota Operacional</p>
+                        <div className="text-3xl font-black text-slate-800 tracking-tight">{stats.df}%</div>
+                        <p className="text-xs text-slate-400 font-bold mt-1">Tempo Disponível</p>
                     </CardContent>
                 </Card>
 
@@ -102,15 +168,15 @@ export function EquipmentKPIs({ equipments, productionData }: EquipmentKPIsProps
                 <Card className="border-none shadow-md bg-white rounded-2xl ring-1 ring-slate-100/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-extrabold text-slate-500 uppercase tracking-widest">
-                            Em Manutenção
+                            Util. Física (UF)
                         </CardTitle>
-                        <div className="p-2.5 bg-red-50/80 rounded-xl">
-                            <Wrench className="h-5 w-5 text-red-600" />
+                        <div className="p-2.5 bg-purple-50/80 rounded-xl">
+                            <Timer className="h-5 w-5 text-purple-600" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black text-slate-800 tracking-tight">{stats.maintenance}</div>
-                        <p className="text-xs text-slate-400 font-bold mt-1">Unidades Paradas</p>
+                        <div className="text-3xl font-black text-slate-800 tracking-tight">{stats.uf}%</div>
+                        <p className="text-xs text-slate-400 font-bold mt-1">Tempo Produtivo</p>
                     </CardContent>
                 </Card>
 

@@ -22,7 +22,7 @@ export default async function EquipmentsPage() {
 
         supabase
             .from("bdp_reports")
-            .select("drillId, totalMeters, drill:equipment!drillId(name)")
+            .select("drillId, totalMeters, startTime, endTime, occurrences, drill:equipment!drillId(name)")
             .eq("user_id", user.id)
     ])
 
