@@ -43,7 +43,8 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         bitPerformance: 0,
         physicalAvailability: 0,
         physicalUtilization: 0,
-        dieselPerMeter: 0
+        dieselPerMeter: 0,
+        dieselPerHour: 0
     }
 
     const today = new Date()
@@ -316,10 +317,11 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
             percentage: utilPercentage
         },
         inventoryValuation,
-        activeProjects: projectCount || 0,
+        inventoryValuation,
         activeProjects: projectCount || 0,
         dieselConsumption: Math.round(dieselConsumption),
-        dieselPerMeter: Math.round(dieselPerMeter * 100) / 100, // New Field
+        dieselPerMeter: Math.round(dieselPerMeter * 100) / 100,
+        dieselPerHour: Math.round((dieselConsumption / totalDrillingHours) * 100) / 100,
         downtime: totalDowntime,
         topBottleneck,
         costPerMeter: Math.round(costPerMeter * 100) / 100,

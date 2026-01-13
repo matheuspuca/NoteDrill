@@ -168,11 +168,18 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                             <h3 className="text-4xl font-black text-slate-900 mt-2 tracking-tighter">
                                 {kpis.dieselConsumption.toLocaleString('pt-BR')} <span className="text-xl text-slate-400 font-bold">L</span>
                             </h3>
-                            {kpis.totalProduction > 0 && kpis.dieselConsumption > 0 && (
-                                <p className="text-xs font-bold text-yellow-600 mt-2 bg-yellow-100/50 w-fit px-2 py-1 rounded-md">
-                                    {(kpis.dieselConsumption / kpis.totalProduction).toFixed(2)} L/m (Consumo Específico)
-                                </p>
-                            )}
+                            <div className="flex gap-2 mt-2">
+                                {kpis.dieselPerMeter !== undefined && (
+                                    <p className="text-xs font-bold text-yellow-600 bg-yellow-100/50 px-2 py-1 rounded-md">
+                                        {kpis.dieselPerMeter.toFixed(2)} L/m
+                                    </p>
+                                )}
+                                {kpis.dieselPerHour !== undefined && (
+                                    <p className="text-xs font-bold text-orange-600 bg-orange-100/50 px-2 py-1 rounded-md">
+                                        {kpis.dieselPerHour.toFixed(2)} L/h
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

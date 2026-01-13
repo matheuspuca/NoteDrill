@@ -56,7 +56,11 @@ export default async function DashboardPage({
             topBottleneck: "Erro ao carregar",
             costPerMeter: 0,
             projectViabilityIndex: 0,
-            bitPerformance: 0
+            bitPerformance: 0,
+            physicalAvailability: 0,
+            physicalUtilization: 0,
+            dieselPerMeter: 0,
+            dieselPerHour: 0
         }
         productionTrend = []
         projectRanking = []
