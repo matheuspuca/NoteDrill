@@ -16,6 +16,7 @@ export interface DashboardKPIs {
     bitPerformance: number // Metros / Unidade
     physicalAvailability: number // % DF
     physicalUtilization: number // % UF
+    dieselPerMeter?: number // L/m
 }
 
 export interface ChartData {

@@ -12,8 +12,8 @@ export default async function EquipmentsPage() {
         return <div>Acesso negado.</div>
     }
 
-    // Parallel fetch: Equipments & BDP Reports (needed for KPIs)
-    const [equipmentsResult, bdpResult] = await Promise.all([
+    // Parallel fetch: Equipments & BDP Reports (needed for KPIs) & Bits
+    const [equipmentsResult, bdpResult, bitResult] = await Promise.all([
         supabase
             .from("equipment")
             .select("*")
@@ -23,10 +23,16 @@ export default async function EquipmentsPage() {
         supabase
             .from("bdp_reports")
             .select("drillId, totalMeters, startTime, endTime, occurrences, drill:equipment!drillId(name)")
+            .eq("user_id", user.id),
+
+        supabase
+            .from("bit_instances")
+            .select("id", { count: "exact" })
             .eq("user_id", user.id)
     ])
 
     const equipments = (equipmentsResult.data as Equipment[]) || []
+    const bitCount = bitResult.count || 0
 
     // Process BDP data to flatten drill name if needed for chart
     const productionData = (bdpResult.data || []).map((r: any) => ({
@@ -49,7 +55,7 @@ export default async function EquipmentsPage() {
                 </div>
             )}
 
-            <EquipmentKPIs equipments={equipments} productionData={productionData} />
+            <EquipmentKPIs equipments={equipments} productionData={productionData} bitCount={bitCount} />
 
             <EquipmentList equipments={equipments} />
         </div>

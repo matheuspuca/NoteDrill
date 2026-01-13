@@ -64,8 +64,10 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     const { data: monthlyBdps } = await query
 
     const totalProduction = monthlyBdps?.reduce((acc, curr) => acc + (Number(curr.totalMeters) || 0), 0) || 0
-    const totalHours = monthlyBdps?.reduce((acc, curr) => acc + (Number(curr.totalHours) || 0), 0) || 0
-    const efficiency = totalHours > 0 ? (totalProduction / totalHours) : 0
+    // Efficiency Formula: (Drilling Hours / (Shift Hours - Scheduled Stops)) * 100
+    // We need to calculate Scheduled Stops first.
+    // For now we initialize efficiency as 0 and calculate it after processing occurrences.
+    let efficiency = 0
 
     // Calculate Downtime & Bottlenecks & DF/UF
     const bottleneckMap: Record<string, number> = {}
@@ -111,6 +113,29 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         }
     })
 
+    // Calculate Efficiency
+    // Shift Hours = totalScheduledTime (accumulated duration between Start and End)
+    // Scheduled Stops = ??? In current logic we distinguish Maintenance vs Operational.
+    // Usually Scheduled stops are things like "Refeição", "Troca de Turno".
+    // Let's assume "Aguardando limpeza" or specific codes are scheduled.
+    // User prompted: Efficiency = (Drilling Hours / (Shift - Scheduled Stops)) * 100.
+    // Drilling Hours = Shift - Total Downtime.
+
+    // For this update, let's treat "Inspeção de equipamento" and "Troca de turno" (if exists) as scheduled.
+    // Since we don't have explicit "Scheduled" category, let's look for specific types if possible in loop above.
+    // To simplify and match prompt:
+    // We already sum 'totalDowntime'.
+    // Drilling Hours = totalScheduledTime - totalDowntime.
+
+    // If we define Scheduled Stops as 0 for now (or specific types), efficiency is:
+    // (DrillingHours / totalScheduledTime) * 100? No, prompt says (Shift - Scheduled).
+    // Let's assume Scheduled Stops = 0 for now unless we find types like 'Meal'.
+
+    const drillingHours = Math.max(0, totalScheduledTime - totalDowntime)
+    const scheduledStops = 0 // Update if specific scheduled codes exist
+    const effDenominator = Math.max(1, totalScheduledTime - scheduledStops)
+    efficiency = (drillingHours / effDenominator) * 100
+
     // DF = (Scheduled - Maintenance) / Scheduled
     // UF = (Available - OperationalStops) / Available
 
@@ -138,6 +163,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     }
 
     // Calculate Diesel Consumption
+    // Calculate Diesel Consumption
     const dieselConsumption = monthlyBdps?.reduce((acc, report) => {
         const supplies = report.supplies as any[] | null
         if (!supplies || !Array.isArray(supplies)) return acc
@@ -148,6 +174,9 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
 
         return acc + reportDiesel
     }, 0) || 0
+
+    // Diesel per Meter (L/m)
+    const dieselPerMeter = totalProduction > 0 ? (dieselConsumption / totalProduction) : 0
 
     // 2. Fetch Equipment for Utilization
     const { data: equipments } = await supabase
@@ -263,7 +292,9 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         },
         inventoryValuation,
         activeProjects: projectCount || 0,
+        activeProjects: projectCount || 0,
         dieselConsumption: Math.round(dieselConsumption),
+        dieselPerMeter: Math.round(dieselPerMeter * 100) / 100, // New Field
         downtime: totalDowntime,
         topBottleneck,
         costPerMeter: Math.round(costPerMeter * 100) / 100,

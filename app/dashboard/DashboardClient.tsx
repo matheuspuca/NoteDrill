@@ -171,51 +171,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     </CardContent>
                 </Card>
 
-                {/* KPI 3.5: DF/UF Performance */}
-                <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 rounded-[24px] overflow-hidden relative group bg-gradient-to-br from-slate-50 to-white md:col-span-2 xl:col-span-3">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Timer className="w-32 h-32 text-indigo-600" />
-                    </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="flex items-center gap-2">
-                            <div className="p-2 bg-indigo-100/50 rounded-lg text-indigo-700">
-                                <AlertOctagon className="h-6 w-6" />
-                            </div>
-                            <span className="text-xl font-bold text-slate-800">Performance Operacional</span>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* DF */}
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-end">
-                                <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Disponibilidade Física (DF)</span>
-                                <span className="text-3xl font-black text-slate-900">{kpis.physicalAvailability}%</span>
-                            </div>
-                            <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
-                                <div
-                                    className="bg-indigo-600 h-full rounded-full transition-all duration-1000"
-                                    style={{ width: `${kpis.physicalAvailability}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-slate-400">Tempo disponível para operar vs. Planejado.</p>
-                        </div>
 
-                        {/* UF */}
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-end">
-                                <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Utilização Física (UF)</span>
-                                <span className="text-3xl font-black text-slate-900">{kpis.physicalUtilization}%</span>
-                            </div>
-                            <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
-                                <div
-                                    className="bg-violet-600 h-full rounded-full transition-all duration-1000"
-                                    style={{ width: `${kpis.physicalUtilization}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-slate-400">Tempo produzindo vs. Disponível.</p>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* KPI 4: Diesel Consumption */}
                 <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 rounded-[24px] overflow-hidden relative group bg-gradient-to-br from-yellow-50 to-white">
