@@ -280,23 +280,17 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     const projectViabilityIndex = Math.round(efficiencyScore + downtimeScore)
 
     // 7. Bit Performance (Metros / Unidade)
+    // Formula: Sum(Meters Drilled by Equipment X) / Count(Stock Out "Bit" for Equipment X)
+
     let bitPerformance = 0
     try {
-        const { count: bitCount, error: bitError } = await supabase
-        // 7. Bit Performance (Metros / Unidade)
-        // Formula: Sum(Meters Drilled by Equipment X) / Count(Stock Out "Bit" for Equipment X)
-        // Simplified Global: Sum(All Meters) / Sum(All Bit Stock Outs)
-
-        let bitPerformance = 0
-
         // Fetch Stock Outs from inventory_transactions
         let transQuery = supabase
             .from('inventory_transactions')
             .select('quantity, item:inventory_items!inner(name), projectId')
             .eq('user_id', user.id)
             .eq('type', 'OUT')
-            // Filter by item name containing "Bit" or "Broca"
-            .ilike('item.name', '%Bit%') // or '%Broca%'
+            .ilike('item.name', '%Bit%')
 
         if (projectId) {
             transQuery = transQuery.eq('projectId', projectId)
@@ -307,11 +301,10 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         const totalBitsConsumed = bitTransactions?.reduce((acc, curr) => acc + (Number(curr.quantity) || 0), 0) || 0
 
         if (totalBitsConsumed > 0) {
-            // We use 'totalProduction' calculated above (which is already filtered by project)
             bitPerformance = totalProduction / totalBitsConsumed
         }
     } catch (e) {
-        console.warn("Bit Performance calc failed (likely pending migration):", e)
+        console.warn("Bit Performance calc failed:", e)
     }
 
     return {
