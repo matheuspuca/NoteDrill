@@ -60,7 +60,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         .lte("date", endMonth)
 
     if (projectId) {
-        query = query.eq("projectId", projectId)
+        query = query.eq("project_id", projectId)
     }
 
     const { data: monthlyBdps } = await query
@@ -214,8 +214,8 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     let epiQuery = supabase.from("inventory_epis").select("quantity, value, projectId").eq("user_id", user.id)
 
     if (projectId) {
-        inventoryQuery = inventoryQuery.eq("projectId", projectId)
-        epiQuery = epiQuery.eq("projectId", projectId)
+        inventoryQuery = inventoryQuery.eq("project_id", projectId)
+        epiQuery = epiQuery.eq("project_id", projectId)
     }
 
     const { data: inventory } = await inventoryQuery
@@ -294,7 +294,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
             .ilike('item.name', '%Bit%')
 
         if (projectId) {
-            transQuery = transQuery.eq('projectId', projectId)
+            transQuery = transQuery.eq('project_id', projectId)
         }
 
         const { data: bitTransactions } = await transQuery
@@ -349,7 +349,7 @@ export async function getBottleneckAnalysis(projectId?: string): Promise<ChartDa
         .lte("date", endDate.toISOString())
 
     if (projectId) {
-        query = query.eq("projectId", projectId)
+        query = query.eq("project_id", projectId)
     }
 
     const { data: reports } = await query
@@ -404,7 +404,7 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
         .order("date", { ascending: true })
 
     if (projectId) {
-        query = query.eq("projectId", projectId)
+        query = query.eq("project_id", projectId)
     }
 
     const { data: reports } = await query
@@ -443,12 +443,12 @@ export async function getProjectRanking(projectId?: string): Promise<ChartData[]
 
     const { data: bdpData } = await supabase
         .from("bdp_reports")
-        .select("projectId, totalMeters")
+        .select("project_id, totalMeters")
         .eq("user_id", user.id)
 
     // Aggregate
     const ranking = projects.map(project => {
-        const projectReports = bdpData?.filter(r => r.projectId === project.id)
+        const projectReports = bdpData?.filter(r => r.project_id === project.id)
         const total = projectReports?.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0) || 0
 
         return {

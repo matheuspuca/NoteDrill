@@ -24,7 +24,6 @@ export default async function DashboardPage({
         .from("projects")
         .select("id, name")
         .eq("user_id", user.id)
-        .eq("status", "Em Andamento")
         .order("name")
 
     const projects = projectsData || []
