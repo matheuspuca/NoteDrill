@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { BDPSchema } from "@/lib/schemas-bdp"
+import { subHours } from "date-fns"
 
 export async function createBDP(data: BDPSchema) {
     const supabase = createClient()
@@ -18,7 +19,7 @@ export async function createBDP(data: BDPSchema) {
 
         // Standardized mapping: camelCase (Frontend) -> snake_case (Database)
         const dbPayload = {
-            date: rest.date || new Date().toISOString().split('T')[0],
+            date: rest.date || subHours(new Date(), 3).toISOString().split('T')[0],
             shift: rest.shift || 'Diurno',
 
             // Relations
