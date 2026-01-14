@@ -76,7 +76,7 @@ export function EquipmentSelector({ equipments }: EquipmentSelectorProps) {
                         <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
                         <CommandGroup>
                             <CommandItem
-                                value="all_equipments_option"
+                                value="Todos os Equipamentos"
                                 onSelect={() => handleSelect(null)}
                                 className="cursor-pointer font-medium"
                             >
