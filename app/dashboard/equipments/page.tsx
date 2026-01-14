@@ -5,11 +5,12 @@ import { EquipmentKPIs } from "@/components/equipment/EquipmentKPIs"
 import { Equipment } from "@/lib/schemas-equipment"
 import { startOfMonth, endOfMonth, format, subHours } from "date-fns"
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker"
+import { EquipmentSelector } from "@/components/dashboard/EquipmentSelector"
 
 export default async function EquipmentsPage({
     searchParams,
 }: {
-    searchParams: { startDate?: string; endDate?: string }
+    searchParams: { startDate?: string; endDate?: string; equipmentId?: string }
 }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -31,33 +32,48 @@ export default async function EquipmentsPage({
         endMonth = format(endOfMonth(today), 'yyyy-MM-dd')
     }
 
-    // Parallel fetch: Equipments & BDP Reports (needed for KPIs) & Bits
-    const [equipmentsResult, bdpResult, bitResult] = await Promise.all([
-        supabase
-            .from("equipment")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false }),
+    const selectedEquipmentId = searchParams?.equipmentId
 
-        supabase
-            .from("bdp_reports")
-            .select("drillId, totalMeters, startTime, endTime, occurrences, drill:equipment!drillId(name)")
-            .eq("user_id", user.id)
-            .gte("date", startMonth)
-            .lte("date", endMonth),
+    // 1. Fetch ALL equipments for the selector and list (initially)
+    const { data: allEquipmentsData, error: equipmentsError } = await supabase
+        .from("equipment")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
 
-        // Updated Bit Count Logic (Inventory Transactions)
-        supabase
-            .from("inventory_transactions")
-            .select("quantity, item:inventory_items!inner(name), created_at")
-            .eq("user_id", user.id)
-            .eq("type", "OUT")
-            .ilike("item.name", "%Bit%") // Filter by item name
-            .gte("created_at", `${startMonth}T00:00:00`) // Assuming created_at is timestamp
-            .lte("created_at", `${endMonth}T23:59:59`)
+    const allEquipments = (allEquipmentsData as Equipment[]) || []
+
+    // 2. Prepare queries for KPIs (Production & Bits)
+    let bdpQuery = supabase
+        .from("bdp_reports")
+        .select("drillId, totalMeters, startTime, endTime, occurrences, drill:equipment!drillId(name)")
+        .eq("user_id", user.id)
+        .gte("date", startMonth)
+        .lte("date", endMonth)
+
+    let bitQuery = supabase
+        .from("inventory_transactions")
+        .select("quantity, item:inventory_items!inner(name), created_at")
+        .eq("user_id", user.id)
+        .eq("type", "OUT")
+        .ilike("item.name", "%Bit%") // Filter by item name
+        .gte("created_at", `${startMonth}T00:00:00`)
+        .lte("created_at", `${endMonth}T23:59:59`)
+
+    // 3. Apply Equipment Filter to Queries & List
+    let filteredEquipments = allEquipments
+
+    if (selectedEquipmentId) {
+        bdpQuery = bdpQuery.eq("drillId", selectedEquipmentId)
+        bitQuery = bitQuery.eq("equipment_id", selectedEquipmentId)
+        filteredEquipments = allEquipments.filter(e => e.id === selectedEquipmentId)
+    }
+
+    // 4. Executa queries
+    const [bdpResult, bitResult] = await Promise.all([
+        bdpQuery,
+        bitQuery
     ])
-
-    const equipments = (equipmentsResult.data as Equipment[]) || []
 
     // Calculate Bit Count from transactions
     const bitTransactions = bitResult.data as any[] || []
@@ -78,18 +94,21 @@ export default async function EquipmentsPage({
                         Gestão de frota, manutenção e controle de ativos.
                     </p>
                 </div>
-                <DateRangePicker />
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <EquipmentSelector equipments={allEquipments} />
+                    <DateRangePicker />
+                </div>
             </div>
 
-            {equipmentsResult.error && (
+            {equipmentsError && (
                 <div className="p-4 bg-red-50 text-red-600 rounded-lg">
-                    Erro ao carregar equipamentos: {equipmentsResult.error.message}
+                    Erro ao carregar equipamentos: {equipmentsError.message}
                 </div>
             )}
 
-            <EquipmentKPIs equipments={equipments} productionData={productionData} bitCount={bitCount} />
+            <EquipmentKPIs equipments={filteredEquipments} productionData={productionData} bitCount={bitCount} />
 
-            <EquipmentList equipments={equipments} />
+            <EquipmentList equipments={filteredEquipments} />
         </div>
     )
 }
