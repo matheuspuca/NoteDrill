@@ -1,6 +1,6 @@
 import React from "react"
 import { createClient } from "@/lib/supabase/server"
-import { getDashboardKPIs, getProductionTrend, getProjectRanking, getBottleneckAnalysis } from "./analytics-actions"
+import { getDashboardKPIs, getProductionTrend, getProjectRanking, getBottleneckAnalysis, getDiagnosticData } from "./analytics-actions"
 import { DashboardKPIs, ChartData } from "./analytics-types"
 import { DashboardClient } from "./DashboardClient"
 
@@ -34,13 +34,15 @@ export default async function DashboardPage({
     let productionTrend: ChartData[] = []
     let projectRanking: ChartData[] = []
     let bottlenecks: ChartData[] = []
+    let diagnosticData: any = null
 
     try {
-        [kpis, productionTrend, projectRanking, bottlenecks] = await Promise.all([
+        [kpis, productionTrend, projectRanking, bottlenecks, diagnosticData] = await Promise.all([
             getDashboardKPIs(projectId),
             getProductionTrend(projectId),
             getProjectRanking(projectId), // If project selected, returns single bar
-            getBottleneckAnalysis(projectId)
+            getBottleneckAnalysis(projectId),
+            getDiagnosticData(projectId)
         ])
     } catch (error) {
         console.error("Dashboard Data Fetch Error:", error)
@@ -75,6 +77,7 @@ export default async function DashboardPage({
                 projectRanking={projectRanking}
                 bottlenecks={bottlenecks}
                 projects={projects}
+                diagnosticData={diagnosticData}
             />
         </div>
     )

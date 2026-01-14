@@ -1,7 +1,8 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { startOfMonth, subDays, format, parseISO, endOfMonth, eachDayOfInterval, differenceInMinutes, parse } from "date-fns"
+import { createClient } from "@/lib/supabase/server"
+import { startOfMonth, subDays, format, parseISO, endOfMonth, eachDayOfInterval, differenceInMinutes, parse, subHours } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DashboardKPIs, ChartData } from "./analytics-types"
 
@@ -9,6 +10,7 @@ function calculateDuration(start: string, end: string): number {
     try {
         if (!start || !end) return 0
         // Try calculate diff between HH:mm strings
+        // Fix: Use fixed date for duration calc to avoid timezone shifts affecting just time diff
         const today = new Date()
         const startDate = parse(start, 'HH:mm', today)
         const endDate = parse(end, 'HH:mm', today)
@@ -22,6 +24,45 @@ function calculateDuration(start: string, end: string): number {
     } catch (e) {
         console.error("Error calculating duration:", e)
         return 0
+    }
+}
+
+
+export async function getDiagnosticData(projectId?: string) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return null
+
+    // Timezone Fix: Brazil is GMT-3
+    const today = subHours(new Date(), 3)
+    const startMonth = format(startOfMonth(today), 'yyyy-MM-dd')
+    const endMonth = format(endOfMonth(today), 'yyyy-MM-dd')
+
+    // 1. Check Total BDPs All Time
+    const { count: totalBdpsAllTime } = await supabase
+        .from("bdp_reports")
+        .select("*", { count: 'exact', head: true })
+        .eq("user_id", user.id)
+
+    // 2. Check Latest BDP
+    const { data: latestBdp } = await supabase
+        .from("bdp_reports")
+        .select("date, created_at, project_id, total_meters")
+        .eq("user_id", user.id)
+        .order("date", { ascending: false })
+        .limit(1)
+        .single()
+
+    return {
+        totalBdpsAllTime,
+        latestBdpDate: latestBdp?.date,
+        latestBdpSample: latestBdp,
+        filterStart: startMonth,
+        filterEnd: endMonth,
+        currentProjectId: projectId,
+        serverTime: new Date().toISOString(),
+        adjustedTime: today.toISOString()
     }
 }
 
@@ -47,9 +88,11 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         dieselPerHour: 0
     }
 
-    const today = new Date()
-    const startMonth = startOfMonth(today).toISOString()
-    const endMonth = endOfMonth(today).toISOString()
+    // Timezone Fix: Brazil is GMT-3
+    const today = subHours(new Date(), 3)
+    // FIX: Using strict yyyy-MM-dd format for date column comparison
+    const startMonth = format(startOfMonth(today), 'yyyy-MM-dd')
+    const endMonth = format(endOfMonth(today), 'yyyy-MM-dd')
 
     // 1. Fetch BDPs for Current Month
     let query = supabase
@@ -83,6 +126,7 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
 
     // Efficiency Formula: (Drilling Hours / (Shift Hours - Scheduled Stops)) * 100
     let efficiency = 0
+    let totalHours = 0 // Initialize totalHours
 
     // Calculate Downtime & Bottlenecks & DF/UF
     const bottleneckMap: Record<string, number> = {}
@@ -92,6 +136,8 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     let totalOperationalDowntime = 0
 
     monthlyBdps?.forEach(report => {
+        totalHours += (Number(report.totalHours) || 0) // Accumulate total reported hours if available
+
         // Scheduled Time Calculation
         let dailyScheduled = 0
         if (report.startTime && report.endTime) {
@@ -347,15 +393,16 @@ export async function getBottleneckAnalysis(projectId?: string): Promise<ChartDa
 
     if (!user) return []
 
-    const endDate = new Date()
+    // Timezone Fix: Brazil is GMT-3
+    const endDate = subHours(new Date(), 3)
     const startDate = subDays(endDate, 30)
 
     let query = supabase
         .from("bdp_reports")
         .select("occurrences, projectId:project_id")
         .eq("user_id", user.id)
-        .gte("date", startDate.toISOString())
-        .lte("date", endDate.toISOString())
+        .gte("date", format(startDate, 'yyyy-MM-dd'))
+        .lte("date", format(endDate, 'yyyy-MM-dd'))
 
     if (projectId) {
         query = query.eq("project_id", projectId)
@@ -400,7 +447,8 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
 
     if (!user) return []
 
-    const endDate = new Date()
+    // Timezone Fix: Brazil is GMT-3
+    const endDate = subHours(new Date(), 3)
     const startDate = subDays(endDate, 30) // Last 30 days
 
     // Fetch reports
@@ -408,8 +456,8 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
         .from("bdp_reports")
         .select("date, total_meters")
         .eq("user_id", user.id)
-        .gte("date", startDate.toISOString())
-        .lte("date", endDate.toISOString())
+        .gte("date", format(startDate, 'yyyy-MM-dd'))
+        .lte("date", format(endDate, 'yyyy-MM-dd'))
         .order("date", { ascending: true })
 
     if (projectId) {

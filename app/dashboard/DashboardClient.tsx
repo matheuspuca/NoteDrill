@@ -52,9 +52,10 @@ interface DashboardClientProps {
     projectRanking: ChartData[]
     bottlenecks: ChartData[]
     projects: ProjectOption[]
+    diagnosticData?: any
 }
 
-export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks, projects }: DashboardClientProps) {
+export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks, projects, diagnosticData }: DashboardClientProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const selectedProjectId = searchParams.get('projectId') ?? "all"
@@ -77,6 +78,34 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header Section */}
+            {diagnosticData && (
+                <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-xs font-mono text-red-800">
+                    <h4 className="font-bold mb-2">🕵️ Diagnóstico de Dados (Visível Apenas Depuração)</h4>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <span className="block text-red-400 font-bold">Total BDPs (Geral):</span>
+                            {diagnosticData.totalBdpsAllTime}
+                        </div>
+                        <div>
+                            <span className="block text-red-400 font-bold">Último BDP (Data):</span>
+                            {diagnosticData.latestBdpDate || "Nenhum"}
+                        </div>
+                        <div>
+                            <span className="block text-red-400 font-bold">Filtro Mês (Início/Fim):</span>
+                            {diagnosticData.filterStart} <br /> {diagnosticData.filterEnd}
+                        </div>
+                        <div>
+                            <span className="block text-red-400 font-bold">Projeto Atual (ID):</span>
+                            {diagnosticData.currentProjectId || "Todos (undefined)"}
+                        </div>
+                        <div className="col-span-2">
+                            <span className="block text-red-400 font-bold">Exemplo Dados (Último BDP):</span>
+                            <pre className="max-h-20 overflow-auto">{JSON.stringify(diagnosticData.latestBdpSample, null, 2)}</pre>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Painel de Controle</h1>
