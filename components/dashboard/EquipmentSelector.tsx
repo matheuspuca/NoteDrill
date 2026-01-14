@@ -91,7 +91,7 @@ export function EquipmentSelector({ equipments }: EquipmentSelectorProps) {
                             {equipments.map((equipment) => (
                                 <CommandItem
                                     key={equipment.id}
-                                    value={equipment.name}
+                                    value={`${equipment.name}_${equipment.id}`}
                                     onSelect={() => handleSelect(equipment.id)}
                                     className="cursor-pointer"
                                 >
