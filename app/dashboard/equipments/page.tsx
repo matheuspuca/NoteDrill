@@ -77,9 +77,6 @@ export default async function EquipmentsPage({
                     <p className="text-lg text-slate-500 font-medium mt-2">
                         Gestão de frota, manutenção e controle de ativos.
                     </p>
-                    <p className="text-xs text-slate-400 mt-1 font-mono">
-                        📅 Filtro (Início/Fim): <span className="font-bold text-slate-600">{startMonth}</span> até <span className="font-bold text-slate-600">{endMonth}</span>
-                    </p>
                 </div>
                 <DateRangePicker />
             </div>

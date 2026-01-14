@@ -83,11 +83,6 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                 <div>
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Painel de Controle</h1>
                     <p className="text-lg text-slate-500 mt-2 font-medium">Visão geral inteligente da sua operação.</p>
-                    {kpis.filterStart && kpis.filterEnd && (
-                        <p className="text-xs text-slate-400 mt-1 font-mono">
-                            📅 Filtro Mês (Início/Fim): <span className="font-bold text-slate-600">{kpis.filterStart}</span> até <span className="font-bold text-slate-600">{kpis.filterEnd}</span>
-                        </p>
-                    )}
                 </div>
                 <div className="flex gap-3">
                     <DateRangePicker />
