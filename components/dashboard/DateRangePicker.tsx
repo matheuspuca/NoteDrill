@@ -18,7 +18,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 export function DateRangePicker({
     className,
-}: React.HTMLAttributes<div className>) {
+}: React.HTMLAttributes<HTMLDivElement>) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
