@@ -62,8 +62,8 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
 
     const defaultVals: BDPSchema = initialData ? {
         ...initialData,
-        // Ensure date is string yyyy-MM-dd
-        date: initialData.date ? format(new Date(initialData.date), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+        // Ensure date is string yyyy-MM-dd (avoid timezone shift by forcing T12:00:00)
+        date: initialData.date ? format(new Date(initialData.date + 'T12:00:00'), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
     } : {
         // Header
         shift: undefined,

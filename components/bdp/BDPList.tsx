@@ -248,7 +248,7 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                                                     <TableCell className="py-4">
                                                         <div className="flex items-center gap-2 font-bold text-slate-700">
                                                             <Calendar className="h-4 w-4 text-slate-400" />
-                                                            {format(new Date(report.date || new Date()), "dd/MMM", { locale: ptBR }).toUpperCase()}
+                                                            {report.date ? format(new Date(report.date + 'T12:00:00'), "dd/MMM", { locale: ptBR }).toUpperCase() : format(new Date(), "dd/MMM", { locale: ptBR }).toUpperCase()}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="py-4">
@@ -306,7 +306,7 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">#{report.reportNumber}</span>
-                                                    <span className="font-bold text-slate-800">{format(new Date(report.date || new Date()), "dd/MM/yy")}</span>
+                                                    <span className="font-bold text-slate-800">{report.date ? format(new Date(report.date + 'T12:00:00'), "dd/MM/yy") : format(new Date(), "dd/MM/yy")}</span>
                                                 </div>
                                                 {getStatusBadge(report.status)}
                                             </div>
