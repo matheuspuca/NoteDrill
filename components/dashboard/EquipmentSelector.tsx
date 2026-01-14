@@ -76,7 +76,7 @@ export function EquipmentSelector({ equipments }: EquipmentSelectorProps) {
                         <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
                         <CommandGroup>
                             <CommandItem
-                                value="all"
+                                value="all_equipments_option"
                                 onSelect={() => handleSelect(null)}
                                 className="cursor-pointer font-medium"
                             >
@@ -91,7 +91,7 @@ export function EquipmentSelector({ equipments }: EquipmentSelectorProps) {
                             {equipments.map((equipment) => (
                                 <CommandItem
                                     key={equipment.id}
-                                    value={equipment.name} // Search by name
+                                    value={equipment.name}
                                     onSelect={() => handleSelect(equipment.id)}
                                     className="cursor-pointer"
                                 >
