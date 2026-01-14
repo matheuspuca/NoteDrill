@@ -1,7 +1,6 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { createClient } from "@/lib/supabase/server"
 import { startOfMonth, subDays, format, parseISO, endOfMonth, eachDayOfInterval, differenceInMinutes, parse, subHours } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DashboardKPIs, ChartData } from "./analytics-types"
