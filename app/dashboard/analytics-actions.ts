@@ -378,7 +378,9 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
         projectViabilityIndex,
         bitPerformance: Math.round(bitPerformance * 10) / 10,
         physicalAvailability: Math.round(df * 10) / 10, // DF %
-        physicalUtilization: Math.round(uf * 10) / 10   // UF %
+        physicalUtilization: Math.round(uf * 10) / 10,   // UF %
+        filterStart: startMonth,
+        filterEnd: endMonth
     }
 
     console.log("[KPI Debug] Final Calculated KPIs:", JSON.stringify(finalKPIs, null, 2))

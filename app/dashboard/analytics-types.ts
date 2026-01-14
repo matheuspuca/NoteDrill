@@ -18,6 +18,8 @@ export interface DashboardKPIs {
     physicalUtilization: number // % UF
     dieselPerMeter?: number // L/m
     dieselPerHour?: number // L/h
+    filterStart?: string
+    filterEnd?: string
 }
 
 export interface ChartData {
