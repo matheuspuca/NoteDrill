@@ -11,7 +11,7 @@ export const revalidate = 0
 export default async function DashboardPage({
     searchParams,
 }: {
-    searchParams: { projectId?: string }
+    searchParams: { projectId?: string; startDate?: string; endDate?: string }
 }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -19,6 +19,8 @@ export default async function DashboardPage({
     if (!user) return <div>Acesso negado.</div>
 
     const projectId = searchParams.projectId === 'all' ? undefined : searchParams.projectId
+    const startDate = searchParams.startDate
+    const endDate = searchParams.endDate
 
     // Fetch Active Projects for Filter
     const { data: projectsData } = await supabase
@@ -38,10 +40,10 @@ export default async function DashboardPage({
 
     try {
         [kpis, productionTrend, projectRanking, bottlenecks] = await Promise.all([
-            getDashboardKPIs(projectId),
-            getProductionTrend(projectId),
-            getProjectRanking(projectId), // If project selected, returns single bar
-            getBottleneckAnalysis(projectId)
+            getDashboardKPIs(projectId, startDate, endDate),
+            getProductionTrend(projectId, startDate, endDate),
+            getProjectRanking(projectId, startDate, endDate), // If project selected, returns single bar
+            getBottleneckAnalysis(projectId, startDate, endDate)
         ])
     } catch (error) {
         console.error("Dashboard Data Fetch Error:", error)

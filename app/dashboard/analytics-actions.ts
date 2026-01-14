@@ -65,7 +65,7 @@ export async function getDiagnosticData(projectId?: string) {
     }
 }
 
-export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPIs> {
+export async function getDashboardKPIs(projectId?: string, customStart?: string, customEnd?: string): Promise<DashboardKPIs> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -89,9 +89,19 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
 
     // Timezone Fix: Brazil is GMT-3
     const today = subHours(new Date(), 3)
-    // FIX: Using strict yyyy-MM-dd format for date column comparison
-    const startMonth = format(startOfMonth(today), 'yyyy-MM-dd')
-    const endMonth = format(endOfMonth(today), 'yyyy-MM-dd')
+
+    let startMonth: string
+    let endMonth: string
+
+    if (customStart && customEnd) {
+        startMonth = customStart
+        endMonth = customEnd
+        console.log(`[KPI Logic] Using custom range: ${startMonth} to ${endMonth}`)
+    } else {
+        // Default: Current Month
+        startMonth = format(startOfMonth(today), 'yyyy-MM-dd')
+        endMonth = format(endOfMonth(today), 'yyyy-MM-dd')
+    }
 
     // 1. Fetch BDPs for Current Month
     let query = supabase
@@ -388,22 +398,34 @@ export async function getDashboardKPIs(projectId?: string): Promise<DashboardKPI
     return finalKPIs
 }
 
-export async function getBottleneckAnalysis(projectId?: string): Promise<ChartData[]> {
+export async function getBottleneckAnalysis(projectId?: string, customStart?: string, customEnd?: string): Promise<ChartData[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return []
 
-    // Timezone Fix: Brazil is GMT-3
-    const endDate = subHours(new Date(), 3)
-    const startDate = subDays(endDate, 30)
+    const today = subHours(new Date(), 3)
+
+    let startMonth: string
+    let endMonth: string
+
+    if (customStart && customEnd) {
+        startMonth = customStart
+        endMonth = customEnd
+    } else {
+        // Default: Last 30 days
+        const endDate = today
+        const startDate = subDays(endDate, 30)
+        startMonth = format(startDate, 'yyyy-MM-dd')
+        endMonth = format(endDate, 'yyyy-MM-dd')
+    }
 
     let query = supabase
         .from("bdp_reports")
         .select("occurrences, projectId:project_id")
         .eq("user_id", user.id)
-        .gte("date", format(startDate, 'yyyy-MM-dd'))
-        .lte("date", format(endDate, 'yyyy-MM-dd'))
+        .gte("date", startMonth)
+        .lte("date", endMonth)
 
     if (projectId) {
         query = query.eq("project_id", projectId)
@@ -442,23 +464,43 @@ export async function getBottleneckAnalysis(projectId?: string): Promise<ChartDa
     return data
 }
 
-export async function getProductionTrend(projectId?: string): Promise<ChartData[]> {
+export async function getProductionTrend(projectId?: string, customStart?: string, customEnd?: string): Promise<ChartData[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return []
 
-    // Timezone Fix: Brazil is GMT-3
-    const endDate = subHours(new Date(), 3)
-    const startDate = subDays(endDate, 30) // Last 30 days
+    const today = subHours(new Date(), 3)
+
+    let startDate: Date
+    let endDate: Date
+
+    if (customStart && customEnd) {
+        startDate = new Date(customStart) // Assuming yyyy-MM-dd, native parser works or use parseISO
+        // We need to be careful with timezone here. 
+        // If customStart is "2026-01-01", new Date("2026-01-01") might be UTC.
+        // Let's use parse from date-fns or just split.
+        // Simplest for query is string. For interval generation we need Date objects.
+        // We can treat them as local dates (00:00).
+        startDate = parseISO(customStart)
+        endDate = parseISO(customEnd)
+    } else {
+        // Default: Last 30 days
+        endDate = today
+        startDate = subDays(endDate, 30)
+    }
+
+    // Format for DB Query
+    const startStr = format(startDate, 'yyyy-MM-dd')
+    const endStr = format(endDate, 'yyyy-MM-dd')
 
     // Fetch reports
     let query = supabase
         .from("bdp_reports")
         .select("date, total_meters")
         .eq("user_id", user.id)
-        .gte("date", format(startDate, 'yyyy-MM-dd'))
-        .lte("date", format(endDate, 'yyyy-MM-dd'))
+        .gte("date", startStr)
+        .lte("date", endStr)
         .order("date", { ascending: true })
 
     if (projectId) {
@@ -485,11 +527,24 @@ export async function getProductionTrend(projectId?: string): Promise<ChartData[
     return groupedData
 }
 
-export async function getProjectRanking(projectId?: string): Promise<ChartData[]> {
+export async function getProjectRanking(projectId?: string, customStart?: string, customEnd?: string): Promise<ChartData[]> {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) return []
+
+    const today = subHours(new Date(), 3)
+
+    let startMonth: string
+    let endMonth: string
+
+    if (customStart && customEnd) {
+        startMonth = customStart
+        endMonth = customEnd
+    } else {
+        startMonth = format(startOfMonth(today), 'yyyy-MM-dd')
+        endMonth = format(endOfMonth(today), 'yyyy-MM-dd')
+    }
 
     // Fetch projects first
     const { data: projects } = await supabase
@@ -503,6 +558,8 @@ export async function getProjectRanking(projectId?: string): Promise<ChartData[]
         .from("bdp_reports")
         .select("projectId:project_id, totalMeters:total_meters")
         .eq("user_id", user.id)
+        .gte("date", startMonth)
+        .lte("date", endMonth)
 
     // Aggregate
     const ranking = projects.map(project => {

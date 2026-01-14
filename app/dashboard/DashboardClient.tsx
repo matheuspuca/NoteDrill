@@ -30,6 +30,7 @@ import {
 } from 'recharts'
 import { DashboardKPIs, ChartData } from "./analytics-types"
 import Link from "next/link"
+import { DateRangePicker } from "@/components/dashboard/DateRangePicker"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
@@ -89,6 +90,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     )}
                 </div>
                 <div className="flex gap-3">
+                    <DateRangePicker />
                     <Select value={selectedProjectId} onValueChange={handleProjectChange}>
                         <SelectTrigger className="w-[200px] h-12 rounded-xl bg-white border-slate-200">
                             <SelectValue placeholder="Todas as Obras" />
