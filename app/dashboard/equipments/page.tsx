@@ -46,7 +46,7 @@ export default async function EquipmentsPage({
     // 2. Prepare queries for KPIs (Production & Bits)
     let bdpQuery = supabase
         .from("bdp_reports")
-        .select("drillId, totalMeters, startTime, endTime, occurrences, drill:equipment!drillId(name)")
+        .select("drill_id, total_meters, start_time, end_time, occurrences, drill:equipment!drill_id(name)")
         .eq("user_id", user.id)
         .gte("date", startMonth)
         .lte("date", endMonth)
@@ -64,7 +64,7 @@ export default async function EquipmentsPage({
     let filteredEquipments = allEquipments
 
     if (selectedEquipmentId) {
-        bdpQuery = bdpQuery.eq("drillId", selectedEquipmentId)
+        bdpQuery = bdpQuery.eq("drill_id", selectedEquipmentId)
         bitQuery = bitQuery.eq("equipment_id", selectedEquipmentId)
         filteredEquipments = allEquipments.filter(e => e.id === selectedEquipmentId)
     }
@@ -81,7 +81,11 @@ export default async function EquipmentsPage({
 
     // Process BDP data to flatten drill name if needed for chart
     const productionData = (bdpResult.data || []).map((r: any) => ({
-        ...r,
+        drillId: r.drill_id,
+        totalMeters: r.total_meters,
+        startTime: r.start_time,
+        endTime: r.end_time,
+        occurrences: r.occurrences,
         drill: r.drill // Ensure drill relation is preserved
     }))
 

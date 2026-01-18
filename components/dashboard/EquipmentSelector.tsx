@@ -35,6 +35,7 @@ export function EquipmentSelector({ equipments }: EquipmentSelectorProps) {
         }
 
         router.replace(`${pathname}?${params.toString()}`)
+        router.refresh()
     }
 
     return (
