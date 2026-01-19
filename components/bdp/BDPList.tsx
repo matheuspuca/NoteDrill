@@ -25,6 +25,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { generateBDPPDF } from "@/components/bdp/generate-pdf"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BDPKPIs } from "@/components/bdp/BDPKPIs"
 
 interface BDPListProps {
     reports: BDP[]
@@ -39,7 +40,7 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
     const [startDate, setStartDate] = useState(searchParams.get("startDate") || "")
     const [endDate, setEndDate] = useState(searchParams.get("endDate") || "")
     const [generatingPdfId, setGeneratingPdfId] = useState<string | null>(null)
-    const [statusFilter, setStatusFilter] = useState<string>("PENDENTE")
+    const [statusFilter, setStatusFilter] = useState<string>("TODOS")
 
     const handleFilter = () => {
         const params = new URLSearchParams()
@@ -149,10 +150,10 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                 <div className="flex gap-4 items-center w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                     <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
                         <TabsList className="bg-slate-100 p-1 rounded-xl h-11">
+                            <TabsTrigger value="TODOS" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm font-bold">Todos</TabsTrigger>
                             <TabsTrigger value="PENDENTE" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-bold">Pendentes</TabsTrigger>
                             <TabsTrigger value="APROVADO" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm font-bold">Aprovados</TabsTrigger>
                             <TabsTrigger value="REJEITADO" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm font-bold">Rejeitados</TabsTrigger>
-                            <TabsTrigger value="TODOS" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm font-bold">Todos</TabsTrigger>
                         </TabsList>
                     </Tabs>
 
@@ -189,6 +190,9 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                     </Button>
                 </Link>
             </div>
+
+            {/* KPIs Section - Moved here to be below filters */}
+            <BDPKPIs reports={filteredReports} />
 
             {/* Content: Grouped by Project */}
             <div className="space-y-10">

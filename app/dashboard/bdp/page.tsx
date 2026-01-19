@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { BDPList } from "@/components/bdp/BDPList"
-import { BDPKPIs } from "@/components/bdp/BDPKPIs"
+
 import { BDP } from "@/lib/schemas-bdp"
 
 export const dynamic = "force-dynamic"
@@ -79,7 +79,7 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
                 </div>
             </div>
 
-            <BDPKPIs reports={(formattedReports as BDP[]) || []} />
+
 
             {error && (
                 <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600">
