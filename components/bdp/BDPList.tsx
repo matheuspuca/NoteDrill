@@ -113,9 +113,13 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
         }
     }
 
+    const projectFilter = searchParams.get("project")
+
     const filteredReports = reports.filter(item => {
         if (startDate && item.date && new Date(item.date) < new Date(startDate)) return false
         if (endDate && item.date && new Date(item.date) > new Date(endDate)) return false
+
+        if (projectFilter && item.projects?.name !== projectFilter) return false
 
         if (statusFilter === 'TODOS') return true
         if (statusFilter === 'APROVADO') return item.status === 'APROVADO'
@@ -189,6 +193,41 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                         <Plus className="mr-2 h-4 w-4" /> Novo BDP
                     </Button>
                 </Link>
+            </div>
+
+            {/* Project Filter Logic */}
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center">
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Filtrar por Obra:</span>
+                <div className="flex gap-2 flex-wrap">
+                    <Button
+                        variant={statusFilter === 'TODOS' && !searchParams.get("project") ? "default" : "outline"}
+                        className={statusFilter === 'TODOS' && !searchParams.get("project") ? "bg-slate-800 text-white" : "bg-white text-slate-600 border-slate-200"}
+                        onClick={() => {
+                            const params = new URLSearchParams(searchParams.toString())
+                            params.delete("project")
+                            router.push(`/dashboard/bdp?${params.toString()}`)
+                        }}
+                    >
+                        Todas
+                    </Button>
+                    {Array.from(new Set(reports.map(r => r.projects?.name).filter(Boolean))).sort().map(projectName => {
+                        const isSelected = searchParams.get("project") === projectName
+                        return (
+                            <Button
+                                key={projectName}
+                                variant={isSelected ? "default" : "outline"}
+                                className={isSelected ? "bg-blue-600 text-white" : "bg-white text-slate-600 border-slate-200"}
+                                onClick={() => {
+                                    const params = new URLSearchParams(searchParams.toString())
+                                    if (projectName) params.set("project", projectName)
+                                    router.push(`/dashboard/bdp?${params.toString()}`)
+                                }}
+                            >
+                                {projectName}
+                            </Button>
+                        )
+                    })}
+                </div>
             </div>
 
             {/* KPIs Section - Moved here to be below filters */}

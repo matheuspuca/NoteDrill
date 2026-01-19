@@ -12,17 +12,41 @@ export default async function NewBDPPage() {
     }
 
     // Fetch necessary data for dropdowns
-    // Fetch necessary data for dropdowns
     const { data: projects } = await supabase.from("projects").select("id, name").eq("user_id", user.id).order("name")
-    const { data: teamMembers } = await supabase.from("team_members").select("id, name, role, registrationNumber").eq("user_id", user.id).eq("status", "Ativo").order("name")
-    const { data: equipments } = await supabase.from("equipment").select("id, name, type").eq("user_id", user.id).eq("status", "Operacional").order("name")
-    // Fetch Inventory Items for Supplies (only consumable materials or others as needed)
-    // Assuming 'type' column distinguishes or we just fetch all ACTIVE items
+
+    // Fetch Team Members (Try to find linked operator)
+    const { data: teamMembers } = await supabase.from("team_members").select("*").eq("user_id", user.id).eq("status", "Ativo").order("name")
+
+    // Find cached/linked operator
+    const linkedMember = teamMembers?.find((m: any) => m.linked_user_id === user.id)
+
+    // Fetch Equipments (Try to find linked equipment by project if exists)
+    const { data: equipments } = await supabase.from("equipment").select("*").eq("user_id", user.id).eq("status", "Operacional").order("name")
+
+    // Fetch Inventory
     const { data: inventoryItems } = await supabase.from("inventory_items").select("id, name, unit").eq("user_id", user.id).order("name")
+
+    // Determine Defaults
+    let defaultOperatorId = linkedMember?.id
+    let defaultProjectId = (linkedMember as any)?.project_id
+
+    // Fallback: If only one project, select it
+    if (!defaultProjectId && projects && projects.length === 1) {
+        defaultProjectId = projects[0].id
+    }
+
+    // Try to find drill for the project
+    let defaultDrillId = ""
+    if (defaultProjectId && equipments) {
+        // Check if equipment has project_id and matches
+        const projectDrill = equipments.find((e: any) => e.project_id === defaultProjectId)
+        if (projectDrill) {
+            defaultDrillId = projectDrill.id
+        }
+    }
 
     return (
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
-
 
             <div className="mb-10">
                 <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Novo Boletim Diário (BDP)</h1>
@@ -34,6 +58,11 @@ export default async function NewBDPPage() {
                 teamMembers={teamMembers || []}
                 equipments={equipments || []}
                 inventoryItems={inventoryItems || []}
+                defaultValues={{
+                    operatorId: defaultOperatorId,
+                    projectId: defaultProjectId,
+                    drillId: defaultDrillId
+                }}
             />
         </div>
     )

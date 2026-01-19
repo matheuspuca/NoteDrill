@@ -40,9 +40,10 @@ interface BDPFormProps {
     equipments: { id: string, name: string, type: string }[]
     inventoryItems: { id: string, name: string, unit: string }[]
     initialData?: BDPSchema & { id: string, reportNumber?: number }
+    defaultValues?: Partial<BDPSchema>
 }
 
-export function BDPForm({ projects, teamMembers, equipments, inventoryItems, initialData }: BDPFormProps) {
+export function BDPForm({ projects, teamMembers, equipments, inventoryItems, initialData, defaultValues }: BDPFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -68,9 +69,9 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
         // Header
         shift: undefined,
         date: format(new Date(), "yyyy-MM-dd"),
-        projectId: "",
-        operatorId: "",
-        drillId: "",
+        projectId: defaultValues?.projectId || "",
+        operatorId: defaultValues?.operatorId || "",
+        drillId: defaultValues?.drillId || "",
 
         // Geology
         materialDescription: "",
@@ -87,6 +88,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
         supplies: [],
         // Legacy/Flattened
         holes: [],
+        ...defaultValues
     }
 
     const form = useForm<BDPSchema>({
