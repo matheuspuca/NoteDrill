@@ -7,6 +7,8 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import Link from "next/link"
 
+import { UnifiedActionButtons } from "@/components/ui/unified-actions"
+
 import { Project } from "@/lib/schemas-project"
 import { Button } from "@/components/ui/button"
 import {
@@ -189,25 +191,10 @@ export function ProjectList({ projects }: ProjectListProps) {
                                                 )}
                                             </TableCell>
                                             <TableCell className="pr-10 py-8 text-right">
-                                                <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                                                    <Link href={`/dashboard/projects/${project.id}`}>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-12 w-12 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-xl transition-all hover:scale-110"
-                                                        >
-                                                            <Edit className="h-6 w-6" />
-                                                        </Button>
-                                                    </Link>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-12 w-12 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-xl transition-all hover:scale-110"
-                                                        onClick={(e) => { e.stopPropagation(); handleDeleteClick(project) }}
-                                                    >
-                                                        <Trash2 className="h-6 w-6" />
-                                                    </Button>
-                                                </div>
+                                                <UnifiedActionButtons
+                                                    editLink={`/dashboard/projects/${project.id}`}
+                                                    onDelete={(e) => { e.stopPropagation(); handleDeleteClick(project) }}
+                                                />
                                             </TableCell>
                                         </TableRow>
                                     )

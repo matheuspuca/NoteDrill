@@ -11,6 +11,8 @@ import { StockTransferDialog } from "@/components/inventory/StockTransferDialog"
 import { InventoryReportButton } from "@/components/inventory/InventoryReportButton"
 import { InventoryAnalytics } from "@/components/inventory/InventoryAnalytics"
 
+import { UnifiedActionButtons } from "@/components/ui/unified-actions"
+
 import { Button } from "@/components/ui/button"
 import {
     Table,
@@ -162,18 +164,10 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                                             R$ {(Number(item.quantity || 0) * Number(item.value || 0)).toFixed(2)}
                                                         </TableCell>
                                                         <TableCell className="text-right pr-8">
-                                                            <div className="flex justify-end gap-3">
-                                                                <Link
-                                                                    href={`/dashboard/inventory/${item.id}`}
-                                                                    className="inline-flex items-center justify-center h-10 w-10 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                >
-                                                                    <Edit className="h-5 w-5" />
-                                                                </Link>
-                                                                <Button variant="ghost" size="icon" className="h-10 w-10 hover:text-red-600 hover:bg-red-50 rounded-xl" onClick={(e) => { e.stopPropagation(); handleDelete(item.id) }}>
-                                                                    <Trash2 className="h-5 w-5" />
-                                                                </Button>
-                                                            </div>
+                                                            <UnifiedActionButtons
+                                                                editLink={`/dashboard/inventory/${item.id}`}
+                                                                onDelete={(e) => { e.stopPropagation(); handleDelete(item.id) }}
+                                                            />
                                                         </TableCell>
                                                     </TableRow>
                                                 )

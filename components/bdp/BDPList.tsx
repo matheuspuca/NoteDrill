@@ -8,6 +8,7 @@ import Link from "next/link"
 
 import { BDP } from "@/lib/schemas-bdp"
 import { CompanySettingsSchema } from "@/lib/schemas-settings"
+import { UnifiedActionButtons } from "@/components/ui/unified-actions"
 import { Button } from "@/components/ui/button"
 import {
     Table,
@@ -270,28 +271,38 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
                                                         {Number(report.totalMeters || 0).toFixed(1)}m
                                                     </TableCell>
                                                     <TableCell className="pr-8 py-4 text-right">
-                                                        <div className="flex justify-end gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all" onClick={(e) => e.stopPropagation()}>
-                                                            {/* Actions Row */}
+                                                        <UnifiedActionButtons
+                                                            className="opacity-100"
+                                                            editLink={(!report.status || report.status === 'PENDENTE') ? `/dashboard/bdp/${report.id}/edit` : undefined}
+                                                            onDelete={(e) => handleDelete(report.id, e)}
+                                                            onPrint={(e) => handleExport(report, e)}
+                                                            isPrinting={generatingPdfId === report.id}
+                                                        >
                                                             {(!report.status || report.status === 'PENDENTE') && (
                                                                 <>
-                                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg" onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/bdp/${report.id}/edit`) }} title="Editar">
-                                                                        <Edit className="h-5 w-5" />
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-9 px-3 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-lg font-bold gap-2"
+                                                                        onClick={(e) => handleStatusUpdate(report.id, 'APROVADO', e)}
+                                                                        title="Aprovar"
+                                                                    >
+                                                                        <CheckCircle className="h-4 w-4" />
+                                                                        <span className="hidden lg:inline">Aprovar</span>
                                                                     </Button>
-                                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-lg" onClick={(e) => handleStatusUpdate(report.id, 'APROVADO', e)} title="Aprovar">
-                                                                        <CheckCircle className="h-5 w-5" />
-                                                                    </Button>
-                                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-lg" onClick={(e) => handleStatusUpdate(report.id, 'REJEITADO', e)} title="Rejeitar">
-                                                                        <XCircle className="h-5 w-5" />
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-9 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg font-bold gap-2"
+                                                                        onClick={(e) => handleStatusUpdate(report.id, 'REJEITADO', e)}
+                                                                        title="Rejeitar"
+                                                                    >
+                                                                        <XCircle className="h-4 w-4" />
+                                                                        <span className="hidden lg:inline">Rejeitar</span>
                                                                     </Button>
                                                                 </>
                                                             )}
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={(e) => handleExport(report, e)} disabled={generatingPdfId === report.id}>
-                                                                {generatingPdfId === report.id ? <Loader2 className="h-5 w-5 animate-spin text-blue-600" /> : <FileText className="h-5 w-5" />}
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg" onClick={(e) => handleDelete(report.id, e)}>
-                                                                <Trash2 className="h-5 w-5" />
-                                                            </Button>
-                                                        </div>
+                                                        </UnifiedActionButtons>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}

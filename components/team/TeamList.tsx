@@ -11,6 +11,9 @@ import { useRouter } from "next/navigation"
 import { CompanySettingsSchema } from "@/lib/schemas-settings"
 import { cn } from "@/lib/utils"
 
+import { cn } from "@/lib/utils"
+import { UnifiedActionButtons } from "@/components/ui/unified-actions"
+
 import { Button } from "@/components/ui/button"
 import {
     Table,
@@ -162,27 +165,11 @@ export function TeamList({ members, companySettings }: TeamListProps) {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right pr-8">
-                                            <div className="flex justify-end gap-3">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-10 w-10 hover:text-orange-600 hover:bg-orange-50 rounded-xl"
-                                                    onClick={(e) => { e.stopPropagation(); handlePrintEpi(member) }}
-                                                    title="Imprimir Ficha EPI"
-                                                >
-                                                    <Printer className="h-5 w-5" />
-                                                </Button>
-                                                <Link
-                                                    href={`/dashboard/team/${member.id}`}
-                                                    className="inline-flex items-center justify-center h-10 w-10 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <Edit className="h-5 w-5" />
-                                                </Link>
-                                                <Button variant="ghost" size="icon" className="h-10 w-10 hover:text-red-600 hover:bg-red-50 rounded-xl" onClick={(e) => { e.stopPropagation(); handleDelete(member.id) }}>
-                                                    <Trash2 className="h-5 w-5" />
-                                                </Button>
-                                            </div>
+                                            <UnifiedActionButtons
+                                                editLink={`/dashboard/team/${member.id}`}
+                                                onDelete={(e) => { e.stopPropagation(); handleDelete(member.id) }}
+                                                onPrint={(e) => { e.stopPropagation(); handlePrintEpi(member) }}
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 ))
