@@ -234,9 +234,9 @@ export function EquipmentKPIs({ equipments, productionData, bitCount }: Equipmen
                     <CardContent className="h-[300px] w-full">
                         {chartData.topPerformers.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData.topPerformers} layout="vertical" margin={{ left: 20 }}>
+                                <BarChart data={chartData.topPerformers} layout="vertical" margin={{ left: 15, bottom: 20, right: 20 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                                    <XAxis type="number" hide />
+                                    <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} label={{ value: 'Metros Produzidos', position: 'insideBottom', offset: -5, fill: '#64748B', fontSize: 12 }} />
                                     <YAxis
                                         dataKey="name"
                                         type="category"
@@ -244,6 +244,7 @@ export function EquipmentKPIs({ equipments, productionData, bitCount }: Equipmen
                                         className="text-xs font-bold text-slate-500"
                                         tickLine={false}
                                         axisLine={false}
+                                        label={{ value: 'Equipamento', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 12 }}
                                     />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}

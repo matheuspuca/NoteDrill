@@ -27,8 +27,8 @@ import { DrillIcon } from "@/components/icons/DrillIcon"
 
 const menuItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "Projetos/Obra", icon: HardHat, href: "/dashboard/projects" },
     { label: "Apontamento/BDP", icon: ClipboardList, href: "/dashboard/bdp" },
+    { label: "Projetos/Obra", icon: HardHat, href: "/dashboard/projects" },
     { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
     { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },
     { label: "Equipe", icon: Users, href: "/dashboard/team" },

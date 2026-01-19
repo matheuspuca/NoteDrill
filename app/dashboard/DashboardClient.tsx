@@ -240,7 +240,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <CardContent className="p-8 pt-4">
                         <div className="h-[350px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={productionTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <AreaChart data={productionTrend} margin={{ top: 10, right: 10, left: 20, bottom: 20 }}>
                                     <defs>
                                         <linearGradient id="colorProd" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2} />
@@ -248,8 +248,21 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }} dy={10} minTickGap={30} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }} />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }}
+                                        dy={10}
+                                        minTickGap={30}
+                                        label={{ value: 'Período', position: 'insideBottom', offset: -10, fill: '#94A3B8', fontSize: 12 }}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }}
+                                        label={{ value: 'Produção (m)', angle: -90, position: 'insideLeft', offset: 10, fill: '#94A3B8', fontSize: 12 }}
+                                    />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
                                         itemStyle={{ color: '#1E293B', fontWeight: 700 }}
@@ -271,9 +284,9 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <CardContent className="p-8 pt-4">
                         <div className="h-[200px] w-full mb-8 border-b border-slate-700 pb-8 min-w-0">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={projectRanking} margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-                                    <XAxis type="number" hide />
-                                    <YAxis dataKey="name" type="category" width={80} tick={{ fill: '#E2E8F0', fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} />
+                                <BarChart layout="vertical" data={projectRanking} margin={{ top: 0, right: 30, left: 15, bottom: 20 }}>
+                                    <XAxis type="number" hide={false} tick={{ fill: '#E2E8F0', fontSize: 10 }} label={{ value: 'Produção (m)', position: 'insideBottom', offset: -5, fill: '#E2E8F0', fontSize: 12 }} />
+                                    <YAxis dataKey="name" type="category" width={80} tick={{ fill: '#E2E8F0', fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} label={{ value: 'Obras', angle: -90, position: 'insideLeft', fill: '#E2E8F0', fontSize: 12 }} />
                                     <Tooltip
                                         cursor={{ fill: 'rgba(255,255,255,0.1)' }}
                                         contentStyle={{ backgroundColor: '#0F172A', borderRadius: '12px', border: '1px solid #334155', color: '#fff' }}
@@ -296,8 +309,8 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                                 </h4>
                             </div>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={bottlenecks} margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-                                    <XAxis type="number" hide />
+                                <BarChart layout="vertical" data={bottlenecks} margin={{ top: 0, right: 30, left: 10, bottom: 20 }}>
+                                    <XAxis type="number" hide={false} tick={{ fill: '#E2E8F0', fontSize: 10 }} label={{ value: 'Horas', position: 'insideBottom', offset: -5, fill: '#E2E8F0', fontSize: 12 }} />
                                     <YAxis dataKey="name" type="category" width={100} tick={{ fill: '#E2E8F0', fontSize: 10, fontWeight: 500 }} axisLine={false} tickLine={false} textAnchor="end" />
                                     <Tooltip
                                         cursor={{ fill: 'rgba(255,255,255,0.1)' }}

@@ -118,10 +118,10 @@ export function InventoryAnalytics({ items }: InventoryAnalyticsProps) {
                     </CardHeader>
                     <CardContent className="h-[300px] min-w-0">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={metrics.projectData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                            <BarChart data={metrics.projectData} layout="vertical" margin={{ top: 5, right: 30, left: 15, bottom: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: '#64748B' }} interval={0} />
+                                <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} label={{ value: 'Valor (R$)', position: 'insideBottom', offset: -5, fill: '#64748B', fontSize: 12 }} />
+                                <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: '#64748B' }} interval={0} label={{ value: 'Obra', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 12 }} />
                                 <Tooltip
                                     formatter={(value: number | undefined) => [`R$ ${(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'Valor']}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}

@@ -52,11 +52,24 @@ export function BDPKPIs({ reports }: BDPKPIsProps) {
         const reversed = [...reports].reverse()
 
         // Map for Bar Chart
-        const dailyProduction = reversed.map(r => ({
-            date: r.date ? format(new Date(r.date), "dd/MM", { locale: ptBR }) : "-",
-            meters: Number(r.totalMeters) || 0,
-            fullDate: r.date // for tooltip
-        }))
+        const dailyProduction = reversed.map(r => {
+            // Fix date timezone issue by handling YYYY-MM-DD string directly
+            let formattedDate = "-"
+            if (r.date) {
+                // Split YYYY-MM-DD
+                const parts = r.date.split("-")
+                if (parts.length === 3) {
+                    // parts[2] = day, parts[1] = month
+                    formattedDate = `${parts[2]}/${parts[1]}`
+                }
+            }
+
+            return {
+                date: formattedDate,
+                meters: Number(r.totalMeters) || 0,
+                fullDate: r.date // for tooltip
+            }
+        })
 
         // Group by Operator for Pie Chart
         const operatorStats: Record<string, number> = {}
@@ -150,7 +163,7 @@ export function BDPKPIs({ reports }: BDPKPIsProps) {
                     <CardContent className="h-[300px] w-full">
                         {chartData.dailyProduction.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData.dailyProduction}>
+                                <AreaChart data={chartData.dailyProduction} margin={{ top: 10, right: 30, left: 15, bottom: 20 }}>
                                     <defs>
                                         <linearGradient id="colorMeters" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -164,12 +177,14 @@ export function BDPKPIs({ reports }: BDPKPIsProps) {
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={10}
+                                        label={{ value: 'Data', position: 'insideBottom', offset: -10, fill: '#94A3B8', fontSize: 12 }}
                                     />
                                     <YAxis
                                         className="text-xs font-bold text-slate-400"
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={10}
+                                        label={{ value: 'Produção (m)', angle: -90, position: 'insideLeft', offset: 0, fill: '#94A3B8', fontSize: 12 }}
                                     />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
