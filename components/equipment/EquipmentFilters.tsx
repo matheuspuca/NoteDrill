@@ -65,7 +65,7 @@ export function EquipmentFilters({ projects, equipments }: EquipmentFiltersProps
             <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
                 {/* Left Side: Equipment And Dates */}
                 <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto items-start md:items-center">
-                    <EquipmentSelector equipments={equipments} />
+
 
                     {/* Date Inputs */}
                     <div className="flex flex-col sm:flex-row gap-2 items-center w-full sm:w-auto">
