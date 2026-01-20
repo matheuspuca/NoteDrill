@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
-import { EquipmentSelector } from "@/components/dashboard/EquipmentSelector"
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 
