@@ -27,34 +27,18 @@ interface EquipmentFiltersProps {
     equipments: EquipmentOption[]
 }
 
-export function EquipmentFilters({ projects, equipments }: EquipmentFiltersProps) {
+export function EquipmentFilters({ equipments }: { equipments: EquipmentOption[] }) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    // Local state for dates to allow typing without immediate URL update (optional, but consistent with BDP inputs which were direct/controlled)
-    // Actually BDP inputs in my analysis were: onChange -> setStartDate -> AND params update. Wait, actually BDPList had "handleFilter" button.
-    // DashboardClient had direct onChange updates.
-    // I will implement direct updates for consistency with DashboardClient changes I just made, or reuse the input style.
-    // The DashboardClient change I made uses `onChange={(e) => ... router.replace ...}`. It's direct.
-    // BDPList uses local state + "Filter" button. This is inconsistent.
-    // Dashboard implementation I just did uses DIRECT UPDATE.
-    // User asked to make it equal to BDP ("como na pagina BDP"). BDP has a filter button.
-    // HOWEVER, DashboardClient now has direct update.
-    // I should probably stick to what I just did in DashboardClient because "interactive dashboard" usually means instant feedback.
-    // But if the user explicitly wants "like BDP", maybe they want the button?
-    // "Em dashboard, coloque a data e as obras como na pagina BDP para filtragem de KPI."
-    // If I put direct update on Dashboard, and user accepts it, I should likely do the same here.
-    // Direct update is better UX usually.
-    // I'll stick to direct update for now unless performance is an issue.
+    const selectedEquipmentId = searchParams.get('equipmentId')
 
-    const selectedProjectId = searchParams.get('projectId') || "all"
-
-    const handleProjectChange = (value: string) => {
+    const handleEquipmentChange = (value: string | null) => {
         const params = new URLSearchParams(searchParams.toString())
-        if (value && value !== "all") {
-            params.set('projectId', value)
+        if (value) {
+            params.set('equipmentId', value)
         } else {
-            params.delete('projectId')
+            params.delete('equipmentId')
         }
         router.replace(`/dashboard/equipments?${params.toString()}`)
         router.refresh()
@@ -63,10 +47,8 @@ export function EquipmentFilters({ projects, equipments }: EquipmentFiltersProps
     return (
         <div className="space-y-6">
             <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
-                {/* Left Side: Equipment And Dates */}
+                {/* Left Side: Dates */}
                 <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto items-start md:items-center">
-
-
                     {/* Date Inputs */}
                     <div className="flex flex-col sm:flex-row gap-2 items-center w-full sm:w-auto">
                         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -129,29 +111,29 @@ export function EquipmentFilters({ projects, equipments }: EquipmentFiltersProps
                 </Link>
             </div>
 
-            {/* Project Filters - Button Row */}
+            {/* Equipment Filters - Button Row */}
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center animate-in slide-in-from-top-2 duration-500 delay-100">
-                <span className="text-sm font-extrabold text-slate-400 uppercase tracking-wider whitespace-nowrap">Filtrar por Obra:</span>
+                <span className="text-sm font-extrabold text-slate-400 uppercase tracking-wider whitespace-nowrap">Filtrar por Equipamento:</span>
                 <div className="flex gap-2 flex-wrap overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
                     <Button
-                        variant={!selectedProjectId || selectedProjectId === "all" ? "default" : "outline"}
-                        className={!selectedProjectId || selectedProjectId === "all" ? "bg-slate-800 text-white font-bold shadow-md hover:bg-slate-700" : "bg-white text-slate-500 border-slate-200 font-bold hover:bg-slate-50 hover:text-slate-700"}
-                        onClick={() => handleProjectChange("all")}
+                        variant={!selectedEquipmentId ? "default" : "outline"}
+                        className={!selectedEquipmentId ? "bg-slate-800 text-white font-bold shadow-md hover:bg-slate-700" : "bg-white text-slate-500 border-slate-200 font-bold hover:bg-slate-50 hover:text-slate-700"}
+                        onClick={() => handleEquipmentChange(null)}
                         size="sm"
                     >
-                        Todas
+                        Todos
                     </Button>
-                    {projects.map((p) => {
-                        const isSelected = selectedProjectId === p.id
+                    {equipments.map((e) => {
+                        const isSelected = selectedEquipmentId === e.id
                         return (
                             <Button
-                                key={p.id}
+                                key={e.id}
                                 variant={isSelected ? "default" : "outline"}
                                 className={isSelected ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20 hover:bg-blue-700" : "bg-white text-slate-500 border-slate-200 font-bold hover:bg-slate-50 hover:text-slate-700"}
-                                onClick={() => handleProjectChange(p.id)}
+                                onClick={() => handleEquipmentChange(e.id)}
                                 size="sm"
                             >
-                                {p.name}
+                                {e.name}
                             </Button>
                         )
                     })}
