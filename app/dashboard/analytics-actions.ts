@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { startOfMonth, subDays, format, parseISO, endOfMonth, eachDayOfInterval, differenceInMinutes, parse, subHours } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { DashboardKPIs, ChartData } from "./analytics-types"
+import { DashboardKPIs, ChartData, SCurveData } from "./analytics-types"
 
 function calculateDuration(start: string, end: string): number {
     try {
@@ -576,3 +576,47 @@ export async function getProjectRanking(projectId?: string, customStart?: string
 
     return ranking
 }
+
+export async function getSCurveData(projectId?: string): Promise<SCurveData | null> {
+    if (!projectId || projectId === 'all') return null
+
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return null
+
+    // 1. Fetch Project Metadata
+    const { data: project } = await supabase
+        .from("projects")
+        .select("id, name, drilling_start_date, target_meters, end_date")
+        .eq("id", projectId)
+        .eq("user_id", user.id)
+        .single()
+
+    if (!project || !project.drilling_start_date || !project.target_meters) {
+        return null
+    }
+
+    // 2. Fetch ALL realized production for this project (ignoring date filters to show full curve)
+    const { data: reports } = await supabase
+        .from("bdp_reports")
+        .select("date, total_meters")
+        .eq("project_id", projectId)
+        .eq("user_id", user.id)
+        .order("date", { ascending: true })
+
+    const realizedData = reports?.map(r => ({
+        date: r.date,
+        meters: Number(r.total_meters) || 0
+    })) || []
+
+    return {
+        projectId: project.id,
+        projectName: project.name,
+        startDate: project.drilling_start_date,
+        endDate: project.end_date,
+        targetMeters: project.target_meters,
+        realizedData
+    }
+}
+

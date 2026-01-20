@@ -28,7 +28,8 @@ import {
     Bar,
     Cell
 } from 'recharts'
-import { DashboardKPIs, ChartData } from "./analytics-types"
+import { SCurveChart } from "@/components/bdp/SCurveChart"
+import { DashboardKPIs, ChartData, SCurveData } from "./analytics-types"
 import Link from "next/link"
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker"
 import { Button } from "@/components/ui/button"
@@ -52,9 +53,10 @@ interface DashboardClientProps {
     projectRanking: ChartData[]
     bottlenecks: ChartData[]
     projects: ProjectOption[]
+    sCurveData?: SCurveData | null
 }
 
-export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks, projects }: DashboardClientProps) {
+export function DashboardClient({ kpis, productionTrend, projectRanking, bottlenecks, projects, sCurveData }: DashboardClientProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const selectedProjectId = searchParams.get('projectId') ?? "all"
@@ -231,6 +233,32 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
 
             {/* Charts Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+                {/* S-Curve or Trend Chart */}
+                {sCurveData ? (
+                    <div className="xl:col-span-3">
+                        <SCurveChart
+                            startDate={sCurveData.startDate}
+                            targetMeters={sCurveData.targetMeters}
+                            realizedData={sCurveData.realizedData}
+                        />
+                    </div>
+                ) : null}
+
+                {/* Main Trend Chart - Only show if S-Curve is NOT shown, or show both?
+                    Request said: "transferir esse grafico ... para o dashboard".
+                    Usually S-Curve is the main view for a project.
+                    The Trend Chart (30 days) is good for "All" or "Recent".
+                    Let's show Trend Chart if S-Curve is NOT present (i.e. 'All' Selected) 
+                    OR allow both?
+                    S-Curve is HUGE (col-span-3 in BDPKPIs).
+                    I'll put S-Curve FULL WIDTH if active.
+                    And keep Trend Chart below or hide it?
+                    If I select a project, I definitely want S-Curve.
+                    The Trend Chart is redundant? Maybe not, Trend is per day bar/area.
+                    S-Curve is Cumulative Line.
+                    I will show both for now, but ensure layout works.
+                */}
 
                 {/* Main Trend Chart */}
                 <Card className="xl:col-span-2 border-none shadow-lg rounded-[32px]">
