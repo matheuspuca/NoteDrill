@@ -144,9 +144,17 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
     }
 
     const projectFilter = searchParams.get("project")
-    const activeProject = projectFilter && projectsData
+    let activeProject = projectFilter && projectsData
         ? projectsData.find(p => p.name === projectFilter)
         : null
+
+    // Auto-select project if not filtering but all reports belong to one project
+    if (!activeProject && !projectFilter && reports.length > 0 && projectsData) {
+        const uniqueProjectNames = Array.from(new Set(reports.map(r => r.projects?.name).filter(Boolean)))
+        if (uniqueProjectNames.length === 1) {
+            activeProject = projectsData.find(p => p.name === uniqueProjectNames[0]) || null
+        }
+    }
 
     // Cast 'drilling_start_date' to string | undefined explicitly for BDPKPIs
     const activeProjectForKPIs = activeProject ? {

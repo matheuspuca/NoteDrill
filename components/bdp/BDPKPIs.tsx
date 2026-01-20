@@ -161,7 +161,8 @@ export function BDPKPIs({ reports, activeProject }: BDPKPIsProps) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* S-Curve (Only if Project Selected) */}
-                {activeProject && (
+                {/* S-Curve (Project Specific or Placeholder) */}
+                {activeProject ? (
                     activeProject.drilling_start_date && activeProject.target_meters ? (
                         <SCurveChart
                             startDate={activeProject.drilling_start_date}
@@ -177,6 +178,14 @@ export function BDPKPIs({ reports, activeProject }: BDPKPIsProps) {
                             </CardContent>
                         </Card>
                     )
+                ) : (
+                    <Card className="col-span-1 lg:col-span-3 border-none shadow-lg bg-white rounded-[24px] ring-1 ring-slate-100">
+                        <CardContent className="h-[200px] flex flex-col items-center justify-center text-center gap-2">
+                            <TrendingUp className="h-8 w-8 text-slate-300" />
+                            <h3 className="font-bold text-slate-500">Selecione uma Obra</h3>
+                            <p className="text-sm text-slate-400">Filtre por uma obra específica para visualizar a Curva S de avanço físico.</p>
+                        </CardContent>
+                    </Card>
                 )}
 
                 {/* Production Trend */}
