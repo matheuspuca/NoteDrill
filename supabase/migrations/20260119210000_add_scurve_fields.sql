@@ -1,0 +1,2 @@
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS drilling_start_date DATE;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS target_meters NUMERIC DEFAULT 0;

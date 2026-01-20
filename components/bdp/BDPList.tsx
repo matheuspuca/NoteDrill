@@ -31,9 +31,10 @@ import { BDPKPIs } from "@/components/bdp/BDPKPIs"
 interface BDPListProps {
     reports: BDP[]
     companySettings?: CompanySettingsSchema & { logo_url?: string | null } | null
+    projectsData?: { id: string; name: string; drilling_start_date?: string | null; target_meters?: number | null }[]
 }
 
-export function BDPList({ reports, companySettings }: BDPListProps) {
+export function BDPList({ reports, companySettings, projectsData }: BDPListProps) {
     const { toast } = useToast()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -57,6 +58,8 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
         router.push("/dashboard/bdp")
     }
 
+    // ... exports handlers ...
+    // Using simple re-declarations to avoid large diff, or finding exact chunk.
     const handleExport = async (report: BDP, e: React.MouseEvent) => {
         e.stopPropagation()
         setGeneratingPdfId(report.id)
@@ -76,7 +79,6 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
         } finally {
             setGeneratingPdfId(null)
         }
-        setGeneratingPdfId(null)
     }
 
     const handleMeasurementExport = async (projectName: string, projectReports: BDP[]) => {
@@ -142,6 +144,16 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
     }
 
     const projectFilter = searchParams.get("project")
+    const activeProject = projectFilter && projectsData
+        ? projectsData.find(p => p.name === projectFilter)
+        : null
+
+    // Cast 'drilling_start_date' to string | undefined explicitly for BDPKPIs
+    const activeProjectForKPIs = activeProject ? {
+        name: activeProject.name,
+        drilling_start_date: activeProject.drilling_start_date || undefined,
+        target_meters: activeProject.target_meters || undefined
+    } : null
 
     const filteredReports = reports.filter(item => {
         if (startDate && item.date && new Date(item.date) < new Date(startDate)) return false
@@ -259,7 +271,7 @@ export function BDPList({ reports, companySettings }: BDPListProps) {
             </div>
 
             {/* KPIs Section - Moved here to be below filters */}
-            <BDPKPIs reports={filteredReports} />
+            <BDPKPIs reports={filteredReports} activeProject={activeProjectForKPIs} />
 
             {/* Content: Grouped by Project */}
             <div className="space-y-10">

@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, HardHat, TrendingUp, Clock, Activity, BarChart3, PieChart } from "lucide-react"
+import { SCurveChart } from "@/components/bdp/SCurveChart"
 import { BDP } from "@/lib/schemas-bdp"
 import {
     BarChart,
@@ -23,11 +24,16 @@ import { ptBR } from "date-fns/locale"
 
 interface BDPKPIsProps {
     reports: BDP[]
+    activeProject?: {
+        name: string
+        drilling_start_date?: string
+        target_meters?: number
+    } | null
 }
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#6366f1"]
 
-export function BDPKPIs({ reports }: BDPKPIsProps) {
+export function BDPKPIs({ reports, activeProject }: BDPKPIsProps) {
     const stats = useMemo(() => {
         const totalMeters = reports.reduce((acc, r) => acc + (Number(r.totalMeters) || 0), 0)
         const totalHours = reports.reduce((acc, r) => acc + (Number(r.totalHours) || 0), 0)
@@ -152,6 +158,16 @@ export function BDPKPIs({ reports }: BDPKPIsProps) {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* S-Curve (Only if Project Selected) */}
+                {activeProject && activeProject.drilling_start_date && (
+                    <SCurveChart
+                        startDate={activeProject.drilling_start_date}
+                        targetMeters={activeProject.target_meters}
+                        realizedData={chartData.dailyProduction}
+                    />
+                )}
+
                 {/* Production Trend */}
                 <Card className="col-span-1 lg:col-span-2 border-none shadow-lg bg-white rounded-[24px] ring-1 ring-slate-100">
                     <CardHeader>

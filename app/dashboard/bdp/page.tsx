@@ -69,6 +69,12 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
         drill: r.drill
     }))
 
+    // Fetch Projects with Metadata for S-Curve
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("id, name, drilling_start_date, target_meters")
+        .eq("user_id", user.id)
+
     return (
         <div className="space-y-8 max-w-[1800px] mx-auto pb-10 pt-6 px-4 lg:px-8">
             {/* Header Section */}
@@ -90,6 +96,7 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
 
             <BDPList
                 reports={(formattedReports as BDP[]) || []}
+                projectsData={projects || []}
                 companySettings={companySettings}
             />
         </div>

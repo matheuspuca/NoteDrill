@@ -20,6 +20,10 @@ export const projectSchema = z.object({
     price_per_m3: z.coerce.number().min(0).optional(),
     mob_demob_cost: z.coerce.number().min(0).optional(),
     tax_rate: z.coerce.number().min(0).max(100).optional(),
+
+    // S-Curve Fields
+    drilling_start_date: z.string().optional(),
+    target_meters: z.coerce.number().min(0).optional(),
 })
 
 export type ProjectSchema = z.infer<typeof projectSchema>
