@@ -81,15 +81,17 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
             {/* Header Section */}
             {/* Header Section */}
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col gap-6">
                 <div>
-                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Painel de Controle</h1>
-                    <p className="text-lg text-slate-500 mt-2 font-medium">Visão geral inteligente da sua operação.</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Painel de Controle</h1>
+                    <p className="text-base md:text-lg text-slate-500 mt-2 font-medium">Visão geral inteligente da sua operação.</p>
                 </div>
-                <div className="flex gap-3">
-                    <DateRangePicker />
+                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                    <div className="w-full md:w-auto">
+                        <DateRangePicker />
+                    </div>
                     <Select value={selectedProjectId} onValueChange={handleProjectChange}>
-                        <SelectTrigger className="w-[200px] h-12 rounded-xl bg-white border-slate-200">
+                        <SelectTrigger className="w-full md:w-[200px] h-12 rounded-xl bg-white border-slate-200">
                             <SelectValue placeholder="Todas as Obras" />
                         </SelectTrigger>
                         <SelectContent>
@@ -100,8 +102,8 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                         </SelectContent>
                     </Select>
 
-                    <Link href="/dashboard/bdp/new">
-                        <Button className="bg-[#2563EB] hover:bg-blue-700 text-white shadow-lg rounded-xl h-12 px-6 font-bold transition-all hover:scale-105">
+                    <Link href="/dashboard/bdp/new" className="w-full md:w-auto">
+                        <Button className="w-full md:w-auto bg-[#2563EB] hover:bg-blue-700 text-white shadow-lg rounded-xl h-12 px-6 font-bold transition-all hover:scale-105">
                             Novo BDP
                         </Button>
                     </Link>
@@ -116,7 +118,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Activity className="w-24 h-24 text-blue-600" />
                     </div>
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 md:p-8">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 bg-blue-100/50 rounded-xl text-blue-700">
                                 <Activity className="h-8 w-8" />
@@ -139,7 +141,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <TrendingUp className="w-24 h-24 text-emerald-600" />
                     </div>
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 md:p-8">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 bg-emerald-100/50 rounded-xl text-emerald-700">
                                 <TrendingUp className="h-8 w-8" />
@@ -163,7 +165,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Fuel className="w-24 h-24 text-yellow-600" />
                     </div>
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 md:p-8">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 bg-yellow-100/50 rounded-xl text-yellow-700">
                                 <Fuel className="h-8 w-8" />
@@ -195,7 +197,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Package className="w-24 h-24 text-purple-600" />
                     </div>
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 md:p-8">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 bg-purple-100/50 rounded-xl text-purple-700">
                                 <Package className="h-8 w-8" />
@@ -215,7 +217,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Zap className="w-24 h-24 text-indigo-600" />
                     </div>
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 md:p-8">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 bg-indigo-100/50 rounded-xl text-indigo-700">
                                 <Zap className="h-8 w-8" />
@@ -262,7 +264,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
 
                 {/* Main Trend Chart */}
                 <Card className="xl:col-span-2 border-none shadow-lg rounded-[32px]">
-                    <CardHeader className="p-8 pb-2">
+                    <CardHeader className="p-6 pb-2 md:p-8 md:pb-2">
                         <CardTitle className="text-2xl font-bold text-slate-800">Tendência de Produção (30 dias)</CardTitle>
                     </CardHeader>
                     <CardContent className="p-8 pt-4">
@@ -305,7 +307,7 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
 
                 {/* Ranking Chart */}
                 <Card className="border-none shadow-lg rounded-[32px] bg-slate-900 text-white">
-                    <CardHeader className="p-8 pb-2">
+                    <CardHeader className="p-6 pb-2 md:p-8 md:pb-2">
                         <CardTitle className="text-2xl font-bold text-white">Top Obras</CardTitle>
                         <p className="text-slate-400 font-medium">Ranking por produção total</p>
                     </CardHeader>
