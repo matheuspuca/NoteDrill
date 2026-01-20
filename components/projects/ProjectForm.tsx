@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Calendar as CalendarIcon, MapPin, Building2, User, Phone, Box } from "lucide-react"
+import { Loader2, Calendar as CalendarIcon, MapPin, Building2, User, Phone, Box, Target } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -56,6 +56,8 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             price_per_m3: project?.price_per_m3 || 0,
             mob_demob_cost: project?.mob_demob_cost || 0,
             tax_rate: project?.tax_rate || 0,
+            drilling_start_date: project?.drilling_start_date || "",
+            target_meters: project?.target_meters || 0,
         },
     })
 
@@ -249,157 +251,209 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                     />
                 </div>
 
-                <Separator className="bg-slate-100" />
+            </div>
 
-                {/* Section: Contact & Dates */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="bg-green-100 p-2.5 rounded-xl">
-                            <User className="w-6 h-6 text-green-600" />
-                        </div>
-                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Responsável & Prazos</h3>
-                    </div>
+            <Separator className="bg-slate-100" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="responsible_engineer"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Engenheiro Responsável</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <User className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
-                                            <Input placeholder="João Silva" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} />
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage className="text-base" />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="responsible_phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Telefone/Contato</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <Phone className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
-                                            <Input placeholder="(11) 99999-9999" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} />
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage className="text-base" />
-                                </FormItem>
-                            )}
-                        />
+            {/* Section: S-Curve Data */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-indigo-100 p-2.5 rounded-xl">
+                        <Target className="w-6 h-6 text-indigo-600" />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="start_date"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Início Previsto</FormLabel>
-                                    <FormControl>
-                                        <Input type="date" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="text-base" />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="end_date"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Término Previsto</FormLabel>
-                                    <FormControl>
-                                        <Input type="date" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="text-base" />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Metas e Prazos (Curva S)</h3>
                 </div>
 
-                <Separator className="bg-slate-100" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="drilling_start_date"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Início da Perfuração</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <CalendarIcon className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
+                                        <Input type="date" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} value={field.value || ''} />
+                                    </div>
+                                </FormControl>
+                                <FormDescription className="text-sm text-slate-500 font-medium">Data base para o início da curva de avanço físico.</FormDescription>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
 
-                {/* Section: Financial */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="bg-emerald-100 p-2.5 rounded-xl">
-                            <Box className="w-6 h-6 text-emerald-600" />
-                        </div>
-                        <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Viabilidade Financeira (Opcional)</h3>
-                    </div>
+                    <FormField
+                        control={form.control}
+                        name="target_meters"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Meta Total (m)</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <Target className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
+                                        <Input type="number" step="0.1" placeholder="Ex: 5000" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} />
+                                    </div>
+                                </FormControl>
+                                <FormDescription className="text-sm text-slate-500 font-medium">Meta total de metros a serem perfurados.</FormDescription>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="price_per_m3"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Preço por m³ (R$)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="text-base" />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="tax_rate"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Impostos (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.1" placeholder="0.0" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="text-base" />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+            <Separator className="bg-slate-100" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="payroll_estimate"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Folha Mensal Est. (R$)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="mob_demob_cost"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-slate-700 font-bold text-lg">Custo Mob/Demob (R$)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
+            {/* Section: Contact & Dates */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-green-100 p-2.5 rounded-xl">
+                        <User className="w-6 h-6 text-green-600" />
                     </div>
+                    <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Responsável & Contato</h3>
                 </div>
 
-                <div className="pt-6">
-                    <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-16 rounded-xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02]">
-                        {isSubmitting && <Loader2 className="mr-3 h-6 w-6 animate-spin" />}
-                        {project ? "Salvar Alterações" : "Criar Novo Projeto"}
-                    </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="responsible_engineer"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Engenheiro Responsável</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <User className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
+                                        <Input placeholder="João Silva" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} />
+                                    </div>
+                                </FormControl>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="responsible_phone"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Telefone/Contato</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <Phone className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
+                                        <Input placeholder="(11) 99999-9999" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} />
+                                    </div>
+                                </FormControl>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
                 </div>
-            </form>
-        </Form>
+
+                <div className="grid grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="start_date"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Início Previsto</FormLabel>
+                                <FormControl>
+                                    <Input type="date" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                </FormControl>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="end_date"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Término Previsto</FormLabel>
+                                <FormControl>
+                                    <Input type="date" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                </FormControl>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            </div>
+
+            <Separator className="bg-slate-100" />
+
+            {/* Section: Financial */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-emerald-100 p-2.5 rounded-xl">
+                        <Box className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Viabilidade Financeira (Opcional)</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="price_per_m3"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Preço por m³ (R$)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                </FormControl>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="tax_rate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Impostos (%)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.1" placeholder="0.0" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                </FormControl>
+                                <FormMessage className="text-base" />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="payroll_estimate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Folha Mensal Est. (R$)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="mob_demob_cost"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-slate-700 font-bold text-lg">Custo Mob/Demob (R$)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.01" placeholder="0.00" className="h-14 text-lg border-slate-200 rounded-xl px-4" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            </div>
+
+            <div className="pt-6">
+                <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-16 rounded-xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02]">
+                    {isSubmitting && <Loader2 className="mr-3 h-6 w-6 animate-spin" />}
+                    {project ? "Salvar Alterações" : "Criar Novo Projeto"}
+                </Button>
+            </div>
+        </form>
+        </Form >
     )
 }

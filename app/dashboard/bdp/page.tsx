@@ -72,7 +72,7 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
     // Fetch Projects with Metadata for S-Curve
     const { data: projects, error: projectsError } = await supabase
         .from("projects")
-        .select("id, name, drilling_start_date, target_meters")
+        .select("id, name, drilling_start_date, target_meters, end_date")
         .eq("user_id", user.id)
 
     if (projectsError) {

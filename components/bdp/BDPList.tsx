@@ -31,7 +31,7 @@ import { BDPKPIs } from "@/components/bdp/BDPKPIs"
 interface BDPListProps {
     reports: BDP[]
     companySettings?: CompanySettingsSchema & { logo_url?: string | null } | null
-    projectsData?: { id: string; name: string; drilling_start_date?: string | null; target_meters?: number | null }[]
+    projectsData?: { id: string; name: string; drilling_start_date?: string | null; target_meters?: number | null; end_date?: string | null }[]
 }
 
 export function BDPList({ reports, companySettings, projectsData }: BDPListProps) {
@@ -152,7 +152,8 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
     const activeProjectForKPIs = activeProject ? {
         name: activeProject.name,
         drilling_start_date: activeProject.drilling_start_date || undefined,
-        target_meters: activeProject.target_meters || undefined
+        target_meters: activeProject.target_meters || undefined,
+        end_date: activeProject.end_date || undefined
     } : null
 
     const filteredReports = reports.filter(item => {

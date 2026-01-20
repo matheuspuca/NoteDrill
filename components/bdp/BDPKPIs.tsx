@@ -28,6 +28,7 @@ interface BDPKPIsProps {
         name: string
         drilling_start_date?: string
         target_meters?: number
+        end_date?: string
     } | null
 }
 
