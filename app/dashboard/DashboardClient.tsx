@@ -31,16 +31,8 @@ import {
 import { SCurveChart } from "@/components/bdp/SCurveChart"
 import { DashboardKPIs, ChartData, SCurveData } from "./analytics-types"
 import Link from "next/link"
-import { DateRangePicker } from "@/components/dashboard/DateRangePicker"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 
 interface ProjectOption {
     id: string
@@ -86,27 +78,95 @@ export function DashboardClient({ kpis, productionTrend, projectRanking, bottlen
                     <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Painel de Controle</h1>
                     <p className="text-base md:text-lg text-slate-500 mt-2 font-medium">Visão geral inteligente da sua operação.</p>
                 </div>
-                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                    <div className="w-full md:w-auto">
-                        <DateRangePicker />
-                    </div>
-                    <Select value={selectedProjectId} onValueChange={handleProjectChange}>
-                        <SelectTrigger className="w-full md:w-[200px] h-12 rounded-xl bg-white border-slate-200">
-                            <SelectValue placeholder="Todas as Obras" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas as Obras</SelectItem>
-                            {projects.map((p) => (
-                                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                <div className="flex flex-col xl:flex-row gap-4 w-full justify-between items-start xl:items-center">
+                    {/* Date Inputs in Row */}
+                    <div className="flex flex-col sm:flex-row gap-2 items-center w-full xl:w-auto">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-slate-500 ml-1 mb-1">Data Inicial</span>
+                                <input
+                                    type="date"
+                                    className="bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-auto shadow-sm"
+                                    value={searchParams.get("startDate") || ""}
+                                    onChange={(e) => {
+                                        const params = new URLSearchParams(searchParams.toString())
+                                        if (e.target.value) params.set("startDate", e.target.value)
+                                        else params.delete("startDate")
+                                        router.replace(`/dashboard?${params.toString()}`)
+                                        router.refresh()
+                                    }}
+                                />
+                            </div>
+                            <span className="text-slate-300 font-bold mt-6">-</span>
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-slate-500 ml-1 mb-1">Data Final</span>
+                                <input
+                                    type="date"
+                                    className="bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-auto shadow-sm"
+                                    value={searchParams.get("endDate") || ""}
+                                    onChange={(e) => {
+                                        const params = new URLSearchParams(searchParams.toString())
+                                        if (e.target.value) params.set("endDate", e.target.value)
+                                        else params.delete("endDate")
+                                        router.replace(`/dashboard?${params.toString()}`)
+                                        router.refresh()
+                                    }}
+                                />
+                            </div>
+                        </div>
 
-                    <Link href="/dashboard/bdp/new" className="w-full md:w-auto">
-                        <Button className="w-full md:w-auto bg-[#2563EB] hover:bg-blue-700 text-white shadow-lg rounded-xl h-12 px-6 font-bold transition-all hover:scale-105">
+                        {(searchParams.get("startDate") || searchParams.get("endDate")) && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                    const params = new URLSearchParams(searchParams.toString())
+                                    params.delete("startDate")
+                                    params.delete("endDate")
+                                    router.replace(`/dashboard?${params.toString()}`)
+                                    router.refresh()
+                                }}
+                                className="text-red-400 hover:text-red-600 hover:bg-red-50 text-xs font-bold mt-6 h-9 px-3 rounded-lg"
+                            >
+                                Limpar
+                            </Button>
+                        )}
+                    </div>
+
+                    <Link href="/dashboard/bdp/new" className="w-full xl:w-auto mt-4 xl:mt-0">
+                        <Button className="w-full xl:w-auto bg-[#2563EB] hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 rounded-xl h-11 px-6 font-bold transition-all hover:scale-105 active:scale-100">
                             Novo BDP
                         </Button>
                     </Link>
+                </div>
+
+                {/* Project Filters - Button Row */}
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center animate-in slide-in-from-top-2 duration-500 delay-100">
+                    <span className="text-sm font-extrabold text-slate-400 uppercase tracking-wider whitespace-nowrap">Filtrar por Obra:</span>
+                    <div className="flex gap-2 flex-wrap overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
+                        <Button
+                            variant={!selectedProjectId || selectedProjectId === "all" ? "default" : "outline"}
+                            className={!selectedProjectId || selectedProjectId === "all" ? "bg-slate-800 text-white font-bold shadow-md hover:bg-slate-700" : "bg-white text-slate-500 border-slate-200 font-bold hover:bg-slate-50 hover:text-slate-700"}
+                            onClick={() => handleProjectChange("all")}
+                            size="sm"
+                        >
+                            Todas
+                        </Button>
+                        {projects.map((p) => {
+                            const isSelected = selectedProjectId === p.id
+                            return (
+                                <Button
+                                    key={p.id}
+                                    variant={isSelected ? "default" : "outline"}
+                                    className={isSelected ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20 hover:bg-blue-700" : "bg-white text-slate-500 border-slate-200 font-bold hover:bg-slate-50 hover:text-slate-700"}
+                                    onClick={() => handleProjectChange(p.id)}
+                                    size="sm"
+                                >
+                                    {p.name}
+                                </Button>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
 

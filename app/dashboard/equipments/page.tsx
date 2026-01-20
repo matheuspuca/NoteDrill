@@ -4,13 +4,12 @@ import { EquipmentKPIs } from "@/components/equipment/EquipmentKPIs"
 // Force revalidation
 import { Equipment } from "@/lib/schemas-equipment"
 import { startOfMonth, endOfMonth, format, subHours } from "date-fns"
-import { DateRangePicker } from "@/components/dashboard/DateRangePicker"
-import { EquipmentSelector } from "@/components/dashboard/EquipmentSelector"
+import { EquipmentFilters } from "@/components/equipment/EquipmentFilters"
 
 export default async function EquipmentsPage({
     searchParams,
 }: {
-    searchParams: { startDate?: string; endDate?: string; equipmentId?: string }
+    searchParams: { startDate?: string; endDate?: string; equipmentId?: string; projectId?: string }
 }) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -33,8 +32,9 @@ export default async function EquipmentsPage({
     }
 
     const selectedEquipmentId = searchParams?.equipmentId
+    const selectedProjectId = searchParams?.projectId && searchParams.projectId !== 'all' ? searchParams.projectId : null
 
-    // 1. Fetch ALL equipments for the selector and list (initially)
+    // 1. Fetch ALL equipments for the selector and list
     const { data: allEquipmentsData, error: equipmentsError } = await supabase
         .from("equipment")
         .select("*")
@@ -43,24 +43,33 @@ export default async function EquipmentsPage({
 
     const allEquipments = (allEquipmentsData as Equipment[]) || []
 
+    // Fetch Projects for Filter
+    const { data: projectsData } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("name")
+
+    const projects = projectsData || []
+
     // 2. Prepare queries for KPIs (Production & Bits)
     let bdpQuery = supabase
         .from("bdp_reports")
-        .select("drill_id, total_meters, start_time, end_time, occurrences, drill:equipment!drill_id(name)")
+        .select("drill_id, total_meters, start_time, end_time, occurrences, drill:equipment!drill_id(name), project_id")
         .eq("user_id", user.id)
         .gte("date", startMonth)
         .lte("date", endMonth)
 
     let bitQuery = supabase
         .from("inventory_transactions")
-        .select("quantity, item:inventory_items!inner(name), created_at")
+        .select("quantity, item:inventory_items!inner(name, project_id), created_at")
         .eq("user_id", user.id)
         .eq("type", "OUT")
         .ilike("item.name", "%Bit%") // Filter by item name
         .gte("created_at", `${startMonth}T00:00:00`)
         .lte("created_at", `${endMonth}T23:59:59`)
 
-    // 3. Apply Equipment Filter to Queries & List
+    // 3. Apply Equipment Filter
     let filteredEquipments = allEquipments
 
     if (selectedEquipmentId) {
@@ -69,7 +78,13 @@ export default async function EquipmentsPage({
         filteredEquipments = allEquipments.filter(e => e.id === selectedEquipmentId)
     }
 
-    // 4. Executa queries
+    // 4. Apply Project Filter
+    if (selectedProjectId) {
+        bdpQuery = bdpQuery.eq("project_id", selectedProjectId)
+        bitQuery = bitQuery.eq("item.project_id", selectedProjectId) // Filter bits by project via item
+    }
+
+    // 5. Executa queries
     const [bdpResult, bitResult] = await Promise.all([
         bdpQuery,
         bitQuery
@@ -91,17 +106,15 @@ export default async function EquipmentsPage({
 
     return (
         <div className="max-w-[1600px] mx-auto py-10 space-y-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col gap-6">
                 <div>
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Equipamentos</h1>
                     <p className="text-lg text-slate-500 font-medium mt-2">
                         Gestão de frota, manutenção e controle de ativos.
                     </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <EquipmentSelector equipments={allEquipments} />
-                    <DateRangePicker />
-                </div>
+
+                <EquipmentFilters projects={projects} equipments={allEquipments} />
             </div>
 
             {equipmentsError && (
