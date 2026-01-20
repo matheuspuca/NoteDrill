@@ -70,10 +70,14 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
     }))
 
     // Fetch Projects with Metadata for S-Curve
-    const { data: projects } = await supabase
+    const { data: projects, error: projectsError } = await supabase
         .from("projects")
         .select("id, name, drilling_start_date, target_meters")
         .eq("user_id", user.id)
+
+    if (projectsError) {
+        console.error("Error fetching projects metadata:", projectsError)
+    }
 
     return (
         <div className="space-y-8 max-w-[1800px] mx-auto pb-10 pt-6 px-4 lg:px-8">
@@ -87,10 +91,11 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
 
 
 
-            {error && (
+            {(error || projectsError) && (
                 <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600">
                     <p className="font-bold">Erro ao carregar dados:</p>
-                    <pre className="text-xs mt-2">{JSON.stringify(error, null, 2)}</pre>
+                    {error && <pre className="text-xs mt-2">Relatórios: {error.message}</pre>}
+                    {projectsError && <pre className="text-xs mt-2">Projetos: {projectsError.message}</pre>}
                 </div>
             )}
 
