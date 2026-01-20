@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Calendar as CalendarIcon, MapPin, Building2, User, Phone, Box, Target } from "lucide-react"
+import { Loader2, Calendar as CalendarIcon, MapPin, Building2, User, Phone, Box } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -291,7 +291,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                                     <FormLabel className="text-slate-700 font-bold text-lg">Meta Total (m)</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Target className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
+                                            <Box className="absolute left-4 top-4 h-6 w-6 text-slate-400" />
                                             <Input type="number" step="0.1" placeholder="Ex: 5000" className="pl-12 h-14 text-lg border-slate-200 rounded-xl" {...field} />
                                         </div>
                                     </FormControl>
@@ -454,6 +454,6 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                     </Button>
                 </div>
             </form>
-        </Form >
+        </Form>
     )
 }
