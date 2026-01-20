@@ -91,17 +91,17 @@ export function ProjectList({ projects }: ProjectListProps) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
                 {/* Visual Spacer / Title Area if needed later */}
                 <div className="hidden sm:block"></div>
-                <Link href="/dashboard/projects/new">
+                <Link href="/dashboard/projects/new" className="w-full sm:w-auto">
                     <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 rounded-2xl h-16 px-10 text-xl font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
+                        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 rounded-2xl h-14 md:h-16 px-6 md:px-10 text-lg md:text-xl font-bold transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
                     >
-                        <Plus className="h-7 w-7" /> Nova Obra
+                        <Plus className="h-6 w-6 md:h-7 md:w-7" /> Nova Obra
                     </Button>
                 </Link>
             </div>
 
             <Card className="border-none shadow-2xl rounded-[32px] overflow-hidden bg-white ring-1 ring-slate-100">
-                <CardHeader className="border-b border-slate-100 bg-white p-10">
+                <CardHeader className="border-b border-slate-100 bg-white p-6 md:p-10">
                     <div className="flex items-center gap-6">
                         <div className="p-4 bg-blue-50 rounded-2xl ring-1 ring-blue-100">
                             <HardHat className="h-10 w-10 text-blue-600" />
@@ -118,7 +118,7 @@ export function ProjectList({ projects }: ProjectListProps) {
                     <Table className="min-w-[1000px]">
                         <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
                             <TableRow className="border-slate-100 hover:bg-transparent">
-                                <TableHead className="pl-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Projeto / Obra</TableHead>
+                                <TableHead className="pl-6 md:pl-10 h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Projeto / Obra</TableHead>
                                 <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Status</TableHead>
                                 <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Localização</TableHead>
                                 <TableHead className="h-20 font-extrabold text-slate-500 text-xs uppercase tracking-[0.15em]">Responsável</TableHead>
@@ -144,7 +144,7 @@ export function ProjectList({ projects }: ProjectListProps) {
 
                                     return (
                                         <TableRow key={project.id} className="border-slate-50 hover:bg-blue-50/40 transition-all duration-200 group cursor-pointer">
-                                            <TableCell className="pl-10 py-8">
+                                            <TableCell className="pl-6 md:pl-10 py-8">
                                                 <div className="font-black text-slate-800 text-xl tracking-tight group-hover:text-blue-700 transition-colors">
                                                     {project.name}
                                                 </div>

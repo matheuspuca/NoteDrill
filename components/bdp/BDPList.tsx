@@ -199,46 +199,51 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
     return (
         <div className="space-y-8">
             {/* Filters */}
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex gap-4 items-center w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                    <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-                        <TabsList className="bg-slate-100 p-1 rounded-xl h-11">
-                            <TabsTrigger value="TODOS" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm font-bold">Todos</TabsTrigger>
-                            <TabsTrigger value="PENDENTE" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-bold">Pendentes</TabsTrigger>
-                            <TabsTrigger value="APROVADO" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm font-bold">Aprovados</TabsTrigger>
-                            <TabsTrigger value="REJEITADO" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm font-bold">Rejeitados</TabsTrigger>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row gap-4 items-center justify-between">
+                <div className="flex flex-col md:flex-row gap-4 items-center w-full xl:w-auto">
+                    <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full md:w-auto">
+                        <TabsList className="bg-slate-100 p-1 rounded-xl h-11 w-full md:w-auto grid grid-cols-4 md:flex">
+                            <TabsTrigger value="TODOS" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm font-bold text-xs md:text-sm">Todos</TabsTrigger>
+                            <TabsTrigger value="PENDENTE" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-bold text-xs md:text-sm">Pendentes</TabsTrigger>
+                            <TabsTrigger value="APROVADO" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-green-600 data-[state=active]:shadow-sm font-bold text-xs md:text-sm">Aprovados</TabsTrigger>
+                            <TabsTrigger value="REJEITADO" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm font-bold text-xs md:text-sm">Rejeitados</TabsTrigger>
                         </TabsList>
                     </Tabs>
 
-                    <div className="h-8 w-px bg-slate-200 hidden md:block" />
+                    <div className="h-px w-full md:h-8 md:w-px bg-slate-200 hidden md:block" />
 
-                    <div className="flex gap-2 items-center">
-                        <input
-                            type="date"
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                        />
-                        <span className="text-slate-400 font-bold">-</span>
-                        <input
-                            type="date"
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                        />
-                        <Button variant="ghost" size="icon" onClick={handleFilter} className="text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <Clock className="w-4 h-4" />
-                        </Button>
-                        {(startDate || endDate) && (
-                            <Button variant="ghost" size="sm" onClick={clearFilter} className="text-red-400 hover:text-red-600 text-xs">
-                                Limpar
+                    <div className="flex flex-col sm:flex-row gap-2 items-center w-full md:w-auto">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <input
+                                type="date"
+                                className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-auto"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                            <span className="text-slate-400 font-bold">-</span>
+                            <input
+                                type="date"
+                                className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full sm:w-auto"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
+                            <Button variant="ghost" size="icon" onClick={handleFilter} className="text-blue-600 hover:bg-blue-50 rounded-lg">
+                                <Clock className="w-4 h-4" />
                             </Button>
-                        )}
+                            {(startDate || endDate) && (
+                                <Button variant="ghost" size="sm" onClick={clearFilter} className="text-red-400 hover:text-red-600 text-xs">
+                                    Limpar
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <Link href="/dashboard/bdp/new">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 rounded-xl font-bold h-11 px-6">
+                <Link href="/dashboard/bdp/new" className="w-full xl:w-auto">
+                    <Button className="w-full xl:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 rounded-xl font-bold h-11 px-6">
                         <Plus className="mr-2 h-4 w-4" /> Novo BDP
                     </Button>
                 </Link>

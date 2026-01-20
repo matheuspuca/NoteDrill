@@ -73,14 +73,12 @@ export function EquipmentList({ equipments }: EquipmentListProps) {
     return (
         <>
             <div className="flex justify-end mb-8">
-                <div className="flex justify-end mb-8">
-                    <Link
-                        href="/dashboard/equipments/new"
-                        className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 rounded-2xl h-14 px-8 font-black text-lg transition-all hover:scale-105"
-                    >
-                        <Plus className="mr-2 h-6 w-6" /> Novo Equipamento
-                    </Link>
-                </div>
+                <Link
+                    href="/dashboard/equipments/new"
+                    className="w-full sm:w-auto flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 rounded-2xl h-14 px-8 font-black text-lg transition-all hover:scale-105"
+                >
+                    <Plus className="mr-2 h-6 w-6" /> Novo Equipamento
+                </Link>
             </div>
 
             <Card className="border-none shadow-xl rounded-2xl overflow-hidden bg-white ring-1 ring-slate-100">
@@ -92,7 +90,7 @@ export function EquipmentList({ equipments }: EquipmentListProps) {
                     <Table>
                         <TableHeader className="bg-slate-50">
                             <TableRow>
-                                <TableHead className="pl-8 font-bold text-base uppercase text-slate-500 py-4">Equipamento</TableHead>
+                                <TableHead className="pl-6 md:pl-8 font-bold text-base uppercase text-slate-500 py-4">Equipamento</TableHead>
                                 <TableHead className="font-bold text-base uppercase text-slate-500">Tipo/Modelo</TableHead>
                                 <TableHead className="font-bold text-base uppercase text-slate-500">Status</TableHead>
                                 <TableHead className="font-bold text-base uppercase text-slate-500">Manutenção</TableHead>
@@ -109,7 +107,7 @@ export function EquipmentList({ equipments }: EquipmentListProps) {
                             ) : (
                                 equipments.map((item) => (
                                     <TableRow key={item.id} className="hover:bg-slate-50/50 cursor-pointer h-24" onClick={() => router.push(`/dashboard/equipments/${item.id}`)}>
-                                        <TableCell className="pl-8 py-5">
+                                        <TableCell className="pl-6 md:pl-8 py-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="p-4 bg-slate-100 rounded-2xl">
                                                     {getIcon(item.type)}

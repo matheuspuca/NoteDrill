@@ -46,34 +46,34 @@ export default async function SettingsPage() {
             </div>
 
             <Tabs defaultValue="company" className="w-full space-y-6">
-                <TabsList className="bg-slate-100 p-1 rounded-xl h-auto flex-wrap gap-2 w-full md:w-auto inline-flex">
+                <TabsList className="bg-slate-100 p-1 rounded-xl h-auto flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto">
                     <TabsTrigger
                         value="company"
-                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="w-full sm:w-auto rounded-lg h-12 md:h-14 px-4 md:px-6 text-base md:text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center justify-center sm:justify-start"
                     >
                         <Building2 className="w-4 h-4" /> Empresa
                     </TabsTrigger>
                     <TabsTrigger
                         value="profile"
-                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="w-full sm:w-auto rounded-lg h-12 md:h-14 px-4 md:px-6 text-base md:text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center justify-center sm:justify-start"
                     >
                         <User className="w-4 h-4" /> Meu Perfil
                     </TabsTrigger>
                     <TabsTrigger
                         value="security"
-                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="w-full sm:w-auto rounded-lg h-12 md:h-14 px-4 md:px-6 text-base md:text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center justify-center sm:justify-start"
                     >
                         <Shield className="w-4 h-4" /> Segurança
                     </TabsTrigger>
                     <TabsTrigger
                         value="backups"
-                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="w-full sm:w-auto rounded-lg h-12 md:h-14 px-4 md:px-6 text-base md:text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center justify-center sm:justify-start"
                     >
                         <Database className="w-4 h-4" /> Backups
                     </TabsTrigger>
                     <TabsTrigger
                         value="notifications"
-                        className="rounded-lg h-14 px-6 text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center"
+                        className="w-full sm:w-auto rounded-lg h-12 md:h-14 px-4 md:px-6 text-base md:text-lg font-bold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all flex gap-2 items-center justify-center sm:justify-start"
                     >
                         <Bell className="w-4 h-4" /> Notificações
                     </TabsTrigger>

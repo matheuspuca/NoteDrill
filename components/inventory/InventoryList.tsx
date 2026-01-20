@@ -66,12 +66,12 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
         <>
             <InventoryAnalytics items={items} />
 
-            <div className="flex justify-end mb-8 gap-4">
+            <div className="flex flex-col md:flex-row justify-end mb-8 gap-4">
                 <StockTransferDialog items={items} projects={projects} />
                 <InventoryReportButton items={items} label="Inventário" companySettings={companySettings} />
                 <Link
                     href="/dashboard/inventory/new"
-                    className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 rounded-2xl h-14 px-8 font-black text-lg transition-all hover:scale-105"
+                    className="w-full md:w-auto flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/20 rounded-2xl h-14 px-8 font-black text-lg transition-all hover:scale-105"
                 >
                     <Plus className="mr-2 h-6 w-6" /> Novo Item
                 </Link>
@@ -121,7 +121,7 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                     <Table className="min-w-[800px]">
                                         <TableHeader className="bg-slate-50">
                                             <TableRow>
-                                                <TableHead className="pl-8 font-bold text-base uppercase text-slate-500 py-4">Item</TableHead>
+                                                <TableHead className="pl-6 md:pl-8 font-bold text-base uppercase text-slate-500 py-4">Item</TableHead>
                                                 {/* Removed Obra Column as it is redundant now */}
                                                 <TableHead className="font-bold text-base uppercase text-slate-500">Marca/Detalhes</TableHead>
                                                 <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Qtd.</TableHead>
@@ -135,7 +135,7 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                                 const isLowStock = (item.quantity || 0) <= (item.minStock || 0)
                                                 return (
                                                     <TableRow key={item.id} className="hover:bg-slate-50/50 cursor-pointer h-24" onClick={() => router.push(`/dashboard/inventory/${item.id}`)}>
-                                                        <TableCell className="pl-8 py-5">
+                                                        <TableCell className="pl-6 md:pl-8 py-5">
                                                             <div className="flex items-center gap-4">
                                                                 <div className="p-4 bg-slate-100 rounded-2xl">
                                                                     <Package className="h-6 w-6 text-slate-500" />
