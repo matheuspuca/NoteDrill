@@ -259,7 +259,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="bg-indigo-100 p-2.5 rounded-xl">
-                            <Target className="w-6 h-6 text-indigo-600" />
+                            <Box className="w-6 h-6 text-indigo-600" />
                         </div>
                         <h3 className="font-bold text-slate-800 text-lg uppercase tracking-wider">Metas e Prazos (Curva S)</h3>
                     </div>
