@@ -128,6 +128,9 @@ export function InventoryReportButton({
                 doc.setTextColor(0, 0, 0)
                 doc.text(`Obra: ${projectName}`, 14, finalY + 10)
 
+                finalY += 15
+
+
                 // Group items by Type within Project
                 const itemsByType = projectItems.reduce((acc, item) => {
                     const type = item.type || "Material"

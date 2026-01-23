@@ -16,6 +16,8 @@ export const teamMemberSchema = z.object({
     // System Access
     createSystemUser: z.boolean().default(false).optional(),
     email: z.string().email("Email inválido").optional().or(z.literal("")),
+    systemRole: z.string().optional(),
+    projectId: z.string().uuid().optional(),
 
 }).refine((data) => {
     if (data.createSystemUser) {

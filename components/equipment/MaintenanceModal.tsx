@@ -138,6 +138,9 @@ export function MaintenanceModal({ open, onOpenChange, equipmentId, eventToEdit 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6 mt-4">
 
+
+                        <input type="hidden" {...form.register("equipment_id")} />
+
                         <div className="grid grid-cols-2 gap-6">
                             <FormField control={form.control} name="date" render={({ field }) => (
                                 <FormItem>

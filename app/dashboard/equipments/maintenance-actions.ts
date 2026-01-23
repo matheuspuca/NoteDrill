@@ -22,7 +22,7 @@ export async function createMaintenanceEvent(data: MaintenanceEventSchema) {
             .from("maintenance_events")
             .insert({
                 equipment_id: data.equipment_id,
-                date: new Date(data.date as string).toISOString(), // Ensure ISO string
+                date: typeof data.date === 'string' ? new Date(data.date).toISOString() : data.date.toISOString(),
                 type: data.type,
                 status: data.status,
                 hour_meter: data.hour_meter,
@@ -66,7 +66,7 @@ export async function updateMaintenanceEvent(id: string, data: MaintenanceEventS
         const { error } = await supabase
             .from("maintenance_events")
             .update({
-                date: new Date(data.date as string).toISOString(),
+                date: typeof data.date === 'string' ? new Date(data.date).toISOString() : data.date.toISOString(),
                 type: data.type,
                 status: data.status,
                 hour_meter: data.hour_meter,
