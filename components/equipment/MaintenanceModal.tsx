@@ -96,9 +96,18 @@ export function MaintenanceModal({ open, onOpenChange, equipmentId, eventToEdit 
     const onSubmit = async (data: MaintenanceEventSchema) => {
         setIsPending(true)
         try {
+            // Force inject equipmentId and ensure types
+            const payload = {
+                ...data,
+                equipment_id: equipmentId,
+                cost: Number(data.cost),
+                hour_meter: Number(data.hour_meter),
+                date: data.date
+            }
+
             const result = eventToEdit
-                ? await updateMaintenanceEvent(eventToEdit.id, data)
-                : await createMaintenanceEvent(data)
+                ? await updateMaintenanceEvent(eventToEdit.id, payload)
+                : await createMaintenanceEvent(payload)
 
             if (result.error) {
                 toast({ variant: "destructive", title: "Erro", description: result.error })
@@ -138,8 +147,6 @@ export function MaintenanceModal({ open, onOpenChange, equipmentId, eventToEdit 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6 mt-4">
 
-
-                        <input type="hidden" {...form.register("equipment_id")} />
 
                         <div className="grid grid-cols-2 gap-6">
                             <FormField control={form.control} name="date" render={({ field }) => (

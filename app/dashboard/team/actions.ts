@@ -61,12 +61,20 @@ export async function createTeamMember(data: TeamMemberSchema) {
         }
     }
 
-    // Clean data for insert (remove system fields)
+    // Clean data for insert (remove system fields and sanitize dates)
     const { createSystemUser, systemRole, projectId, email, ...dbData } = validated
+
+    // Sanitize dates (empty string -> null)
+    const sanitizedData = {
+        ...dbData,
+        birthDate: dbData.birthDate || null,
+        admissionDate: dbData.admissionDate || null,
+        asoDate: dbData.asoDate || null,
+    }
 
     // Insert into basic team_members list (HR record)
     const { error } = await supabase.from("team_members").insert({
-        ...dbData,
+        ...sanitizedData,
         email: validated.email, // Save email in HR record too
         user_id: user.id, // Created By
         linked_user_id: linkedUserId
@@ -93,7 +101,14 @@ export async function updateTeamMember(id: string, data: TeamMemberSchema) {
     // Clean data (remove system fields that are not columns in team_members)
     const { createSystemUser, systemRole, projectId, ...dbPayload } = validated
 
-    const { error } = await supabase.from("team_members").update(dbPayload).eq("id", id)
+    const sanitizedPayload = {
+        ...dbPayload,
+        birthDate: dbPayload.birthDate || null,
+        admissionDate: dbPayload.admissionDate || null,
+        asoDate: dbPayload.asoDate || null,
+    }
+
+    const { error } = await supabase.from("team_members").update(sanitizedPayload).eq("id", id)
 
     if (error) return { error: "Erro ao atualizar membro" }
 
