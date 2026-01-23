@@ -89,11 +89,21 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                 ) : (
                     sortedProjects.map((projectName) => {
                         const projectItems = groupedItems[projectName]
-                        const totalValue = projectItems.reduce((acc, item) => acc + (Number(item.value || 0) * Number(item.quantity || 0)), 0)
+                        const projectTotalValue = projectItems.reduce((acc, item) => acc + (Number(item.value || 0) * Number(item.quantity || 0)), 0)
+
+                        // Group by Type within Project
+                        const itemsByType = projectItems.reduce((acc, item) => {
+                            const type = item.type || "Material"
+                            if (!acc[type]) acc[type] = []
+                            acc[type].push(item)
+                            return acc
+                        }, {} as Record<string, InventoryItem[]>)
+
+                        const sortedTypes = Object.keys(itemsByType).sort()
 
                         return (
                             <Card key={projectName} className="border-none shadow-xl rounded-2xl overflow-hidden bg-white ring-1 ring-slate-100">
-                                <CardHeader className="border-b border-slate-100 bg-white p-6 md:p-8 flex flex-row items-center justify-between">
+                                <CardHeader className="border-b border-slate-100 bg-white p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                     <div>
                                         <CardTitle className="text-2xl font-black text-slate-800 flex items-center gap-3">
                                             {projectName}
@@ -103,7 +113,7 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                         </CardTitle>
                                         <CardDescription className="text-base mt-1">Estoque alocado nesta obra.</CardDescription>
                                     </div>
-                                    <div className="flex items-center gap-6">
+                                    <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
                                         <InventoryReportButton
                                             items={projectItems}
                                             label="Relatório PDF"
@@ -113,67 +123,95 @@ export function InventoryList({ items, projects, companySettings }: InventoryLis
                                         />
                                         <div className="text-right border-l pl-6 border-slate-100">
                                             <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Valor Total</div>
-                                            <div className="text-2xl font-black text-emerald-600">R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                                            <div className="text-2xl font-black text-emerald-600">R$ {projectTotalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                                         </div>
                                     </div>
                                 </CardHeader>
-                                <CardContent className="p-0 overflow-x-auto">
-                                    <Table className="min-w-[800px]">
-                                        <TableHeader className="bg-slate-50">
-                                            <TableRow>
-                                                <TableHead className="pl-6 md:pl-8 font-bold text-base uppercase text-slate-500 py-4">Item</TableHead>
-                                                {/* Removed Obra Column as it is redundant now */}
-                                                <TableHead className="font-bold text-base uppercase text-slate-500">Marca/Detalhes</TableHead>
-                                                <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Qtd.</TableHead>
-                                                <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Valor Unit.</TableHead>
-                                                <TableHead className="font-bold text-base uppercase text-slate-500 text-right">Subtotal</TableHead>
-                                                <TableHead className="font-bold text-base uppercase text-slate-500 text-right pr-8">Ações</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {projectItems.map((item) => {
-                                                const isLowStock = (item.quantity || 0) <= (item.minStock || 0)
-                                                return (
-                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 cursor-pointer h-24" onClick={() => router.push(`/dashboard/inventory/${item.id}`)}>
-                                                        <TableCell className="pl-6 md:pl-8 py-5">
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="p-4 bg-slate-100 rounded-2xl">
-                                                                    <Package className="h-6 w-6 text-slate-500" />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="font-black text-slate-800 text-xl tracking-tight">{item.name}</div>
-                                                                    {isLowStock && (
-                                                                        <Badge variant="outline" className="mt-2 border-red-200 bg-red-50 text-red-600 text-xs font-bold gap-1 px-2 py-1">
-                                                                            <AlertTriangle className="w-3 h-3" /> Estoque Baixo
-                                                                        </Badge>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </TableCell>
-                                                        {/* Removed Obra Cell */}
-                                                        <TableCell className="text-slate-500 text-lg font-medium">
-                                                            {item.brand || "-"}
-                                                        </TableCell>
-                                                        <TableCell className="text-right font-mono font-black text-slate-700 text-xl">
-                                                            {item.quantity} <span className="text-sm text-slate-400 font-bold">{item.unit}</span>
-                                                        </TableCell>
-                                                        <TableCell className="text-right text-slate-600 text-lg font-medium">
-                                                            R$ {Number(item.value).toFixed(2)}
-                                                        </TableCell>
-                                                        <TableCell className="text-right text-emerald-600 text-lg font-bold">
-                                                            R$ {(Number(item.quantity || 0) * Number(item.value || 0)).toFixed(2)}
-                                                        </TableCell>
-                                                        <TableCell className="text-right pr-8">
-                                                            <UnifiedActionButtons
-                                                                editLink={`/dashboard/inventory/${item.id}`}
-                                                                onDelete={(e) => { e.stopPropagation(); handleDelete(item.id) }}
-                                                            />
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )
-                                            })}
-                                        </TableBody>
-                                    </Table>
+                                <CardContent className="p-0">
+                                    {sortedTypes.map((type) => (
+                                        <div key={type} className="border-b border-slate-100 last:border-none">
+                                            <div className="bg-slate-50/50 px-6 py-3 border-y border-slate-100/50">
+                                                <h4 className="font-bold text-slate-500 uppercase tracking-wider text-sm flex items-center gap-2">
+                                                    {type === "EPI" && <span className="w-2 h-2 rounded-full bg-orange-400"></span>}
+                                                    {type === "Material" && <span className="w-2 h-2 rounded-full bg-blue-400"></span>}
+                                                    {type === "Ferramenta" && <span className="w-2 h-2 rounded-full bg-purple-400"></span>}
+                                                    {type === "Combustível" && <span className="w-2 h-2 rounded-full bg-yellow-400"></span>}
+                                                    {type}
+                                                </h4>
+                                            </div>
+                                            <div className="overflow-x-auto">
+                                                <Table className="min-w-[800px]">
+                                                    <TableHeader>
+                                                        <TableRow className="hover:bg-transparent border-none">
+                                                            <TableHead className="pl-8 font-bold text-xs uppercase text-slate-400 w-[40%]">Item</TableHead>
+                                                            <TableHead className="font-bold text-xs uppercase text-slate-400">Marca/Detalhes</TableHead>
+                                                            <TableHead className="font-bold text-xs uppercase text-slate-400 text-right">Qtd.</TableHead>
+                                                            <TableHead className="font-bold text-xs uppercase text-slate-400 text-right">Valor Unit.</TableHead>
+                                                            <TableHead className="font-bold text-xs uppercase text-slate-400 text-right">Total</TableHead>
+                                                            <TableHead className="font-bold text-xs uppercase text-slate-400 text-right pr-8">Ações</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {itemsByType[type].map((item) => {
+                                                            const isLowStock = (item.quantity || 0) <= (item.minStock || 0)
+                                                            return (
+                                                                <TableRow key={item.id} className="hover:bg-slate-50/80 cursor-pointer h-20 border-slate-100" onClick={() => router.push(`/dashboard/inventory/${item.id}`)}>
+                                                                    <TableCell className="pl-8 py-4">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                                                                                <Package className="h-5 w-5 text-slate-400" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="font-bold text-slate-700 text-base">{item.name}</div>
+                                                                                {isLowStock && (
+                                                                                    <Badge variant="outline" className="mt-1 border-red-200 bg-red-50 text-red-600 text-[10px] font-bold px-1.5 py-0.5 h-auto">
+                                                                                        Estoque Baixo
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-slate-500 font-medium text-sm">
+                                                                        {item.brand || <span className="text-slate-300">-</span>}
+                                                                        {item.model && <span className="text-slate-400 ml-1">({item.model})</span>}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right text-base font-bold text-slate-600">
+                                                                        {item.quantity} <span className="text-xs text-slate-400 font-medium ml-0.5">{item.unit}</span>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right text-slate-500 font-medium">
+                                                                        R$ {Number(item.value).toFixed(2)}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right text-emerald-600 font-bold">
+                                                                        R$ {(Number(item.quantity || 0) * Number(item.value || 0)).toFixed(2)}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right pr-8">
+                                                                        <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 rounded-lg"
+                                                                                onClick={() => router.push(`/dashboard/inventory/${item.id}`)}
+                                                                            >
+                                                                                <Edit className="h-4 w-4" />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-8 w-8 hover:bg-red-50 hover:text-red-600 rounded-lg"
+                                                                                onClick={() => handleDelete(item.id)}
+                                                                            >
+                                                                                <Trash2 className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </CardContent>
                             </Card>
                         )

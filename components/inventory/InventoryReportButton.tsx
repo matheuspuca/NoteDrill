@@ -128,33 +128,71 @@ export function InventoryReportButton({
                 doc.setTextColor(0, 0, 0)
                 doc.text(`Obra: ${projectName}`, 14, finalY + 10)
 
-                // Calculate Project Total
+                // Group items by Type within Project
+                const itemsByType = projectItems.reduce((acc, item) => {
+                    const type = item.type || "Material"
+                    if (!acc[type]) acc[type] = []
+                    acc[type].push(item)
+                    return acc
+                }, {} as Record<string, InventoryItem[]>)
+
+                const sortedTypes = Object.keys(itemsByType).sort()
+
+                sortedTypes.forEach(type => {
+                    const typeItems = itemsByType[type]
+
+                    // Type Sub-header
+                    // Check if we need a new page
+                    if (finalY > 250) {
+                        doc.addPage()
+                        finalY = 20
+                    }
+
+                    doc.setFontSize(10)
+                    doc.setTextColor(100, 116, 139) // Slate-500
+                    doc.setFont("helvetica", "bold")
+                    doc.text(`> ${type}`, 14, finalY + 5)
+
+                    const typeTableData = typeItems.map(item => [
+                        item.name,
+                        item.brand || "-",
+                        `${item.quantity} ${item.unit}`,
+                        `R$ ${Number(item.value || 0).toFixed(2)}`,
+                        `R$ ${(Number(item.quantity || 0) * Number(item.value || 0)).toFixed(2)}`
+                    ])
+
+                    autoTable(doc, {
+                        startY: finalY + 7,
+                        head: [["Item", "Marca/Detalhes", "Qtd.", "Valor Unit.", "Total"]],
+                        body: typeTableData,
+                        theme: 'striped',
+                        headStyles: {
+                            fillColor: type === "EPI" ? [249, 115, 22] : (type === "Material" ? [59, 130, 246] : [71, 85, 105]), // Orange for EPI, Blue for Material, Slate default
+                            textColor: 255,
+                            fontSize: 9,
+                            fontStyle: 'bold'
+                        },
+                        styles: { fontSize: 8, cellPadding: 3 },
+                        margin: { left: 14, right: 14 },
+                    })
+
+                    // @ts-ignore
+                    finalY = doc.lastAutoTable.finalY + 5
+                })
+
+                // Project Subtotal Footer
                 const projectTotal = projectItems.reduce((acc, item) => acc + (Number(item.quantity || 0) * Number(item.value || 0)), 0)
                 grandTotal += projectTotal
 
-                // Table Data
-                const tableData = projectItems.map(item => [
-                    item.name,
-                    item.type || "Material",
-                    item.brand || "-",
-                    `${item.quantity} ${item.unit}`,
-                    `R$ ${Number(item.value || 0).toFixed(2)}`,
-                    `R$ ${(Number(item.quantity || 0) * Number(item.value || 0)).toFixed(2)}`
-                ])
-
-                // Generate Project Table
                 autoTable(doc, {
-                    startY: finalY + 15,
-                    head: [["Item", "Tipo", "Marca/Detalhes", "Qtd.", "Valor Unit.", "Total"]],
-                    body: tableData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-                    styles: { fontSize: 8 },
-                    foot: [["", "", "", "", "Subtotal:", `R$ ${projectTotal.toFixed(2)}`]],
-                    footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
+                    startY: finalY,
+                    body: [["Total da Obra:", "", "", "", `R$ ${projectTotal.toFixed(2)}`]],
+                    theme: 'plain',
+                    styles: { fontStyle: 'bold', fontSize: 10, cellPadding: 2 },
+                    columnStyles: { 4: { halign: 'right' } }, // Right align total
+                    margin: { left: 14, right: 14 }
                 })
 
-                // Update finalY for next table
                 // @ts-ignore
                 finalY = doc.lastAutoTable.finalY + 10
             })
