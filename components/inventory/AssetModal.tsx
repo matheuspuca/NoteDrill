@@ -1,5 +1,3 @@
-"use server"
-// Actually this is client component
 "use client"
 
 import { useForm } from "react-hook-form"
