@@ -45,6 +45,13 @@ export default async function NewBDPPage() {
         }
     }
 
+    // Fetch Open Plans
+    const { data: planos } = await supabase
+        .from("plano_de_fogo")
+        .select("id, name, project_id, status")
+        .eq("user_id", user.id)
+        .eq("status", "Aberto")
+
     return (
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
 
@@ -58,6 +65,7 @@ export default async function NewBDPPage() {
                 teamMembers={teamMembers || []}
                 equipments={equipments || []}
                 inventoryItems={inventoryItems || []}
+                planos={planos || []}
                 defaultValues={{
                     operatorId: defaultOperatorId,
                     projectId: defaultProjectId,

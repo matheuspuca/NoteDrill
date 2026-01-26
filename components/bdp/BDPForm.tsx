@@ -3,13 +3,14 @@
 import { useState, useMemo } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, FileText, Activity, Fuel, Plus, Trash2, HardHat, Check } from "lucide-react"
+import { Loader2, FileText, Activity, Fuel, Plus, Trash2, HardHat, Check, Flame } from "lucide-react"
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -27,7 +28,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { bdpSchema, BDPSchema, serviceTypeSchema, occurrenceTypeSchema, supplyTypeSchema } from "@/lib/schemas-bdp"
 import { createBDP, updateBDP } from "@/app/dashboard/bdp/actions"
@@ -39,6 +40,7 @@ interface BDPFormProps {
     teamMembers: { id: string, name: string, role: string, registrationNumber?: number }[]
     equipments: { id: string, name: string, type: string }[]
     inventoryItems: { id: string, name: string, unit: string }[]
+    planos?: { id: string, name: string, project_id: string, status: string }[]
     initialData?: BDPSchema & { id: string, reportNumber?: number }
     defaultValues?: Partial<BDPSchema>
 }
@@ -46,7 +48,12 @@ interface BDPFormProps {
 export function BDPForm({ projects, teamMembers, equipments, inventoryItems, initialData, defaultValues }: BDPFormProps) {
     const { toast } = useToast()
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    // Get URL params for auto-selection
+    const urlProjectId = searchParams.get("projectId")
+    const urlPlanoId = searchParams.get("planoId")
 
     // Filter lists
     const drills = equipments.filter(e => e.type === 'Hidráulica' || e.type === 'Pneumática' || !e.type)
@@ -69,7 +76,8 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
         // Header
         shift: undefined,
         date: format(new Date(), "yyyy-MM-dd"),
-        projectId: defaultValues?.projectId || "",
+        projectId: urlProjectId || defaultValues?.projectId || "",
+        planoDeFogoId: urlPlanoId || defaultValues?.planoDeFogoId || "",
         operatorId: defaultValues?.operatorId || "",
         drillId: defaultValues?.drillId || "",
 
@@ -283,7 +291,10 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
                             <FormField control={form.control} name="projectId" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="font-bold text-slate-700">Obra / Projeto</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={(val) => {
+                                        field.onChange(val)
+                                        form.setValue("planoDeFogoId", "") // Reset plan on project change
+                                    }} defaultValue={field.value}>
                                         <FormControl><SelectTrigger className="h-14 bg-slate-50 border-slate-200 rounded-xl"><SelectValue placeholder="Selecione a Obra" /></SelectTrigger></FormControl>
                                         <SelectContent>
                                             {projects.map(p => (
@@ -294,6 +305,35 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
                                     <FormMessage />
                                 </FormItem>
                             )} />
+
+                            <FormField control={form.control} name="planoDeFogoId" render={({ field }) => {
+                                const projectPlans = planos?.filter(p => p.project_id === form.watch("projectId")) || []
+                                return (
+                                    <FormItem>
+                                        <FormLabel className="font-bold text-slate-700 flex items-center gap-1">
+                                            <Flame className="w-3 h-3 text-orange-500" />
+                                            Plano de Fogo (Opcional)
+                                        </FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                                            <FormControl>
+                                                <SelectTrigger className="h-14 bg-slate-50 border-slate-200 rounded-xl">
+                                                    <SelectValue placeholder={projectPlans.length > 0 ? "Selecione o Plano" : "Sem planos abertos"} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="none">Nenhum vínculo</SelectItem>
+                                                {projectPlans.map(p => (
+                                                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormDescription className="text-[10px]">
+                                            Agrupe este BDP em um plano de furação.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )
+                            }} />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

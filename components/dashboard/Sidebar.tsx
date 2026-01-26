@@ -15,7 +15,8 @@ import {
     ChevronRight,
     Zap,
     LogOut,
-    User
+    User,
+    Flame
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -40,7 +41,7 @@ const menuItems = [
     { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
     { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },
     { label: "Equipe", icon: Users, href: "/dashboard/team" },
-
+    { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
 ]
 
 export function Sidebar({ userEmail }: { userEmail?: string }) {

@@ -54,6 +54,7 @@ export default async function EditBDPPage({ params }: { params: { id: string } }
         holes: bdp.holes || [],
 
         lithologyProfile: bdp.lithology_profile || undefined,
+        planoDeFogoId: bdp.plano_de_fogo_id || undefined,
     }
 
     // Fetch Lists
@@ -61,6 +62,13 @@ export default async function EditBDPPage({ params }: { params: { id: string } }
     const { data: teamMembers } = await supabase.from("team_members").select("id, name, role, registrationNumber").eq("user_id", user.id).eq("status", "Ativo").order("name")
     const { data: equipments } = await supabase.from("equipment").select("id, name, type").eq("user_id", user.id).eq("status", "Operacional").order("name")
     const { data: inventoryItems } = await supabase.from("inventory_items").select("id, name, unit").eq("user_id", user.id).order("name")
+
+    // Fetch Open Plans (plus the current one if it's already linked and closed)
+    const { data: planos } = await supabase
+        .from("plano_de_fogo")
+        .select("id, name, project_id, status")
+        .eq("user_id", user.id)
+        .or(`status.eq.Aberto${initialData.planoDeFogoId ? `,id.eq.${initialData.planoDeFogoId}` : ""}`)
 
     return (
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
@@ -83,7 +91,8 @@ export default async function EditBDPPage({ params }: { params: { id: string } }
                 teamMembers={teamMembers || []}
                 equipments={equipments || []}
                 inventoryItems={inventoryItems || []}
-                initialData={initialData}
+                planos={planos || []}
+                initialData={initialData as any}
             />
         </div>
     )
