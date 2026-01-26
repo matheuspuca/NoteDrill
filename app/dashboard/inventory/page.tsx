@@ -38,6 +38,13 @@ export default async function InventoryPage() {
         .eq("user_id", user.id)
         .single()
 
+    // [v2.3] Fetch Assets
+    const { data: assetsData } = await supabase
+        .from("project_assets")
+        .select(`*, projects (name)`)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+
     // Merge Data
     const formattedItems = (inventoryData || []).map(i => ({ ...i, type: i.type || "Material" }))
     const formattedEpis = (epiData || []).map(i => ({ ...i, type: "EPI", brand: i.ca ? `CA: ${i.ca}` : "" }))
@@ -60,6 +67,7 @@ export default async function InventoryPage() {
                 items={(allItems as any[]) || []}
                 projects={(projectsData as Project[]) || []}
                 companySettings={companySettings}
+                assets={assetsData || []}
             />
         </div>
     )

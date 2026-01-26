@@ -33,9 +33,28 @@ export type InventoryItem = InventoryItemSchema & {
     id: string
     user_id: string
     created_at: string
-    projects?: {
-        name: string
-    }
+    projects?: { name: string } | null
+}
+
+// [v2.3] Asset Schema (Patrimônio)
+export const assetSchema = z.object({
+    name: z.string().min(1, "Nome é obrigatório"),
+    purchase_date: z.string().optional(), // YYYY-MM-DD
+    invoice_number: z.string().optional(),
+    value: z.coerce.number().min(0).default(0),
+    quantity: z.coerce.number().min(1).default(1),
+    tag_number: z.string().optional(),
+    project_id: z.string().optional(),
+    description: z.string().optional(),
+})
+
+export type AssetSchema = z.infer<typeof assetSchema>
+
+export type ProjectAsset = AssetSchema & {
+    id: string
+    user_id: string
+    created_at: string
+    projects?: { name: string } | null
 }
 
 export const stockMovementSchema = z.object({
