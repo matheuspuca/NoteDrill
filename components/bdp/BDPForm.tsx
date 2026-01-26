@@ -45,7 +45,7 @@ interface BDPFormProps {
     defaultValues?: Partial<BDPSchema>
 }
 
-export function BDPForm({ projects, teamMembers, equipments, inventoryItems, initialData, defaultValues }: BDPFormProps) {
+export function BDPForm({ projects, teamMembers, equipments, inventoryItems, initialData, defaultValues, planos }: BDPFormProps) {
     const { toast } = useToast()
     const router = useRouter()
     const searchParams = useSearchParams()
