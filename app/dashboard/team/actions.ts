@@ -124,7 +124,10 @@ export async function deleteTeamMember(id: string) {
 
     const { error } = await supabase.from("team_members").delete().eq("id", id)
 
-    if (error) return { error: "Erro ao excluir membro" }
+    if (error) {
+        console.error("Delete Member Error:", error)
+        return { error: `Erro ao excluir: ${error.message}` }
+    }
 
     revalidatePath("/dashboard/team")
     return { success: true }
