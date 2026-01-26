@@ -22,6 +22,9 @@ export async function createBDP(data: BDPSchema) {
             date: rest.date || subHours(new Date(), 3).toISOString().split('T')[0],
             shift: rest.shift || 'Diurno',
 
+            // Plano de Fogo
+            plano_de_fogo_id: rest.planoDeFogoId || null,
+
             // Relations
             project_id: rest.projectId || null,
             operator_id: rest.operatorId || null,
@@ -191,6 +194,7 @@ export async function updateBDP(id: string, formData: BDPSchema) {
 
         date: formData.date,
         shift: formData.shift,
+        plano_de_fogo_id: formData.planoDeFogoId || null,
         status: formData.status || 'PENDENTE',
 
         hourmeter_start: formData.hourmeterStart,
@@ -205,7 +209,11 @@ export async function updateBDP(id: string, formData: BDPSchema) {
         rock_status_reason: formData.rockStatusReason || null,
 
         // Calculated fields (ensure they are updated too)
-        total_meters: formData.services.reduce((acc, s) => acc + (s.endDepth || 0) - (s.startDepth || 0), 0),
+        // Check if services exists and is array before reduce to avoid crashes if legacy data
+        total_meters: Array.isArray(formData.services)
+            ? formData.services.reduce((acc, s) => acc + s.holes.reduce((sum, h) => sum + (Number(h.depth) || 0), 0), 0)
+            : (formData.totalMeters || 0),
+
         average_height: 0,
         total_hours: (formData.hourmeterEnd || 0) - (formData.hourmeterStart || 0),
 

@@ -135,7 +135,10 @@ export const bdpSchema = z.object({
     status: z.enum(['PENDENTE', 'APROVADO', 'REJEITADO']).optional(),
 
     // Chronological Number (Read/Display only)
-    reportNumber: z.number().optional()
+    reportNumber: z.number().optional(),
+
+    // Plano de Fogo Link
+    planoDeFogoId: z.string().optional().nullable()
 })
 
 export type BDPSchema = z.infer<typeof bdpSchema>
