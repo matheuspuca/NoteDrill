@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { deleteBDP, updateBDPStatus } from "@/app/dashboard/bdp/actions"
+import { deleteBDP, updateBDPStatus } from "@/app/dashboard/plano-de-fogo/actions"
 import { useToast } from "@/components/ui/use-toast"
 import { generateBDPPDF } from "@/components/bdp/generate-pdf"
 import { generateMeasurementPDF } from "@/components/bdp/generate-measurement-pdf"
