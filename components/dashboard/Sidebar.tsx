@@ -37,6 +37,7 @@ import {
 const menuItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
+    { label: "Apontamento/BDP", icon: ClipboardList, href: "/dashboard/bdp" },
     { label: "Projetos/Obra", icon: HardHat, href: "/dashboard/projects" },
     { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
     { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },

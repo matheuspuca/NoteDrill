@@ -19,10 +19,8 @@ export function BottomNav() {
 
     const navItems = [
         { label: "Home", icon: LayoutDashboard, href: "/dashboard" },
-        { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
+        { label: "BDP", icon: ClipboardList, href: "/dashboard/bdp" },
         { label: "Obras", icon: HardHat, href: "/dashboard/projects" },
-        // { label: "Perfil", icon: User, href: "/dashboard/settings" }, // Moved to generic Menu or kept? Let's keep specific profile access for convenience, or replace with Menu?
-        // User asked for "full menu". A "Menu" button is best.
         { label: "Menu", icon: Menu, isMenu: true },
     ]
 
@@ -30,6 +28,7 @@ export function BottomNav() {
         { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
         { label: "Projetos/Obra", icon: HardHat, href: "/dashboard/projects" },
         { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
+        { label: "Apontamento/BDP", icon: ClipboardList, href: "/dashboard/bdp" },
         { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
         { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },
         { label: "Equipe", icon: Users, href: "/dashboard/team" },

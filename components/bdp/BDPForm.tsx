@@ -31,7 +31,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { bdpSchema, BDPSchema, serviceTypeSchema, occurrenceTypeSchema, supplyTypeSchema } from "@/lib/schemas-bdp"
-import { createBDP, updateBDP } from "@/app/dashboard/plano-de-fogo/actions"
+import { createBDP, updateBDP } from "@/app/dashboard/bdp/actions"
 import { BDPServiceSection } from "./BDPServiceSection"
 
 

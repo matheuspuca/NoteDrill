@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Plus } from "lucide-react"
 import { planoDeFogoSchema, PlanoDeFogoSchema } from "@/lib/schemas-plano"
-import { createPlano } from "@/app/dashboard/plano-de-fogo/actions"
+import { createPlano } from "@/app/dashboard/plano-de-fogo/plano-actions"
 import { useToast } from "@/components/ui/use-toast"
 
 import {

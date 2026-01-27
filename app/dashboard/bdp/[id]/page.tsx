@@ -44,7 +44,7 @@ export default async function PlanoFogoDetailPage({ params }: { params: { id: st
         <div className="max-w-[1400px] mx-auto pb-20 pt-6 px-4">
             {/* Header */}
             <div className="mb-8 flex items-center gap-4">
-                <Link href="/dashboard/plano-de-fogo">
+                <Link href="/dashboard/bdp">
                     <button className="bg-white p-2 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
                         <ChevronLeft className="w-6 h-6 text-slate-500" />
                     </button>
@@ -52,7 +52,7 @@ export default async function PlanoFogoDetailPage({ params }: { params: { id: st
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
                         <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
-                            Plano de Fogo
+                            Apontamento BDP
                         </h1>
                         <span className="text-slate-400 font-mono text-2xl">#{bdp.report_number}</span>
                         <Badge className={`${statusColors[bdp.status as keyof typeof statusColors] || statusColors.PENDENTE} font-bold`}>

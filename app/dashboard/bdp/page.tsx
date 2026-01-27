@@ -84,8 +84,8 @@ export default async function BDPPage({ searchParams }: { searchParams: { startD
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Plano de Fogo</h1>
-                    <p className="text-lg text-slate-500 mt-2 font-medium">Controle de perfuração e acompanhamento de planos de fogo.</p>
+                    <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Apontamento Diário (BDP)</h1>
+                    <p className="text-lg text-slate-500 mt-2 font-medium">Controle de produção e reporte diário de perfuração.</p>
                 </div>
             </div>
 
