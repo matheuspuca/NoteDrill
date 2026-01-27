@@ -103,7 +103,7 @@ export const generateBDPPDF = async (bdp: BDP, companySettings?: CompanySettings
     doc.setFontSize(16)
     doc.setFont("helvetica", "bold")
     if (companySettings) {
-        doc.text("Boletim Diário de Perfuração (BDP)", 14, currentY)
+        doc.text("Plano de Fogo", 14, currentY)
     } else {
         doc.text("SMARTDRILL - Boletim Diário de Perfuração", pageWidth / 2, 15, { align: "center" })
     }
@@ -297,6 +297,6 @@ export const generateBDPPDF = async (bdp: BDP, companySettings?: CompanySettings
     doc.text("SUPERVISOR / ENCARREGADO", pageWidth - 20 - (lineLength / 2), currentY + 5, { align: "center" })
 
     // Save
-    doc.save(`BDP_${bdp.projects?.name || 'Projeto'}_${format(new Date(), 'yyyyMMdd')}.pdf`)
+    doc.save(`Plano_de_Fogo_${bdp.projects?.name || 'Projeto'}_${format(new Date(), 'yyyyMMdd')}.pdf`)
 }
 

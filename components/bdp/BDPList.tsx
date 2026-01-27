@@ -49,13 +49,13 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
         const params = new URLSearchParams()
         if (startDate) params.set("startDate", startDate)
         if (endDate) params.set("endDate", endDate)
-        router.push(`/dashboard/bdp?${params.toString()}`)
+        router.push(`/dashboard/plano-de-fogo?${params.toString()}`)
     }
 
     const clearFilter = () => {
         setStartDate("")
         setEndDate("")
-        router.push("/dashboard/bdp")
+        router.push("/dashboard/plano-de-fogo")
     }
 
     // ... exports handlers ...
@@ -138,7 +138,7 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
         } else {
             toast({
                 title: "Sucesso",
-                description: "Apontamento excluído com sucesso",
+                description: "Registro excluído com sucesso",
             })
         }
     }
@@ -242,9 +242,9 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
                     </div>
                 </div>
 
-                <Link href="/dashboard/bdp/new" className="w-full xl:w-auto">
+                <Link href="/dashboard/plano-de-fogo/new" className="w-full xl:w-auto">
                     <Button className="w-full xl:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 rounded-xl font-bold h-11 px-6">
-                        <Plus className="mr-2 h-4 w-4" /> Novo BDP
+                        <Plus className="mr-2 h-4 w-4" /> Novo Plano de Fogo
                     </Button>
                 </Link>
             </div>
@@ -259,7 +259,7 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
                         onClick={() => {
                             const params = new URLSearchParams(searchParams.toString())
                             params.delete("project")
-                            router.push(`/dashboard/bdp?${params.toString()}`)
+                            router.push(`/dashboard/plano-de-fogo?${params.toString()}`)
                         }}
                     >
                         Todas
@@ -274,7 +274,7 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
                                 onClick={() => {
                                     const params = new URLSearchParams(searchParams.toString())
                                     if (projectName) params.set("project", projectName)
-                                    router.push(`/dashboard/bdp?${params.toString()}`)
+                                    router.push(`/dashboard/plano-de-fogo?${params.toString()}`)
                                 }}
                             >
                                 {projectName}
@@ -339,7 +339,7 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
                                         </TableHeader>
                                         <TableBody>
                                             {projectReports.map((report) => (
-                                                <TableRow key={report.id} className="border-slate-50 hover:bg-slate-50/50 transition-all duration-200 group cursor-pointer" onClick={() => router.push(`/dashboard/bdp/${report.id}`)}>
+                                                <TableRow key={report.id} className="border-slate-50 hover:bg-slate-50/50 transition-all duration-200 group cursor-pointer" onClick={() => router.push(`/dashboard/plano-de-fogo/${report.id}`)}>
                                                     <TableCell className="pl-6 py-4">
                                                         <span className="font-mono font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded text-xs">#{report.reportNumber}</span>
                                                     </TableCell>
@@ -370,7 +370,7 @@ export function BDPList({ reports, companySettings, projectsData }: BDPListProps
                                                     <TableCell className="pr-8 py-4 text-right">
                                                         <UnifiedActionButtons
                                                             className="opacity-100"
-                                                            editLink={(!report.status || report.status === 'PENDENTE') ? `/dashboard/bdp/${report.id}/edit` : undefined}
+                                                            editLink={(!report.status || report.status === 'PENDENTE') ? `/dashboard/plano-de-fogo/${report.id}/edit` : undefined}
                                                             onDelete={(e) => handleDelete(report.id, e)}
                                                             onPrint={(e) => handleExport(report, e)}
                                                             isPrinting={generatingPdfId === report.id}

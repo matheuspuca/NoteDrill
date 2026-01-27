@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, HardHat, ClipboardList, User, Menu, Package, Users, Settings, Zap } from "lucide-react"
+import { LayoutDashboard, HardHat, ClipboardList, User, Menu, Package, Users, Settings, Zap, Flame } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
     Sheet,
@@ -19,7 +19,7 @@ export function BottomNav() {
 
     const navItems = [
         { label: "Home", icon: LayoutDashboard, href: "/dashboard" },
-        { label: "BDP", icon: ClipboardList, href: "/dashboard/bdp" },
+        { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
         { label: "Obras", icon: HardHat, href: "/dashboard/projects" },
         // { label: "Perfil", icon: User, href: "/dashboard/settings" }, // Moved to generic Menu or kept? Let's keep specific profile access for convenience, or replace with Menu?
         // User asked for "full menu". A "Menu" button is best.
@@ -29,7 +29,7 @@ export function BottomNav() {
     const fullMenuItems = [
         { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
         { label: "Projetos/Obra", icon: HardHat, href: "/dashboard/projects" },
-        { label: "Apontamento/BDP", icon: ClipboardList, href: "/dashboard/bdp" },
+        { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
         { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
         { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },
         { label: "Equipe", icon: Users, href: "/dashboard/team" },

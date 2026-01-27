@@ -12,7 +12,8 @@ import {
     Users,
     Settings,
     Menu,
-    Zap
+    Zap,
+    Flame
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -27,7 +28,7 @@ import { DrillIcon } from "@/components/icons/DrillIcon"
 
 const menuItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "Apontamento/BDP", icon: ClipboardList, href: "/dashboard/bdp" },
+    { label: "Plano de Fogo", icon: Flame, href: "/dashboard/plano-de-fogo" },
     { label: "Projetos/Obra", icon: HardHat, href: "/dashboard/projects" },
     { label: "Equipamentos", icon: DrillIcon, href: "/dashboard/equipments" },
     { label: "Almoxarifado", icon: Package, href: "/dashboard/inventory" },

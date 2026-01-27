@@ -81,6 +81,7 @@ export const bdpSchema = z.object({
     helperId: z.string().optional(), // Helper from Team table
 
     drillId: z.string().optional(), // From Equipment table
+    compressorId: z.string().optional(),
 
 
     // Counters
@@ -138,7 +139,7 @@ export const bdpSchema = z.object({
     reportNumber: z.number().optional(),
 
     // Plano de Fogo Link
-    planoDeFogoId: z.string().optional().nullable()
+    planoDeFogoId: z.string().min(1, "Plano de Fogo é obrigatório")
 })
 
 export type BDPSchema = z.infer<typeof bdpSchema>

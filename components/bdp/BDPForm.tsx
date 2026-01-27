@@ -312,7 +312,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
                                     <FormItem>
                                         <FormLabel className="font-bold text-slate-700 flex items-center gap-1">
                                             <Flame className="w-3 h-3 text-orange-500" />
-                                            Plano de Fogo (Opcional)
+                                            Vincular Plano de Fogo
                                         </FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value || ""}>
                                             <FormControl>
@@ -321,7 +321,6 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="none">Nenhum vínculo</SelectItem>
                                                 {projectPlans.map(p => (
                                                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                                                 ))}
@@ -671,7 +670,7 @@ export function BDPForm({ projects, teamMembers, equipments, inventoryItems, ini
                     <div className="pt-8 pb-20 sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-4 -mx-4 px-4 sm:-mx-8 sm:px-8 z-20">
                         <Button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-16 rounded-2xl text-xl font-bold shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.01]">
                             {isSubmitting && <Loader2 className="mr-3 h-6 w-6 animate-spin" />}
-                            Finalizar e Salvar BDP
+                            Finalizar e Salvar
                         </Button>
                     </div>
 

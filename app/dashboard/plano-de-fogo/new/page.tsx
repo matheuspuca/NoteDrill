@@ -56,8 +56,8 @@ export default async function NewBDPPage() {
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
 
             <div className="mb-10">
-                <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Novo Boletim Diário (BDP)</h1>
-                <p className="text-lg text-slate-500 mt-2 font-medium">Preencha os dados abaixo para gerar o relatório diário.</p>
+                <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Novo Plano de Fogo</h1>
+                <p className="text-lg text-slate-500 mt-2 font-medium">Preencha os dados abaixo para registrar os furos e vincular um plano.</p>
             </div>
 
             <BDPForm
