@@ -73,16 +73,16 @@ export default async function EditBDPPage({ params }: { params: { id: string } }
     return (
         <div className="max-w-[1200px] mx-auto pb-20 pt-6">
             <div className="mb-10 flex items-center gap-4">
-                <Link href="/dashboard/bdp">
+                <Link href="/dashboard/plano-de-fogo">
                     <button className="bg-white p-2 rounded-xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
                         <ChevronLeft className="w-6 h-6 text-slate-500" />
                     </button>
                 </Link>
                 <div>
                     <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3">
-                        Editar BDP <span className="text-slate-400 font-mono text-2xl">#{bdp.report_number}</span>
+                        Editar Plano de Fogo <span className="text-slate-400 font-mono text-2xl">#{bdp.report_number}</span>
                     </h1>
-                    <p className="text-lg text-slate-500 mt-2 font-medium">Atualize as informações do boletim.</p>
+                    <p className="text-lg text-slate-500 mt-2 font-medium">Atualize as informações do registro.</p>
                 </div>
             </div>
 
