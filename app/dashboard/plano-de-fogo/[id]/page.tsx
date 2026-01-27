@@ -1,16 +1,24 @@
 import { createClient } from "@/lib/supabase/server"
 import { getPlanoDetails } from "../plano-actions"
 import { redirect } from "next/navigation"
-import { ChevronLeft, Flame, Calendar, HardHat, FileText, CheckCircle2, Circle } from "lucide-react"
-import Link from "next/link"
+import { Flame, Calendar, HardHat, CheckCircle2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { PlanoDetailsActions } from "@/components/plano/PlanoDetailsActions"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default async function PlanoDetailPage({ params }: { params: { id: string } }) {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        redirect("/login")
+    }
+
     const result = await getPlanoDetails(params.id)
 
     if (result.error || !result.data) {
@@ -19,38 +27,29 @@ export default async function PlanoDetailPage({ params }: { params: { id: string
 
     const { plano, bdps } = result.data
 
+    // Fetch projects for editing
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("name")
+
+    // Fetch company settings for PDF reports
+    const { data: companySettings } = await supabase
+        .from("company_settings")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle()
+
     return (
         <div className="max-w-[1400px] mx-auto pb-20 pt-6 px-4">
-            {/* Header */}
-            <div className="mb-8 flex flex-col md:flex-row md:items-center gap-6 justify-between">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard/plano-de-fogo">
-                        <Button variant="ghost" size="icon" className="bg-white shadow-sm border border-slate-200 rounded-xl hover:bg-slate-50">
-                            <ChevronLeft className="w-6 h-6 text-slate-500" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <div className="flex items-center gap-3 flex-wrap">
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
-                                {plano.name}
-                            </h1>
-                            <Badge className={`${plano.status === 'Concluído' ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800'} font-bold border-none px-3 py-1 rounded-lg`}>
-                                {plano.status}
-                            </Badge>
-                        </div>
-                        <p className="text-lg text-slate-500 mt-2 font-medium">Detalhes do Plano de Fogo e execução</p>
-                    </div>
-                </div>
-
-                <div className="flex gap-3">
-                    <Link href={`/dashboard/bdp/new?projectId=${plano.project_id}&planoId=${plano.id}`}>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2 font-bold h-12">
-                            <FileText className="w-5 h-5" />
-                            Novo BDP para este Plano
-                        </Button>
-                    </Link>
-                </div>
-            </div>
+            {/* Action Header */}
+            <PlanoDetailsActions
+                plano={plano}
+                bdps={bdps || []}
+                projects={projects || []}
+                companySettings={companySettings}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column: Details */}

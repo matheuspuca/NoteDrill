@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2, Plus, Pencil } from "lucide-react"
 import { planoDeFogoSchema, PlanoDeFogoSchema } from "@/lib/schemas-plano"
-import { createPlano } from "@/app/dashboard/plano-de-fogo/plano-actions"
+import { createPlano, updatePlano } from "@/app/dashboard/plano-de-fogo/plano-actions"
 import { useToast } from "@/components/ui/use-toast"
 
 import {
@@ -39,16 +39,22 @@ import {
 interface PlanoFormDialogProps {
     projects: { id: string; name: string }[]
     onSuccess?: () => void
+    initialData?: PlanoDeFogoSchema & { id: string }
+    trigger?: React.ReactNode
 }
 
-export function PlanoFormDialog({ projects, onSuccess }: PlanoFormDialogProps) {
+export function PlanoFormDialog({ projects, onSuccess, initialData, trigger }: PlanoFormDialogProps) {
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const { toast } = useToast()
 
     const form = useForm<PlanoDeFogoSchema>({
         resolver: zodResolver(planoDeFogoSchema),
-        defaultValues: {
+        defaultValues: initialData ? {
+            name: initialData.name,
+            projectId: initialData.projectId,
+            description: initialData.description || "",
+        } : {
             name: "",
             projectId: "",
             description: "",
@@ -58,27 +64,32 @@ export function PlanoFormDialog({ projects, onSuccess }: PlanoFormDialogProps) {
     async function onSubmit(data: PlanoDeFogoSchema) {
         setIsLoading(true)
         try {
-            const result = await createPlano(data)
+            const result = initialData
+                ? await updatePlano(initialData.id, data)
+                : await createPlano(data)
+
             if (result.error) {
                 toast({
                     variant: "destructive",
-                    title: "Erro ao criar plano",
+                    title: initialData ? "Erro ao atualizar plano" : "Erro ao criar plano",
                     description: result.error,
                 })
             } else {
                 toast({
                     title: "Sucesso!",
-                    description: "Plano de Fogo criado com sucesso.",
+                    description: initialData ? "Plano de Fogo atualizado com sucesso." : "Plano de Fogo criado com sucesso.",
                 })
                 setOpen(false)
-                form.reset()
+                if (!initialData) {
+                    form.reset()
+                }
                 onSuccess?.()
             }
         } catch (error) {
             toast({
                 variant: "destructive",
                 title: "Erro inesperado",
-                description: "Ocorreu um erro ao tentar criar o plano.",
+                description: "Ocorreu um erro ao processar sua solicitação.",
             })
         } finally {
             setIsLoading(false)
@@ -88,16 +99,22 @@ export function PlanoFormDialog({ projects, onSuccess }: PlanoFormDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2">
-                    <Plus className="w-5 h-5" />
-                    Novo Plano de Fogo
-                </Button>
+                {trigger || (
+                    <Button className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2 font-bold h-12">
+                        <Plus className="w-5 h-5" />
+                        Novo Plano de Fogo
+                    </Button>
+                )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] rounded-[32px] p-8 border-none ring-1 ring-slate-100 shadow-2xl">
                 <DialogHeader>
-                    <DialogTitle>Criar Plano de Fogo</DialogTitle>
-                    <DialogDescription>
-                        Preencha os dados abaixo para iniciar um novo plano de furação.
+                    <DialogTitle className="text-2xl font-bold text-slate-800">
+                        {initialData ? "Editar Plano de Fogo" : "Criar Plano de Fogo"}
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 font-medium pt-1">
+                        {initialData
+                            ? "Altere os dados abaixo para atualizar o plano."
+                            : "Preencha os dados abaixo para iniciar um novo plano de furação."}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -160,10 +177,10 @@ export function PlanoFormDialog({ projects, onSuccess }: PlanoFormDialogProps) {
                             )}
                         />
 
-                        <DialogFooter>
-                            <Button type="submit" disabled={isLoading} className="w-full">
+                        <DialogFooter className="pt-4">
+                            <Button type="submit" disabled={isLoading} className="w-full bg-orange-600 hover:bg-orange-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-orange-200">
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Criar Plano
+                                {initialData ? "Salvar Alterações" : "Criar Plano"}
                             </Button>
                         </DialogFooter>
                     </form>
