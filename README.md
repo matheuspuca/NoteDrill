@@ -4,6 +4,9 @@
 
 ![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-blue)
 ![Tech Stack](https://img.shields.io/badge/Stack-Next.js_|_Supabase_|_Tailwind-black)
+[![Deploy com Vercel](https://vercel.com/button)](https://notedrill.vercel.app/signup)
+
+### 🔗 **Link do Projeto:** [https://notedrill.vercel.app/signup](https://notedrill.vercel.app/signup)
 
 ---
 
@@ -43,26 +46,14 @@ Sistema robusto de controle de acesso baseado em assinaturas (SaaS):
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
-
-O projeto foi construído utilizando as tecnologias mais modernas do mercado para garantir performance, escalabilidade e segurança.
-
-*   **Frontend:** [Next.js 14](https://nextjs.org/) (App Router), [React 18](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
-*   **Estilização:** [Tailwind CSS](https://tailwindcss.com/), [Shadcn/ui](https://ui.shadcn.com/)
-*   **Backend & Banco de Dados:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Realtime, Storage, Edge Functions)
-*   **Pagamentos:** [Stripe](https://stripe.com/)
-*   **Gráficos:** [Recharts](https://recharts.org/)
-*   **Relatórios:** [jsPDF](https://github.com/parallax/jsPDF)
-
----
-
 ## ⚙️ Instalação e Configuração
 
 Siga os passos abaixo para rodar o projeto localmente:
 
 ### 1. Pré-requisitos
 *   Node.js 18+ instalado.
-*   Conta no Supabase e Stripe.
+*   Conta no Supabase (configurada).
+*   Conta no Stripe (opcional para simular pagamentos).
 
 ### 2. Clonar o Repositório
 ```bash
@@ -76,19 +67,32 @@ npm install
 ```
 
 ### 4. Configurar Variáveis de Ambiente
-Crie um arquivo `.env.local` na raiz do projeto e preencha com suas credenciais:
+Crie um arquivo `.env.local` na raiz do projeto e preencha com as chaves corretas.
+**Exemplo completo:**
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=sua_url_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima
-SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima-publica
+SUPABASE_SERVICE_ROLE_KEY=sua-chave-secreta-service-role (Para admin/scripts)
+
+# App URL (Localhost para desenvolvimento)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-# Adicione chaves do Stripe se necessário
+
+# Opcional (Integrações)
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
-### 5. Configurar Banco de Dados
-Execute os scripts SQL localizados na raiz do projeto no Editor SQL do Supabase para criar as tabelas e políticas de segurança necessárias.
-*   Recomendado: Comece pelos scripts de `setup` e depois aplique os `fixes` mais recentes, como `add_subscription_limits.sql`.
+### 5. Configurar Banco de Dados (Supabase)
+O projeto contém scripts SQL na raiz para criar a estrutura necessária. No dashboard do Supabase, vá em **SQL Editor** e execute-os na seguinte ordem (recomendada):
+
+1.  **Estrutura Base:** Execute o conteúdo de `setup.sql` (ou equivalente `_setup.sql` dos módulos).
+2.  **Correções e Updates:** É crucial rodar os scripts de correção mais recentes.
+    *   `fix_settings_schema.sql` (Configurações gerais)
+    *   `fix_profiles_schema.sql` (Perfis de usuário)
+    *   `add_subscription_limits.sql` (Adiciona colunas de limites Basic/Pro/Enterprise)
+3.  **Permissões (RLS):** Garanta que as políticas de segurança estejam ativas rodando `fix_permissions_final.sql` ou `grant_full_access.sql` caso encontre erros de permissão.
 
 ### 6. Rodar o Projeto
 ```bash
@@ -98,20 +102,36 @@ Acesse `http://localhost:3000` no seu navegador.
 
 ---
 
-## 📂 Estrutura do Projeto
+## 🗺️ Rotas e Endpoints
 
-*   `/app`: Páginas e rotas da aplicação (Next.js App Router).
-*   `/components`: Componentes reutilizáveis da interface (Botões, Cards, Gráficos).
-*   `/lib`: Funções utilitárias, clientes do Supabase e definições de Schema (Zod).
-*   `/scripts`: Scripts de migração e manutenção do banco de dados.
-*   `/public`: Arquivos estáticos (imagens, ícones).
+O projeto utiliza o **App Router** do Next.js. Abaixo estão as principais rotas da aplicação:
+
+### Páginas (Frontend)
+| Rota | Descrição | Acesso |
+| :--- | :--- | :--- |
+| `/login` | Tela de login/cadastro | Público |
+| `/dashboard` | Visão geral e KPIs | Gestor/Supervisor |
+| `/dashboard/bdp` | Lista e lançamento de BDPs | **Todos** (Principal para Operadores) |
+| `/dashboard/projects` | Gestão de Obras | Gestor/Supervisor |
+| `/dashboard/equipments` | Frota e Manutenção | Gestor/Supervisor |
+| `/dashboard/team` | Gestão de Equipe e EPIs | Gestor/Supervisor |
+| `/dashboard/settings` | Configurações do Sistema | Gestor |
+| `/pricing` | Planos e Assinaturas | Público/Gestor |
+
+### API (Server Actions & Route Handlers)
+A lógica de backend está concentrada principalmente em **Server Actions** (`actions.ts` dentro de cada módulo), mas existem endpoints dedicados:
+*   `/api/webhooks/stripe`: Recebe eventos de pagamento do Stripe.
+*   `/api/cron/process-bdp`: (Exemplo) Processamento agendado de relatórios.
 
 ---
 
-## 🛡️ Segurança e Privacidade
+## 🛠️ Tecnologias Utilizadas
 
-*   **RLS (Row Level Security):** Todos os dados são protegidos a nível de banco de dados. Usuários só acessam dados permitidos para sua organização e função.
-*   **Middleware:** Proteção de rotas no Next.js para impedir acesso não autorizado a páginas administrativas.
+*   **Frontend:** [Next.js 14](https://nextjs.org/) (App Router), [React 18](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
+*   **Estilização:** [Tailwind CSS](https://tailwindcss.com/), [Shadcn/ui](https://ui.shadcn.com/)
+*   **Backend & Banco de Dados:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Realtime, Storage, Edge Functions)
+*   **Pagamentos:** [Stripe](https://stripe.com/)
+*   **Relatórios:** [jsPDF](https://github.com/parallax/jsPDF)
 
 ---
 
