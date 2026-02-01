@@ -7,13 +7,15 @@ export type SubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled'
 interface PlanLimits {
     maxEquipments: number
     maxProjects: number
+    maxSupervisors: number
+    maxOperators: number
 }
 
 // Limits Definition
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
-    basic: { maxEquipments: 1, maxProjects: 1 },
-    pro: { maxEquipments: 3, maxProjects: 3 },
-    enterprise: { maxEquipments: 9999, maxProjects: 9999 } // "Unlimited"
+    basic: { maxEquipments: 1, maxProjects: 1, maxSupervisors: 1, maxOperators: 1 },
+    pro: { maxEquipments: 3, maxProjects: 3, maxSupervisors: 1, maxOperators: 3 },
+    enterprise: { maxEquipments: 9999, maxProjects: 9999, maxSupervisors: 9999, maxOperators: 9999 } // "Unlimited"
 }
 
 // Default logic: 14 days trial = Equivalent to PRO features
@@ -31,6 +33,10 @@ export async function getUserSubscription(userId: string) {
     return sub
 }
 
+// ... existing imports ...
+
+// ... PLAN_LIMITS ...
+
 export async function checkUsageLimits(userId: string, resource: 'equipments' | 'projects') {
     const supabase = createClient()
 
@@ -46,9 +52,6 @@ export async function checkUsageLimits(userId: string, resource: 'equipments' | 
     const sub = await getUserSubscription(userId)
 
     // 3. Determine Effective Plan
-    // If no active sub but trial is valid -> "pro" (trial)
-    // If no active sub and trial expired -> "blocked" (or strict basic? Requirement says "trava", implying block or forced upgrade)
-
     let effectivePlan: PlanType | null = null
 
     if (sub) {
@@ -56,12 +59,19 @@ export async function checkUsageLimits(userId: string, resource: 'equipments' | 
     } else if (isTrialActive) {
         effectivePlan = 'pro' // Trial acts as Pro
     } else {
-        // Trial expired and no sub
         return { allowed: false, reason: "Trial expirado. Assine um plano para continuar.", block: true }
     }
 
-    // 4. Check Counts
-    const limit = PLAN_LIMITS[effectivePlan][resource === 'equipments' ? 'maxEquipments' : 'maxProjects']
+    // 4. Determine Dynamic Limits
+    let limit = PLAN_LIMITS[effectivePlan][resource === 'equipments' ? 'maxEquipments' : 'maxProjects']
+
+    // Override with DB values if available (Enterprise support) check
+    if (sub && resource === 'equipments' && (sub as any).max_equipment) {
+        limit = (sub as any).max_equipment
+    }
+    if (sub && resource === 'projects' && (sub as any).max_projects) {
+        limit = (sub as any).max_projects
+    }
 
     const table = resource === 'equipments' ? 'equipment' : 'projects'
     const { count } = await supabase
@@ -81,6 +91,68 @@ export async function checkUsageLimits(userId: string, resource: 'equipments' | 
     }
 
     return { allowed: true, plan: effectivePlan, isTrial: !sub && isTrialActive }
+}
+
+export async function checkTeamLimits(ownerId: string, roleToAdd: 'supervisor' | 'operator') {
+    const supabase = createClient()
+
+    // 1. Get Subscription/Plan
+    const sub = await getUserSubscription(ownerId)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { allowed: false, reason: "No user" }
+
+    const createdAt = new Date(user.created_at)
+    const isTrialActive = isBefore(new Date(), addDays(createdAt, TRIAL_DAYS))
+
+    let effectivePlan: PlanType = 'basic'
+    if (sub) {
+        effectivePlan = sub.plan_type as PlanType
+    } else if (isTrialActive) {
+        effectivePlan = 'pro'
+    } else {
+        return { allowed: false, reason: "Trial expired" }
+    }
+
+    // 2. Determine Limit
+    let limit = PLAN_LIMITS[effectivePlan][roleToAdd === 'supervisor' ? 'maxSupervisors' : 'maxOperators']
+
+    // Override from DB
+    if (sub) {
+        if (roleToAdd === 'supervisor' && (sub as any).max_supervisors) limit = (sub as any).max_supervisors
+        if (roleToAdd === 'operator' && (sub as any).max_operators) limit = (sub as any).max_operators
+    }
+
+    // 3. Count Current Usage
+    // Get all team members linked to this owner
+    const { data: teamMembers } = await supabase
+        .from('team_members')
+        .select('linked_user_id')
+        .eq('user_id', ownerId)
+        .not('linked_user_id', 'is', null)
+
+    if (!teamMembers || teamMembers.length === 0) {
+        return { allowed: true } // No linked users, safe to add
+    }
+
+    const linkedUserIds = teamMembers.map(tm => tm.linked_user_id)
+
+    // Count profiles with target role in this list
+    const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .in('id', linkedUserIds)
+        .eq('role', roleToAdd)
+
+    const currentUsage = count || 0
+
+    if (currentUsage >= limit) {
+        return {
+            allowed: false,
+            reason: `Limite de ${roleToAdd}s atingido (${currentUsage}/${limit}) no plano ${effectivePlan}.`
+        }
+    }
+
+    return { allowed: true }
 }
 
 export async function getSubscriptionStatus(userId: string) {

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { teamMemberSchema, TeamMemberSchema } from "@/lib/schemas-team"
+import { checkTeamLimits } from "@/lib/subscription-utils"
 
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 
@@ -38,6 +39,12 @@ export async function createTeamMember(data: TeamMemberSchema) {
     // Invite System User if requested
     if (validated.createSystemUser && validated.email) {
         console.log("--> Starting System User Invite for:", validated.email)
+
+        const limitCheck = await checkTeamLimits(user.id, validated.systemRole as 'supervisor' | 'operator')
+        if (!limitCheck.allowed) {
+            console.error("Limit Reached:", limitCheck.reason)
+            return { error: limitCheck.reason }
+        }
 
         // Call Edge Function
         const { data: inviteData, error: inviteError } = await supabase.functions.invoke('invite-team-member', {

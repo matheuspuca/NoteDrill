@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { projectSchema, ProjectSchema } from "@/lib/schemas-project"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { checkUsageLimits } from "@/lib/subscription-utils"
 
 export async function createProject(data: ProjectSchema) {
     const supabase = createClient()
@@ -11,6 +12,11 @@ export async function createProject(data: ProjectSchema) {
 
     if (!user) {
         throw new Error("Usuário não autenticado")
+    }
+
+    const limitCheck = await checkUsageLimits(user.id, 'projects')
+    if (!limitCheck.allowed) {
+        return { error: limitCheck.reason }
     }
 
     const result = projectSchema.safeParse(data)

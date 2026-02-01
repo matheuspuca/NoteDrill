@@ -54,7 +54,31 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user && request.nextUrl.pathname.startsWith('/dashboard')) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+
+        if (profile?.role === 'operator') {
+            const path = request.nextUrl.pathname
+            // Allow BDP and Settings - Block everything else
+            const allowedPaths = ['/dashboard/bdp', '/dashboard/settings', '/dashboard/profile']
+            const isAllowed = allowedPaths.some(p => path.startsWith(p))
+
+            if (!isAllowed) {
+                const redirectUrl = new URL('/dashboard/bdp', request.url)
+                const redirectResponse = NextResponse.redirect(redirectUrl)
+
+                // Copy cookies/headers set by Supabase auth (token refresh)
+                const setCookie = response.headers.get('set-cookie')
+                if (setCookie) {
+                    redirectResponse.headers.set('set-cookie', setCookie)
+                }
+
+                return redirectResponse
+            }
+        }
+    }
 
     return response
 }

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { equipmentSchema, EquipmentSchema } from "@/lib/schemas-equipment"
+import { checkUsageLimits } from "@/lib/subscription-utils"
 
 export async function createEquipment(data: EquipmentSchema) {
     try {
@@ -11,6 +12,11 @@ export async function createEquipment(data: EquipmentSchema) {
 
         if (!user) {
             return { error: "Usuário não autenticado" }
+        }
+
+        const limitCheck = await checkUsageLimits(user.id, 'equipments')
+        if (!limitCheck.allowed) {
+            return { error: limitCheck.reason }
         }
 
         const parsed = equipmentSchema.safeParse(data)
